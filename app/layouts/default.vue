@@ -7,6 +7,22 @@ const items: NavigationMenuItem[][] = [[
   to: '/'
 }, 
 {
+  label: 'Organa',
+  icon: 'mdi:robot',
+  to: '/organa',
+  children: 
+  [
+    {
+      label: 'AI Mentor',
+      to: '/organa'
+    },
+    {
+      label: 'Chat',
+      to: '/organa/chat'
+    }, 
+  ]
+}, 
+{
   label: 'Bio',
   icon: 'mdi:badge-account-horizontal-outline',
   to: '/bio'
@@ -18,13 +34,22 @@ const items: NavigationMenuItem[][] = [[
 }, 
 {
   label: 'Contacts',
-  icon: 'i-lucide-users'
-}, 
-{
-  label: 'Chat',
-  icon: 'i-lucide-message-circle',
-  badge: '4',
-  to: '/chat'
+  icon: 'i-lucide-users',
+  to: '/contacts',
+  children: 
+  [
+    {
+      label: 'Contact List',
+      to: '/contacts',
+      icon: 'mdi:account-group',
+    },
+    {
+      label: 'Chat',
+      badge: '4',
+      to: '/contacts/chat',
+      icon: 'i-lucide-message-circle',
+    }, 
+  ]
 }, 
 {
   label: 'Modules',
@@ -35,32 +60,32 @@ const items: NavigationMenuItem[][] = [[
     {
       label: 'PMS',
       icon: 'mdi:compass-outline',
-      to: '/pms'
+      to: '/modules/pms'
     }, 
     {
       label: 'ERD',
       icon: 'mdi:drawing-box',
-      to: '/erd'
+      to: '/modules/erd'
     }, 
     {
       label: 'CRM',
       icon: 'mdi:handshake',
-      to: '/crm'
+      to: '/modules/crm'
     }, 
     {
       label: 'PLM',
       icon: 'mdi:recycle',
-      to: '/plm'
+      to: '/modules/plm'
     }, 
     {
       label: 'IMS',
       icon: 'mdi:warehouse',
-      to: '/ims'
+      to: '/modules/ims'
     }, 
     {
       label: 'ERP',
       icon: 'mdi:clipboard-flow-outline',
-      to: '/erp'
+      to: '/modules/erp'
     }, 
   ]
 },
