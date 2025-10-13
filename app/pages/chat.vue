@@ -2,9 +2,6 @@
 import { Chat } from '@ai-sdk/vue'
 import type { UIMessage } from 'ai'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
-definePageMeta({
-    layout: 'dashboard'
-})
 const input = ref('')
 const messages: UIMessage[] = [
   {
