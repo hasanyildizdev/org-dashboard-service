@@ -18,7 +18,6 @@
                 <UDashboardSidebarCollapse variant="subtle" />
             </template>
         </UDashboardNavbar>
-        <UDashboardSearch />
       </template>
       <template #body>
           <UContainer class="p-6">

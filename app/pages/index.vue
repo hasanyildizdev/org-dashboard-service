@@ -68,7 +68,6 @@ const tabs_items: TabsItem[] = [
                 <UTabs :items="tabs_items" default-value="all" size="sm" class="w-40" :content="false" />
             </template>
         </UDashboardNavbar>
-        <UDashboardSearch />
       </template>
       <template #body>
           <UDashboardToolbar>

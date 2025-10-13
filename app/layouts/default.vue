@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui'
+import type { NavigationMenuItem, CommandPaletteGroup, CommandPaletteItem } from '@nuxt/ui'
 const items: NavigationMenuItem[][] = [[
 {
   label: 'Home',
@@ -94,6 +94,18 @@ const items: NavigationMenuItem[][] = [[
   target: '_blank'
 }]
 ]
+const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
+  {
+    id: 'main-navigation',
+    // Optional: Add title: 'Main Navigation' for grouped display in the palette
+    items: items[0] as CommandPaletteItem[]
+  },
+  {
+    id: 'quick-actions',
+    // Optional: Add title: 'Quick Actions' for grouped display in the palette
+    items: items[1] as CommandPaletteItem[]
+  }
+]
 </script>
 
 <template>
@@ -117,34 +129,20 @@ const items: NavigationMenuItem[][] = [[
         </template>
 
         <template #default="{ collapsed }">
-        <UButton
-            :label="collapsed ? undefined : 'Search...'"
-            icon="i-lucide-search"
-            color="neutral"
-            variant="outline"
-            block
-            :square="collapsed"
-        >
-            <template v-if="!collapsed" #trailing>
-            <div class="flex items-center gap-0.5 ms-auto">
-                <UKbd value="meta" variant="subtle" />
-                <UKbd value="K" variant="subtle" />
-            </div>
-            </template>
-        </UButton>
+          <UDashboardSearchButton />
 
-        <UNavigationMenu
-            :collapsed="collapsed"
-            :items="items[0]"
-            orientation="vertical"
-        />
+          <UNavigationMenu
+              :collapsed="collapsed"
+              :items="items[0]"
+              orientation="vertical"
+          />
 
-        <UNavigationMenu
-            :collapsed="collapsed"
-            :items="items[1]"
-            orientation="vertical"
-            class="mt-auto"
-        />
+          <UNavigationMenu
+              :collapsed="collapsed"
+              :items="items[1]"
+              orientation="vertical"
+              class="mt-auto"
+          />
         </template>
 
         <template #footer="{ collapsed }">
@@ -161,6 +159,8 @@ const items: NavigationMenuItem[][] = [[
         </template>
     </UDashboardSidebar>
 
+    <UDashboardSearch :groups="groups"/>
+    
     <slot />
     
   </UDashboardGroup>
