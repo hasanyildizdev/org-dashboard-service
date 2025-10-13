@@ -97,12 +97,10 @@ const items: NavigationMenuItem[][] = [[
 const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
   {
     id: 'main-navigation',
-    // Optional: Add title: 'Main Navigation' for grouped display in the palette
     items: items[0] as CommandPaletteItem[]
   },
   {
     id: 'quick-actions',
-    // Optional: Add title: 'Quick Actions' for grouped display in the palette
     items: items[1] as CommandPaletteItem[]
   }
 ]
@@ -159,7 +157,15 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
         </template>
     </UDashboardSidebar>
 
-    <UDashboardSearch :groups="groups"/>
+    <UDashboardSearch 
+      :groups="groups"
+      :fuse="{ 
+        fuseOptions: { 
+          keys: ['label', 'children.label'],
+          threshold: 0.4
+        },
+        resultLimit: 42
+      }"/>
     
     <slot />
     
