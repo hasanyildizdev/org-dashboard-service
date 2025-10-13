@@ -5,8 +5,6 @@
     :root {
         --color-primary: #0a66c2;
     }
-
-    /* Dark Mode */
     .dark {
         --color-primary: #1E90FF;
     }

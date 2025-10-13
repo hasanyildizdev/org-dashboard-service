@@ -1,23 +1,33 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
-import type { TabsItem } from '@nuxt/ui'
-const items: NavigationMenuItem[][] = [[{
+const items: NavigationMenuItem[][] = [[
+{
   label: 'Home',
   icon: 'i-lucide-house',
-  active: true
-}, {
+  to: '/'
+}, 
+{
+  label: 'Chat',
+  icon: 'i-lucide-message-circle',
+  badge: '4',
+  to: '/chat'
+}, 
+{
   label: 'Inbox',
   icon: 'i-lucide-inbox',
   badge: '4'
-}, {
+}, 
+{
   label: 'Contacts',
   icon: 'i-lucide-users'
-}, {
+}, 
+{
   label: 'Settings',
   icon: 'i-lucide-settings',
   defaultOpen: true,
   children: [{
-    label: 'General'
+    label: 'General',
+    to: '/settings/general'
   }, {
     label: 'Members'
   }, {
@@ -34,16 +44,6 @@ const items: NavigationMenuItem[][] = [[{
   to: '/',
   target: '_blank'
 }]]
-const tabs_items: TabsItem[] = [
-  {
-    label: 'All',
-    value: 'all'
-  },
-  {
-    label: 'Unread',
-    value: 'unread'
-  }
-]
 </script>
 
 <template>
@@ -110,34 +110,8 @@ const tabs_items: TabsItem[] = [
         />
         </template>
     </UDashboardSidebar>
-    <UDashboardPanel>
-      <template #header>
-        <UDashboardNavbar title="Dashboard">
-            <template #leading>
-                <UDashboardSidebarCollapse variant="subtle" />
-            </template>
-            <template #trailing>
-                <UBadge label="New" variant="subtle" />
-            </template>
-            <template #right>
-                <UColorModeSwitch color="neutral"/>
-                <UTabs :items="tabs_items" default-value="all" size="sm" class="w-40" :content="false" />
-            </template>
-        </UDashboardNavbar>
-        <UDashboardSearch />
-        <slot />
-      </template>
-    </UDashboardPanel>
-    <!-- <UDashboardSidebar resizable>
-      <template #resize-handle="{ onMouseDown, onTouchStart, onDoubleClick }">
-        <UDashboardResizeHandle
-          class="after:absolute after:inset-y-0 after:right-0 after:w-px hover:after:bg-(--ui-border-accented) after:transition"
-          @mousedown="onMouseDown"
-          @touchstart="onTouchStart"
-          @dblclick="onDoubleClick"
-        />
-      </template>
-        <UDashboardSearchButton />
-    </UDashboardSidebar> -->
+
+    <slot />
+    
   </UDashboardGroup>
 </template>
