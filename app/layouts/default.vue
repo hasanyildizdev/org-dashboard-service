@@ -25,7 +25,34 @@ const items: NavigationMenuItem[][] = [[
 {
   label: 'Bio',
   icon: 'mdi:badge-account-horizontal-outline',
-  to: '/bio'
+  to: '/bio',
+  children: [
+    {
+      label: 'Profile',
+      to: '/bio/profile',
+      icon: 'mdi:account'
+    },
+    {
+      label: 'Education',
+      to: '/bio/education',
+      icon: 'mdi:book-education'
+    },
+    {
+      label: 'Experience',
+      to: '/bio/experience',
+      icon: 'mdi:briefcase'
+    },
+    {
+      label: 'Skills',
+      to: '/bio/skills',
+      icon: 'mdi:badge-account-horizontal-outline'
+    },
+    {
+      label: 'Courses',
+      to: '/bio/courses',
+      icon: 'mdi:book-open'
+    }
+  ]
 }, 
 {
   label: 'Map',
@@ -166,6 +193,7 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
         </template>
 
         <template #footer="{ collapsed }">
+        <ULink to="/bio/profile">
         <UButton
             :avatar="{
             src: 'https://github.com/benjamincanac.png'
@@ -176,6 +204,7 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
             class="w-full"
             :block="collapsed"
         />
+        </ULink>
         </template>
     </UDashboardSidebar>
 
