@@ -152,7 +152,7 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
         </template>
 
         <template #default="{ collapsed }">
-          <UDashboardSearchButton />
+          <UDashboardSearchButton v-if="!collapsed"/>
 
           <UNavigationMenu
               :collapsed="collapsed"
@@ -191,7 +191,7 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
         },
         resultLimit: 42
       }"/>
-    
+
     <slot />
     
   </UDashboardGroup>
