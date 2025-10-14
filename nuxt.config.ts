@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   app: {
+    baseURL: '/dashboard',
     head: {
       title: 'Ourganize - Dashboard',
       meta: meta,
