@@ -9,10 +9,6 @@ const items: NavigationMenuItem[][] = [
       active: true
     },
     {
-      label: 'Members',
-      icon: 'i-lucide-users'
-    },
-    {
       label: 'Notifications',
       icon: 'i-lucide-bell'
     }

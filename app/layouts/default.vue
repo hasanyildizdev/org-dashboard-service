@@ -100,9 +100,6 @@ const items: NavigationMenuItem[][] = [[
       to: '/settings/general'
     },
     {
-      label: 'Members'
-    },
-    {
       label: 'Notifications'
     }
   ]
@@ -173,7 +170,7 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
             :avatar="{
             src: 'https://github.com/benjamincanac.png'
             }"
-            :label="collapsed ? undefined : 'Benjamin'"
+            :label="collapsed ? undefined : 'Hasan Yıldız'"
             color="neutral"
             variant="ghost"
             class="w-full"
