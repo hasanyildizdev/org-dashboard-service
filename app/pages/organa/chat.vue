@@ -51,7 +51,7 @@ function handleSubmit(e: Event) {
 </script>
 
 <template>
-  <UDashboardPanel resizable>
+  <UDashboardPanel resizable :ui="{ body: 'p-0 sm:p-0' }">
     <template #resize-handle="{ onMouseDown, onTouchStart, onDoubleClick }">
       <UDashboardResizeHandle
         class="after:absolute after:inset-y-0 after:right-0 after:w-px hover:after:bg-(--ui-border-accented) after:transition"
