@@ -76,22 +76,26 @@ const items: NavigationMenuItem[][] = [[
         {
           label: 'CRM',
           icon: 'mdi:handshake',
-          to: '/modules/crm'
+          to: '/modules/crm',
+          badge: 'Paid🔒'
         }, 
         {
           label: 'PLM',
           icon: 'mdi:recycle',
-          to: '/modules/plm'
+          to: '/modules/plm',
+          badge: 'Paid 🔒'
         }, 
         {
           label: 'IMS',
           icon: 'mdi:warehouse',
-          to: '/modules/ims'
+          to: '/modules/ims',
+          badge: 'Paid 🔒'
         }, 
         {
           label: 'ERP',
           icon: 'mdi:clipboard-flow-outline',
-          to: '/modules/erp'
+          to: '/modules/erp',
+          badge: 'Paid 🔒'
         }, 
       ]
     }
