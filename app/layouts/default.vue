@@ -5,27 +5,10 @@ const items: NavigationMenuItem[][] = [[
   label: 'Home',
   icon: 'i-lucide-house',
   to: '/'
-}, 
-{
-  label: 'Organa',
-  icon: 'mdi:robot',
-  to: '/organa',
-  children: 
-  [
-    {
-      label: 'AI Mentor',
-      to: '/organa'
-    },
-    {
-      label: 'Chat',
-      to: '/organa/chat'
-    }, 
-  ]
-}, 
+},
 {
   label: 'Bio',
   icon: 'mdi:badge-account-horizontal-outline',
-  to: '/bio',
   children: [
     {
       label: 'Profile',
@@ -55,93 +38,97 @@ const items: NavigationMenuItem[][] = [[
   ]
 }, 
 {
-  label: 'Map',
-  icon: 'mdi:earth',
-  to: '/map'
-}, 
-{
-  label: 'Contacts',
-  icon: 'i-lucide-users',
-  to: '/contacts',
+  label: 'Organize',
+  icon: 'mdi:ship-wheel',
   children: 
   [
     {
-      label: 'Contact List',
-      to: '/contacts',
-      icon: 'mdi:account-group',
-    },
-    {
-      label: 'Chat',
-      badge: '4',
-      to: '/contacts/chat',
-      icon: 'i-lucide-message-circle',
-    }, 
-  ]
-}, 
-{
-  label: 'Modules',
-  icon: 'mdi:package-variant-closed-plus',
-  defaultOpen: true,
-  children: 
-  [
-    {
-      label: 'PMS',
-      icon: 'mdi:compass-outline',
-      to: '/modules/pms'
+      label: 'Organa',
+      icon: 'mdi:robot',
+      to: '/organa',
+      children: 
+      [
+        {
+          label: 'AI Mentor',
+          to: '/organa'
+        },
+        {
+          label: 'Chat',
+          to: '/organa/chat'
+        }, 
+      ]
     }, 
     {
-      label: 'ERD',
-      icon: 'mdi:drawing-box',
-      to: '/modules/erd'
-    }, 
-    {
-      label: 'CRM',
-      icon: 'mdi:handshake',
-      to: '/modules/crm'
-    }, 
-    {
-      label: 'PLM',
-      icon: 'mdi:recycle',
-      to: '/modules/plm'
-    }, 
-    {
-      label: 'IMS',
-      icon: 'mdi:warehouse',
-      to: '/modules/ims'
-    }, 
-    {
-      label: 'ERP',
-      icon: 'mdi:clipboard-flow-outline',
-      to: '/modules/erp'
-    }, 
+      label: 'Modules',
+      icon: 'mdi:package-variant-closed-plus',
+      children: 
+      [
+        {
+          label: 'PMS',
+          icon: 'mdi:compass-outline',
+          to: '/modules/pms'
+        }, 
+        {
+          label: 'ERD',
+          icon: 'mdi:drawing-box',
+          to: '/modules/erd'
+        }, 
+        {
+          label: 'CRM',
+          icon: 'mdi:handshake',
+          to: '/modules/crm'
+        }, 
+        {
+          label: 'PLM',
+          icon: 'mdi:recycle',
+          to: '/modules/plm'
+        }, 
+        {
+          label: 'IMS',
+          icon: 'mdi:warehouse',
+          to: '/modules/ims'
+        }, 
+        {
+          label: 'ERP',
+          icon: 'mdi:clipboard-flow-outline',
+          to: '/modules/erp'
+        }, 
+      ]
+    }
   ]
 },
 {
-  label: 'Settings',
-  icon: 'i-lucide-settings',
-  defaultOpen: false,
-  children: 
+  label: 'Map',
+  icon: 'mdi:earth',
+  children:
   [
     {
-      label: 'General',
-      to: '/settings/general'
+      label: 'Map',
+      to: '/map',
+      icon: 'mdi:map'
     },
     {
-      label: 'Notifications'
+      label: 'Contacts',
+      icon: 'i-lucide-users',
+      to: '/contacts',
+      children: 
+      [
+        {
+          label: 'Contact List',
+          to: '/contacts',
+          icon: 'mdi:account-group',
+        },
+        {
+          label: 'Chat',
+          badge: '4',
+          to: '/contacts/chat',
+          icon: 'i-lucide-message-circle',
+        }, 
+      ]
     }
   ]
-}],
-[{
-  label: 'Feedback',
-  icon: 'i-lucide-message-circle',
-  to: '/',
-  target: '_blank'
-}, {
-  label: 'Help & Support',
-  icon: 'i-lucide-info',
-  to: '/',
-  target: '_blank'
-}]
+},
+]
 ]
 const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
   {
@@ -158,8 +145,9 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
 <template>
   <UDashboardGroup>
     <UDashboardSidebar
-        collapsible
         resizable
+        collapsible
+        :max-size="16"
         :ui="{ footer: 'border-t border-default' }">
         <template #resize-handle="{ onMouseDown, onTouchStart, onDoubleClick }">
             <UDashboardResizeHandle
@@ -193,18 +181,29 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
         </template>
 
         <template #footer="{ collapsed }">
-        <ULink to="/bio/profile">
-        <UButton
-            :avatar="{
-            src: 'https://github.com/benjamincanac.png'
-            }"
-            :label="collapsed ? undefined : 'Hasan Yıldız'"
-            color="neutral"
-            variant="ghost"
-            class="w-full"
-            :block="collapsed"
-        />
-        </ULink>
+          <div class="w-full flex justify-between">
+            <div>
+              <ULink to="/bio/profile">
+              <UButton
+                  :avatar="{
+                  src: 'https://github.com/benjamincanac.png'
+                  }"
+                  :label="collapsed ? undefined : 'Hasan Yıldız'"
+                  color="neutral"
+                  variant="ghost"
+                  :block="collapsed"
+              />
+              </ULink>
+            </div>
+            <ULink v-if="!collapsed" to="/settings/general">
+              <UButton
+                  icon="i-lucide-settings"
+                  color="neutral"
+                  variant="ghost"
+                  :block="collapsed"
+              />
+            </ULink>
+          </div>
         </template>
     </UDashboardSidebar>
 

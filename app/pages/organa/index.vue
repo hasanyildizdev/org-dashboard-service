@@ -96,7 +96,7 @@ const benefits = [
     </template>
     
     <template #body>
-      <div class="min-h-full bg-gradient-to-br from-primary/5 via-transparent to-secondary/5">
+      <div class="min-h-full">
         <UContainer class="py-12 px-6 max-w-6xl">
           <!-- Hero Section -->
           <div class="text-center mb-16">
