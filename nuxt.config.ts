@@ -58,4 +58,15 @@ export default defineNuxtConfig({
     storageKey: 'ourganize-color-mode',
     classSuffix: '',
   },
+
+  typescript: {
+    typeCheck: false
+  },
+
+  runtimeConfig: {
+    public: {
+      graphqlEndpoint: process.env.GRAPHQL_ENDPOINT || 'http://localhost:8000/graphql',
+      websiteUrl: process.env.WEBSITE_URL || 'http://localhost:3000',
+    }
+  }
 })
