@@ -9,8 +9,13 @@ definePageMeta({
   middleware: 'guest'
 })
 
+import { useAuthStore } from '~/stores/auth'
+
+const authStore = useAuthStore()
+const router = useRouter()
 const toast = useToast()
 const loading = ref(false)
+
 const providers = [{
   label: 'Google',
   icon: 'i-simple-icons-google',
@@ -73,17 +78,35 @@ type Schema = z.output<typeof schema>
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   loading.value = true
+  
   try {
-    // TODO: Implement registration mutation when ready
-    toast.add({ 
-      title: 'Coming Soon', 
-      description: 'Registration functionality will be available soon',
-      color: 'primary'
+    const result = await authStore.register({
+      name: payload.data.name,
+      email: payload.data.email,
+      password: payload.data.password,
+      password_confirmation: payload.data.password_confirmation
     })
+
+    if (result.success) {
+      toast.add({ 
+        title: 'Success', 
+        description: 'Account created successfully! Welcome to Ourganize! 🎉',
+        color: 'success'
+      })
+      
+      // Redirect to profile page after successful registration
+      await router.push('/bio/profile')
+    } else {
+      toast.add({ 
+        title: 'Registration Failed', 
+        description: result.error || 'Unable to create account. Please try again.',
+        color: 'error'
+      })
+    }
   } catch (error: any) {
     toast.add({ 
       title: 'Error', 
-      description: error.message || 'Registration failed',
+      description: error.message || 'An unexpected error occurred',
       color: 'error'
     })
   } finally {
@@ -103,6 +126,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
                             :schema="schema"
                             :fields="fields"
                             :providers="providers"
+                            :loading="loading"
                             title="Create your account"
                             @submit="onSubmit">
                             <template #description>

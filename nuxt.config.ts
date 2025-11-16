@@ -23,13 +23,14 @@ export default defineNuxtConfig({
   },
 
   modules: [
+    '@nuxt/ui',
     '@nuxt/content',
     '@nuxt/eslint',
     '@nuxt/image',
     '@nuxt/scripts',
     '@nuxt/test-utils',
-    '@nuxt/ui',
-    '@nuxtjs/i18n'
+    '@nuxtjs/i18n',
+    '@pinia/nuxt'
   ],
 
   components: [

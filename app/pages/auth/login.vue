@@ -10,7 +10,9 @@ definePageMeta({
   middleware: 'guest'
 })
 
-const { login } = useAuth()
+import { useAuthStore } from '~/stores/auth'
+
+const authStore = useAuthStore()
 const router = useRouter()
 const toast = useToast()
 const loading = ref(false)
@@ -59,7 +61,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
   loading.value = true
   
   try {
-    const result = await login({
+    const result = await authStore.login({
       email: payload.data.email,
       password: payload.data.password,
       remember: payload.data.remember
@@ -68,24 +70,24 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
     if (result.success) {
       toast.add({ 
         title: 'Success', 
-        description: 'Login successful! Redirecting...',
-        color: 'green'
+        description: 'Welcome back! Redirecting to your profile...',
+        color: 'success'
       })
       
-      // Redirect to dashboard
-      await router.push('/dashboard')
+      // Redirect to profile page after successful login
+      await router.push('/bio/profile')
     } else {
       toast.add({ 
         title: 'Error', 
         description: result.error || 'Login failed',
-        color: 'red'
+        color: 'error'
       })
     }
   } catch (error: any) {
     toast.add({ 
       title: 'Error', 
       description: error.message || 'An unexpected error occurred',
-      color: 'red'
+      color: 'error'
     })
   } finally {
     loading.value = false

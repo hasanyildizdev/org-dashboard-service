@@ -1,8 +1,10 @@
-export default defineNuxtRouteMiddleware(() => {
-  const { isAuthenticated } = useAuth()
+import { useAuthStore } from '~/stores/auth'
 
+export default defineNuxtRouteMiddleware((to, from) => {
+  const authStore = useAuthStore()
+  
   // If authenticated and trying to access guest route (login, register)
-  if (isAuthenticated.value) {
-    return navigateTo('/dashboard')
+  if (authStore.isAuthenticated) {
+    return navigateTo('/')
   }
 })
