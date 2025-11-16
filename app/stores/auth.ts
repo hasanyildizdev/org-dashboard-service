@@ -6,6 +6,12 @@ export interface User {
   name: string
   email: string
   email_verified_at?: string
+  job_type_id?: string | null
+  job_type?: {
+    id: string
+    name: string
+    slug: string
+  } | null
   created_at: string
   updated_at: string
 }
@@ -182,6 +188,56 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async updateProfile(name: string, email: string) {
+      const { $graphql } = useNuxtApp()
+      
+      const UPDATE_PROFILE_MUTATION = gql`
+        mutation UpdateProfile($name: String!, $email: String!) {
+          updateProfile(name: $name, email: $email) {
+            id
+            name
+            email
+            email_verified_at
+            created_at
+            updated_at
+          }
+        }
+      `
+      
+      try {
+        const data = await $graphql.request<{ updateProfile: User }>(UPDATE_PROFILE_MUTATION, {
+          name,
+          email
+        })
+        
+        this.user = data.updateProfile
+        return { success: true, user: data.updateProfile }
+      } catch (error: any) {
+        console.error('Update profile error:', error)
+        
+        // Handle validation errors
+        const errors = error.response?.errors
+        if (errors && Array.isArray(errors)) {
+          const errorMessages = errors.map((err: any) => {
+            if (err.extensions?.validation) {
+              return Object.values(err.extensions.validation).flat().join(' ')
+            }
+            return err.message
+          }).join(' ')
+          
+          return {
+            success: false,
+            error: errorMessages
+          }
+        }
+        
+        return {
+          success: false,
+          error: error.response?.errors?.[0]?.message || 'Failed to update profile'
+        }
+      }
+    },
+
     async fetchUser() {
       const nuxtApp = useNuxtApp()
       const token = useCookie('auth_token')
@@ -208,6 +264,12 @@ export const useAuthStore = defineStore('auth', {
             name
             email
             email_verified_at
+            job_type_id
+            job_type {
+              id
+              name
+              slug
+            }
             created_at
             updated_at
           }

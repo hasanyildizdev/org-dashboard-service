@@ -5,8 +5,45 @@ definePageMeta({
   middleware: 'auth'
 })
 
+const jobTypes = ref<any[]>([])
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
+
+// Refresh user data when page loads to get latest info
+// Fetch job types on mount
+onMounted(async () => {
+})
+
+onMounted(async () => {
+    await fetchJobTypes()
+
+  console.log('🔄 Refreshing user data on profile page...')
+  await authStore.fetchUser()
+  console.log('✅ User data refreshed:', authStore.user)
+  console.log('✅ Job type:', authStore.user?.job_type)
+})
+async function fetchJobTypes() {
+    const { $graphql } = useNuxtApp()
+    
+    const JOB_TYPES_QUERY = `
+      query JobTypes {
+        jobTypes {
+          id
+          name
+          slug
+        }
+      }
+    `
+    
+    console.log('📡 Sending GraphQL query:', JOB_TYPES_QUERY)
+    const data = await $graphql.request(JOB_TYPES_QUERY)
+    console.log('✅ Job types response:', data)
+    console.log('✅ Job types array:', data.jobTypes)
+    console.log('✅ Number of job types:', data.jobTypes?.length)
+    
+    jobTypes.value = data.jobTypes
+    console.log('✅ jobTypes.value set to:', jobTypes.value)
+}
 </script>
 
 <template>
@@ -66,6 +103,11 @@ const user = computed(() => authStore.user)
                     </div>
                     
                     <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Job Type</p>
+                      <p class="font-medium mt-1">{{ jobTypes.find(jt => jt.id === user?.job_type_id)?.name || 'Not specified' }}</p>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <p class="text-sm text-gray-500 dark:text-gray-400">Account Created</p>
                       <p class="font-medium mt-1">{{ new Date(user?.created_at || '').toLocaleDateString() }}</p>
                     </div>
@@ -97,6 +139,7 @@ const user = computed(() => authStore.user)
                     variant="soft"
                     size="lg"
                     block
+                    to="/bio/edit"
                   />
                   
                   <UButton 
@@ -106,6 +149,7 @@ const user = computed(() => authStore.user)
                     variant="soft"
                     size="lg"
                     block
+                    to="/bio/settings"
                   />
                   
                   <UButton 
