@@ -7,11 +7,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const authStore = useAuthStore()
   const token = useCookie('auth_token')
   
-  console.log('🔐 Auth Middleware - Route:', to.path)
-  console.log('🔐 Token exists:', !!token.value)
-  console.log('🔐 Store initialized:', authStore.initialized)
-  console.log('🔐 Is authenticated:', authStore.isAuthenticated)
-  
   // If no token, redirect immediately
   if (!token.value) {
     console.log('❌ No token - redirecting to login')
@@ -29,6 +24,4 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     console.log('❌ Not authenticated after init - redirecting to login')
     return navigateTo('/auth/login')
   }
-  
-  console.log('✅ Auth check passed')
 })

@@ -16,6 +16,7 @@ const authStore = useAuthStore()
 const router = useRouter()
 const toast = useToast()
 const loading = ref(false)
+const formError = ref('')
 
 const providers = [{
   label: 'Google',
@@ -36,17 +37,20 @@ const fields: AuthFormField[] = [{
   type: 'email',
   label: 'Email',
   placeholder: 'Enter your email',
-  required: true
+  required: true,
+  size: 'xl'
 }, {
   name: 'password',
   label: 'Password',
   type: 'password',
   placeholder: 'Enter your password',
-  required: true
+  required: true,
+  size: 'xl'
 }, {
   name: 'remember',
   label: 'Remember me',
-  type: 'checkbox'
+  type: 'checkbox',
+  size: 'xl'
 }]
 
 const schema = z.object({
@@ -59,6 +63,7 @@ type Schema = z.output<typeof schema>
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   loading.value = true
+  formError.value = ''
   
   try {
     const result = await authStore.login({
@@ -77,18 +82,10 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       // Redirect to profile page after successful login
       await router.push('/bio/profile')
     } else {
-      toast.add({ 
-        title: 'Error', 
-        description: result.error || 'Login failed',
-        color: 'error'
-      })
+      formError.value = result.error || 'Login failed'
     }
   } catch (error: any) {
-    toast.add({ 
-      title: 'Error', 
-      description: error.message || 'An unexpected error occurred',
-      color: 'error'
-    })
+    formError.value = error.message || 'An unexpected error occurred'
   } finally {
     loading.value = false
   }
@@ -115,7 +112,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
                             <ULink to="/auth/forgot-password" class="text-primary font-medium" tabindex="-1">Forgot password?</ULink>
                             </template>
                             <template #validation>
-                                <UAlert color="error" icon="i-lucide-info" title="Error signing in" />
+                                <UAlert v-if="formError" color="error" icon="i-lucide-info" title="Error signing in" :description="formError" />
                             </template>
                             <template #footer>
                                 By signing in, you agree to our 

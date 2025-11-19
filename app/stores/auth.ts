@@ -1,40 +1,6 @@
 import { defineStore } from 'pinia'
 import { gql } from 'graphql-request'
-
-export interface User {
-  id: string
-  name: string
-  email: string
-  email_verified_at?: string
-  job_type_id?: string | null
-  job_type?: {
-    id: string
-    name: string
-    slug: string
-  } | null
-  created_at: string
-  updated_at: string
-}
-
-export interface AuthPayload {
-  access_token: string
-  token_type: string
-  expires_in: number
-  user: User
-}
-
-export interface LoginCredentials {
-  email: string
-  password: string
-  remember?: boolean
-}
-
-export interface RegisterCredentials {
-  name: string
-  email: string
-  password: string
-  password_confirmation: string
-}
+import type { User, AuthPayload, LoginCredentials, RegisterCredentials } from '~/types/core_types'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -279,13 +245,10 @@ export const useAuthStore = defineStore('auth', {
       try {
         this.loading = true
         this.fetchAttempts++
-        console.log(`🔄 Fetch attempt #${this.fetchAttempts}`)
-        
         const data = await $graphql.request<{ me: User }>(ME_QUERY)
         this.user = data.me
         this.initialized = true
         this.fetchAttempts = 0 // Reset on success
-        console.log('✅ User fetched successfully:', data.me.email)
         return data.me
       } catch (error: any) {
         console.error('❌ Fetch user error:', error)

@@ -5,10 +5,6 @@ export default defineNuxtPlugin({
   parallel: false,
   setup() {
     const config = useRuntimeConfig()
-    
-    console.log('📡 GraphQL plugin - initializing client...')
-    console.log('📡 Endpoint:', config.public.graphqlEndpoint)
-    
     const graphqlClient = new GraphQLClient(config.public.graphqlEndpoint as string, {
       headers: () => {
         const token = useCookie('auth_token').value
@@ -19,9 +15,6 @@ export default defineNuxtPlugin({
         return headers
       }
     })
-
-    console.log('✅ GraphQL client initialized')
-    
     return {
       provide: {
         graphql: graphqlClient

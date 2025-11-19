@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 import * as z from 'zod'
-import type { FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({
+  title: 'Edit Profile',
   middleware: 'auth'
 })
 
@@ -69,20 +69,13 @@ async function fetchJobTypes() {
       }
     `
     
-    console.log('📡 Sending GraphQL query:', JOB_TYPES_QUERY)
     const data = await $graphql.request(JOB_TYPES_QUERY)
-    console.log('✅ Job types response:', data)
-    console.log('✅ Job types array:', data.jobTypes)
-    console.log('✅ Number of job types:', data.jobTypes?.length)
-    
     jobTypes.value = data.jobTypes
-    console.log('✅ jobTypes.value set to:', jobTypes.value)
   } catch (error) {
     console.error('❌ Error fetching job types:', error)
     console.error('❌ Full error:', JSON.stringify(error, null, 2))
   } finally {
     loadingJobTypes.value = false
-    console.log('🏁 Finished fetching job types. Final value:', jobTypes.value)
   }
 }
 
@@ -334,6 +327,7 @@ async function deleteAccount() {
                       icon="i-lucide-info"
                       title="Note"
                       description="Changes to your email will require verification."
+                      class="mt-4"
                     />
                   </div>
 

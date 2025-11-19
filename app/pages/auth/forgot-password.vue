@@ -4,8 +4,9 @@ import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import AppLogo from '~/components/AppLogo.vue'
 
 definePageMeta({
+    title: 'Forgot Password',
     layout: 'auth',
-    title: 'Forgot Password'
+    middleware: 'guest'
 })
 
 const toast = useToast()

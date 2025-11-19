@@ -17,8 +17,6 @@ export default defineNuxtPlugin({
         console.log('⏭️ Skipping auth initialization - will happen on first navigation')
         return
       }
-      
-      console.log('🚀 Auth init plugin - fetching user...')
       await authStore.fetchUser()
     }
   }

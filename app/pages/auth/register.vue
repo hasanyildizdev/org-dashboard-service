@@ -15,6 +15,7 @@ const authStore = useAuthStore()
 const router = useRouter()
 const toast = useToast()
 const loading = ref(false)
+const formError = ref('')
 
 const providers = [{
   label: 'Google',
@@ -35,30 +36,29 @@ const fields: AuthFormField[] = [{
   type: 'text',
   label: 'Full Name',
   placeholder: 'Enter your full name',
-  required: true
+  required: true,
+  size: 'xl'
 }, {
   name: 'email',
   type: 'email',
   label: 'Email',
   placeholder: 'Enter your email',
-  required: true
+  required: true,
+  size: 'xl'
 }, {
   name: 'password',
   label: 'Password',
   type: 'password',
   placeholder: 'Create a password',
-  required: true
+  required: true,
+  size: 'xl'
 }, {
   name: 'password_confirmation',
   label: 'Confirm Password',
   type: 'password',
   placeholder: 'Confirm your password',
-  required: true
-}, {
-  name: 'acceptTerms',
-  label: 'I agree to the Terms of Service and Privacy Policy',
-  type: 'checkbox',
-  required: true
+  required: true,
+  size: 'xl'
 }]
 
 const schema = z.object({
@@ -66,9 +66,7 @@ const schema = z.object({
   email: z.string({ required_error: 'Email is required' }).email('Invalid email'),
   password: z.string({ required_error: 'Password is required' }).min(8, 'Password must be at least 8 characters')
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain at least one uppercase letter, one lowercase letter, and one number'),
-  password_confirmation: z.string({ required_error: 'Password confirmation is required' }),
-  acceptTerms: z.boolean({ required_error: 'You must accept the terms and conditions' })
-    .refine(val => val === true, 'You must accept the terms and conditions')
+  password_confirmation: z.string({ required_error: 'Password confirmation is required' })
 }).refine((data) => data.password === data.password_confirmation, {
   message: "Passwords don't match",
   path: ["password_confirmation"],
@@ -78,6 +76,7 @@ type Schema = z.output<typeof schema>
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   loading.value = true
+  formError.value = ''
   
   try {
     const result = await authStore.register({
@@ -97,18 +96,10 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       // Redirect to profile page after successful registration
       await router.push('/bio/profile')
     } else {
-      toast.add({ 
-        title: 'Registration Failed', 
-        description: result.error || 'Unable to create account. Please try again.',
-        color: 'error'
-      })
+      formError.value = result.error || 'Unable to create account. Please try again.'
     }
   } catch (error: any) {
-    toast.add({ 
-      title: 'Error', 
-      description: error.message || 'An unexpected error occurred',
-      color: 'error'
-    })
+    formError.value = error.message || 'An unexpected error occurred'
   } finally {
     loading.value = false
   }
@@ -133,7 +124,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
                                 Already have an account? <ULink to="/auth/login" class="text-primary font-medium">Sign in</ULink>.
                             </template>
                             <template #validation>
-                                <UAlert color="error" icon="i-lucide-info" title="Error creating account" />
+                                <UAlert v-if="formError" color="error" icon="i-lucide-info" :title="formError" />
                             </template>
                             <template #footer>
                                 <div class="text-sm text-center text-gray-600 dark:text-gray-400">

@@ -2,6 +2,7 @@
 import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({
+  title: 'Profile',
   middleware: 'auth'
 })
 
@@ -9,18 +10,9 @@ const jobTypes = ref<any[]>([])
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
 
-// Refresh user data when page loads to get latest info
-// Fetch job types on mount
 onMounted(async () => {
-})
-
-onMounted(async () => {
-    await fetchJobTypes()
-
-  console.log('🔄 Refreshing user data on profile page...')
+  await fetchJobTypes()
   await authStore.fetchUser()
-  console.log('✅ User data refreshed:', authStore.user)
-  console.log('✅ Job type:', authStore.user?.job_type)
 })
 async function fetchJobTypes() {
     const { $graphql } = useNuxtApp()
@@ -35,14 +27,8 @@ async function fetchJobTypes() {
       }
     `
     
-    console.log('📡 Sending GraphQL query:', JOB_TYPES_QUERY)
     const data = await $graphql.request(JOB_TYPES_QUERY)
-    console.log('✅ Job types response:', data)
-    console.log('✅ Job types array:', data.jobTypes)
-    console.log('✅ Number of job types:', data.jobTypes?.length)
-    
     jobTypes.value = data.jobTypes
-    console.log('✅ jobTypes.value set to:', jobTypes.value)
 }
 </script>
 
