@@ -10,25 +10,32 @@ definePageMeta({
 })
 
 import { useAuthStore } from '~/stores/auth'
+import { useSocialAuth } from '~/composables/useSocialAuth'
 
 const authStore = useAuthStore()
 const router = useRouter()
 const toast = useToast()
 const loading = ref(false)
 const formError = ref('')
+const { loginWithGoogle, loginWithGithub } = useSocialAuth()
+
+// Handle error from social auth redirect
+onMounted(() => {
+  const route = useRoute()
+  const error = route.query.error as string
+  if (error) {
+    formError.value = error
+  }
+})
 
 const providers = [{
   label: 'Google',
   icon: 'i-simple-icons-google',
-  onClick: () => {
-    toast.add({ title: 'Google', description: 'Sign up with Google' })
-  }
+  onClick: loginWithGoogle
 }, {
   label: 'GitHub',
   icon: 'i-simple-icons-github',
-  onClick: () => {
-    toast.add({ title: 'GitHub', description: 'Sign up with GitHub' })
-  }
+  onClick: loginWithGithub
 }]
 
 const fields: AuthFormField[] = [{

@@ -34,6 +34,7 @@ export const useAuthStore = defineStore('auth', {
               name
               email
               email_verified_at
+              avatar
               created_at
               updated_at
             }
@@ -81,6 +82,7 @@ export const useAuthStore = defineStore('auth', {
               name
               email
               email_verified_at
+              avatar
               created_at
               updated_at
             }
@@ -164,6 +166,7 @@ export const useAuthStore = defineStore('auth', {
             name
             email
             email_verified_at
+            avatar
             created_at
             updated_at
           }
@@ -230,6 +233,7 @@ export const useAuthStore = defineStore('auth', {
             name
             email
             email_verified_at
+            avatar
             job_type_id
             job_type {
               id

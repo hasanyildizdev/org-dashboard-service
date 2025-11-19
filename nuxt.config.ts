@@ -67,6 +67,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       graphqlEndpoint: process.env.GRAPHQL_ENDPOINT || 'http://localhost:8000/graphql',
+      apiUrl: process.env.API_URL || 'http://localhost:8000',
       websiteUrl: process.env.WEBSITE_URL || 'http://localhost:3000',
     }
   }
