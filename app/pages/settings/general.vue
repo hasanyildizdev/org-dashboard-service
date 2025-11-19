@@ -1,4 +1,10 @@
 <script setup lang="ts">
+
+definePageMeta({
+  title: 'Settings',
+  middleware: 'auth'
+})
+
 const colorMode = useColorMode()
 const { locale, locales } = useI18n()
 

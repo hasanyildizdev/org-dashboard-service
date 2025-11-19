@@ -3,6 +3,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import type { TabsItem } from '@nuxt/ui'
 
 definePageMeta({
+  title: 'Dashboard',
   middleware: 'auth'
 })
 

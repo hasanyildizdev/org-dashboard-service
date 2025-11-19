@@ -3,6 +3,11 @@ import { Chat } from '@ai-sdk/vue'
 import type { UIMessage } from 'ai'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 
+definePageMeta({
+  title: 'Chat',
+  middleware: 'auth'
+})
+
 interface Contact {
   id: number
   name: string

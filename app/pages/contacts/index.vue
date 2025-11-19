@@ -1,17 +1,10 @@
 <script setup lang="ts">
-interface Contact {
-  id: number
-  name: string
-  email: string
-  phone: string
-  avatar: string
-  company: string
-  position: string
-  status: 'online' | 'offline' | 'away'
-  lastSeen: string
-  unreadMessages: number
-  tags: string[]
-}
+import type { Contact } from '@/types/core_types'
+
+definePageMeta({
+  title: 'Contacts',
+  middleware: 'auth'
+})
 
 const contacts: Contact[] = [
   {

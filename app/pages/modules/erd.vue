@@ -1,5 +1,8 @@
 <script setup lang="ts">
-
+definePageMeta({
+  title: 'ERD',
+  middleware: 'auth'
+})
 </script>
 
 <template>

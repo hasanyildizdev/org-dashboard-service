@@ -1,5 +1,8 @@
 <script setup lang="ts">
-
+definePageMeta({
+  title: 'PMS',
+  middleware: 'auth'
+})
 </script>
 
 <template>

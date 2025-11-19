@@ -1,5 +1,8 @@
 <script setup lang="ts">
-
+definePageMeta({
+  title: 'Experience',
+  middleware: 'auth'
+})
 </script>
 
 <template>

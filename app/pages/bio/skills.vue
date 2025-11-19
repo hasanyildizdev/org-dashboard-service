@@ -1,5 +1,8 @@
 <script setup lang="ts">
-
+definePageMeta({
+  title: 'Skills',
+  middleware: 'auth'
+})
 </script>
 
 <template>

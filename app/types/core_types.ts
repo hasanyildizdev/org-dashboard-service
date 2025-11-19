@@ -49,3 +49,17 @@ export interface RegisterCredentials {
   password: string
   password_confirmation: string
 }
+
+export interface Contact {
+  id: number
+  name: string
+  email: string
+  phone: string
+  avatar: string
+  company: string
+  position: string
+  status: 'online' | 'offline' | 'away'
+  lastSeen: string
+  unreadMessages: number
+  tags: string[]
+}

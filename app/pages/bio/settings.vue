@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 import * as z from 'zod'
-import type { FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({
+  title: 'Settings',
   middleware: 'auth'
 })
 

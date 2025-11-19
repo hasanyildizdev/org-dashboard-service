@@ -3,6 +3,12 @@ import { Chat } from '@ai-sdk/vue'
 import type { UIMessage } from 'ai'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 
+definePageMeta({
+  title: 'Organa Chat',
+  middleware: 'auth'
+})
+
+
 const input = ref('')
 const messages: UIMessage[] = [
   {

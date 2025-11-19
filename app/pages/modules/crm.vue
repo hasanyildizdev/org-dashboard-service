@@ -1,5 +1,8 @@
 <script setup lang="ts">
-
+definePageMeta({
+  title: 'CRM',
+  middleware: 'auth'
+})
 </script>
 
 <template>
