@@ -75,7 +75,7 @@ const tabs_items: TabsItem[] = [
             <UNavigationMenu :items="items" highlight class="flex-1" />
           </UDashboardToolbar>
           <UContainer class="p-6">
-            <p class="text-2xl text-primary">Hello World</p>
+            <p class="text-2xl text-primary">{{ $t('Welcome to Ourganize') }}</p>
           </UContainer>
       </template>
   </UDashboardPanel>
