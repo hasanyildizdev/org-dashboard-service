@@ -24,4 +24,14 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     console.log('❌ Not authenticated after init - redirecting to login')
     return navigateTo('/auth/login')
   }
+
+  // Check if email is verified
+  if (!authStore.isEmailVerified) {
+    console.log('⚠️ Email not verified, redirecting to verification page')
+    // Don't redirect if already on verification pages
+    if (to.path === '/auth/verify-email' || to.path === '/auth/email-verified') {
+      return
+    }
+    return navigateTo('/auth/verify-email')
+  }
 })

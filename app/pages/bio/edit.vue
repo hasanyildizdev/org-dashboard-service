@@ -4,7 +4,7 @@ import * as z from 'zod'
 
 definePageMeta({
   title: 'Edit Profile',
-  middleware: ['auth', 'verified']
+  middleware: ['auth']
 })
 
 const authStore = useAuthStore()

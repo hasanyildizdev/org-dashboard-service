@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
   title: 'ERD',
-  middleware: ['auth', 'verified']
+  middleware: ['auth']
 })
 </script>
 

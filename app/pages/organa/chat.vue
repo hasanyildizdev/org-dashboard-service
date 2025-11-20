@@ -5,7 +5,7 @@ import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 
 definePageMeta({
   title: 'Organa Chat',
-  middleware: ['auth', 'verified']
+  middleware: ['auth']
 })
 
 

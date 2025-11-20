@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
   title: 'Education',
-  middleware: ['auth', 'verified']
+  middleware: ['auth']
 })
 </script>
 
