@@ -79,11 +79,6 @@ async function fetchJobTypes() {
                 <div class="space-y-4">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <p class="text-sm text-gray-500 dark:text-gray-400">User ID</p>
-                      <p class="font-medium mt-1">{{ user?.id }}</p>
-                    </div>
-                    
-                    <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <p class="text-sm text-gray-500 dark:text-gray-400">Email</p>
                       <p class="font-medium mt-1">{{ user?.email }}</p>
                     </div>
@@ -98,15 +93,6 @@ async function fetchJobTypes() {
                       <p class="font-medium mt-1">{{ new Date(user?.created_at || '').toLocaleDateString() }}</p>
                     </div>
                     
-                    <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Email Status</p>
-                      <div class="mt-1">
-                        <UBadge 
-                          :label="user?.email_verified_at ? 'Verified' : 'Unverified'" 
-                          :color="user?.email_verified_at ? 'success' : 'warning'" 
-                        />
-                      </div>
-                    </div>
                   </div>
                 </div>
               </UCard>
@@ -125,7 +111,7 @@ async function fetchJobTypes() {
                     variant="soft"
                     size="lg"
                     block
-                    to="/bio/edit"
+                    to="/edit"
                   />
                   
                   <UButton 
@@ -135,7 +121,7 @@ async function fetchJobTypes() {
                     variant="soft"
                     size="lg"
                     block
-                    to="/bio/settings"
+                    to="/settings"
                   />
                   
                   <UButton 

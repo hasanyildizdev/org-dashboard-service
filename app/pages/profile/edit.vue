@@ -147,7 +147,7 @@ async function onSubmit(event: Event) {
       })
       
       // Redirect back to profile
-      router.push('/bio/profile')
+      router.push('/profile')
     }
   } catch (error: any) {
     toast.add({
@@ -236,7 +236,7 @@ async function deleteAccount() {
                   icon="i-lucide-arrow-left"
                   label="Back to Profile"
                   variant="ghost"
-                  @click="router.push('/bio/profile')"
+                  @click="router.push('/profile')"
                 />
               </div>
 
@@ -336,7 +336,7 @@ async function deleteAccount() {
                       label="Cancel"
                       color="neutral"
                       variant="ghost"
-                      @click="router.push('/bio/profile')"
+                      @click="router.push('/profile')"
                       :disabled="loading"
                     />
                     <UButton

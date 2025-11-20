@@ -144,7 +144,7 @@ async function savePrivacySettings() {
                   icon="i-lucide-arrow-left"
                   label="Back to Profile"
                   variant="ghost"
-                  @click="router.push('/bio/profile')"
+                  @click="router.push('/profile')"
                 />
               </div>
 
