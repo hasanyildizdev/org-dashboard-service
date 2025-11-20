@@ -52,26 +52,40 @@ async function fetchJobTypes() {
       <template #body>
           <UContainer class="p-6">
             <div class="space-y-6">
-              <!-- Welcome Header -->
-              <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                  Welcome, {{ user?.name }}! 👋
-                </h1>
-                <p class="text-gray-500 dark:text-gray-400 mt-2">
-                  Your account has been successfully created.
-                </p>
-              </div>
-
+              
               <!-- User Information Card -->
               <UCard>
                 <template #header>
-                  <div class="flex items-center gap-3">
-                    <div class="w-16 h-16 rounded-full bg-primary-500 flex items-center justify-center text-white text-2xl font-bold">
-                      {{ user?.name?.charAt(0).toUpperCase() }}
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <div class="w-16 h-16 rounded-full bg-primary-500 flex items-center justify-center text-white text-2xl font-bold">
+                        {{ user?.name?.charAt(0).toUpperCase() }}
+                      </div>
+                      <div>
+                        <h3 class="text-xl font-semibold">{{ user?.name }}</h3>
+                        <p class="text-sm text-gray-500">{{ user?.email }}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 class="text-xl font-semibold">{{ user?.name }}</h3>
-                      <p class="text-sm text-gray-500">{{ user?.email }}</p>
+                    <div class="flex items-center gap-3">
+                      <UButton 
+                        label="Edit Profile" 
+                        icon="i-lucide-user-pen"
+                        color="primary"
+                        variant="soft"
+                        size="lg"
+                        block
+                        to="/profile/edit"
+                      />
+                      <UButton 
+                        label="Logout" 
+                        trailing
+                        icon="i-lucide-log-out"
+                        color="error"
+                        variant="soft"
+                        size="lg"
+                        block
+                        @click="authStore.logout"
+                      />
                     </div>
                   </div>
                 </template>
@@ -94,45 +108,6 @@ async function fetchJobTypes() {
                     </div>
                     
                   </div>
-                </div>
-              </UCard>
-
-              <!-- Quick Actions -->
-              <UCard>
-                <template #header>
-                  <h3 class="text-lg font-semibold">Quick Actions</h3>
-                </template>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <UButton 
-                    label="Edit Profile" 
-                    icon="i-lucide-user-pen"
-                    color="primary"
-                    variant="soft"
-                    size="lg"
-                    block
-                    to="/edit"
-                  />
-                  
-                  <UButton 
-                    label="Settings" 
-                    icon="i-lucide-settings"
-                    color="neutral"
-                    variant="soft"
-                    size="lg"
-                    block
-                    to="/settings"
-                  />
-                  
-                  <UButton 
-                    label="Logout" 
-                    icon="i-lucide-log-out"
-                    color="error"
-                    variant="soft"
-                    size="lg"
-                    block
-                    @click="authStore.logout"
-                  />
                 </div>
               </UCard>
             </div>

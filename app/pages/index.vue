@@ -10,7 +10,7 @@ definePageMeta({
 const items: NavigationMenuItem[][] = [
   [
     {
-      label: 'General',
+      label: 'Profile',
       icon: 'i-lucide-user',
       active: true
     },
@@ -27,17 +27,6 @@ const items: NavigationMenuItem[][] = [
       target: '_blank'
     },
   ]
-]
-
-const tabs_items: TabsItem[] = [
-  {
-    label: 'All',
-    value: 'all'
-  },
-  {
-    label: 'Unread',
-    value: 'unread'
-  }
 ]
 </script>   
 
@@ -61,7 +50,6 @@ const tabs_items: TabsItem[] = [
             </template>
             <template #right>
                 <UColorModeSwitch color="neutral"/>
-                <UTabs :items="tabs_items" default-value="all" size="sm" class="w-40" :content="false" />
             </template>
         </UDashboardNavbar>
       </template>

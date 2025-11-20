@@ -281,7 +281,7 @@ async function deleteAccount() {
                 
                 <form @submit.prevent="onSubmit">
                   <div class="space-y-4">
-                    <UFormGroup
+                    <UFormField
                       label="Full Name"
                       name="name"
                       required
@@ -292,9 +292,9 @@ async function deleteAccount() {
                         size="lg"
                         :disabled="loading"
                       />
-                    </UFormGroup>
+                    </UFormField>
 
-                    <UFormGroup
+                    <UFormField
                       label="Email Address"
                       name="email"
                       required
@@ -306,9 +306,9 @@ async function deleteAccount() {
                         size="lg"
                         :disabled="loading"
                       />
-                    </UFormGroup>
+                    </UFormField>
 
-                    <UFormGroup
+                    <UFormField
                       label="Job Type"
                       name="job_type_id"
                     >
@@ -320,7 +320,7 @@ async function deleteAccount() {
                         :disabled="loading"
                         size="lg"
                       />
-                    </UFormGroup>
+                    </UFormField>
 
                     <UAlert 
                       color="info"

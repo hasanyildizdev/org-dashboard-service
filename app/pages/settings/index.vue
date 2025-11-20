@@ -1,19 +1,49 @@
 <script setup lang="ts">
+import { useAuthStore } from '~/stores/auth'
+import * as z from 'zod'
 
 definePageMeta({
   title: 'Settings',
   middleware: ['auth']
 })
 
+const authStore = useAuthStore()
+const router = useRouter()
+const toast = useToast()
+const loading = ref(false)
 const colorMode = useColorMode()
 const { locale, locales } = useI18n()
+const user = computed(() => authStore.user)
+type PasswordSchema = z.output<typeof passwordSchema>
+
+// Password form state
+const passwordForm = ref({
+  current_password: '',
+  new_password: '',
+  confirm_password: ''
+})
+
+const passwordSchema = z.object({
+  current_password: z.string().min(8, 'Password must be at least 8 characters'),
+  new_password: z.string().min(8, 'Password must be at least 8 characters')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Must contain uppercase, lowercase, and number'),
+  confirm_password: z.string()
+}).refine((data) => data.new_password === data.confirm_password, {
+  message: "Passwords don't match",
+  path: ["confirm_password"],
+})
+
+// Privacy settings
+const privacy = ref({
+  profile_visibility: 'public',
+  show_email: false,
+  show_activity: true
+})
 
 // Settings state
 const settings = ref({
   theme: colorMode.value,
   language: locale.value,
-  emailNotifications: true,
-  pushNotifications: false,
   marketingEmails: false,
   soundEnabled: true,
   autoSave: true,
@@ -25,6 +55,14 @@ const settings = ref({
   timeFormat: '12h',
   currency: 'USD',
   numberFormat: 'US'
+})
+
+// Notification settings
+const notifications = ref({
+  email_notifications: true,
+  push_notifications: false,
+  sms_notifications: false,
+  marketing_emails: false
 })
 
 // Available options
@@ -73,8 +111,6 @@ const currencyOptions = [
   { label: 'Japanese Yen (JPY)', value: 'JPY', symbol: '¥' }
 ]
 
-const toast = useToast()
-
 // Watchers for reactive changes
 watch(() => settings.value.theme, (newTheme) => {
   colorMode.preference = newTheme
@@ -98,8 +134,6 @@ function resetSettings() {
   settings.value = {
     theme: 'system',
     language: 'en',
-    emailNotifications: true,
-    pushNotifications: false,
     marketingEmails: false,
     soundEnabled: true,
     autoSave: true,
@@ -129,6 +163,76 @@ function saveSettings() {
     color: 'success'
   })
 }
+
+
+async function onPasswordSubmit(event: Event) {
+  event.preventDefault()
+  loading.value = true
+  
+  try {
+    // TODO: Implement change password mutation when backend is ready
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
+    
+    toast.add({
+      title: 'Success',
+      description: 'Password changed successfully!',
+      color: 'success'
+    })
+    
+    // Reset form
+    passwordForm.value = {
+      current_password: '',
+      new_password: '',
+      confirm_password: ''
+    }
+  } catch (error: any) {
+    toast.add({
+      title: 'Error',
+      description: error.message || 'Failed to change password',
+      color: 'error'
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+async function saveNotificationSettings() {
+  try {
+    // TODO: Implement save notification settings when backend is ready
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    toast.add({
+      title: 'Success',
+      description: 'Notification settings saved!',
+      color: 'success'
+    })
+  } catch (error) {
+    toast.add({
+      title: 'Error',
+      description: 'Failed to save settings',
+      color: 'error'
+    })
+  }
+}
+
+async function savePrivacySettings() {
+  try {
+    // TODO: Implement save privacy settings when backend is ready
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    toast.add({
+      title: 'Success',
+      description: 'Privacy settings saved!',
+      color: 'success'
+    })
+  } catch (error) {
+    toast.add({
+      title: 'Error',
+      description: 'Failed to save settings',
+      color: 'error'
+    })
+  }
+}
 </script>
 
 <template>
@@ -143,7 +247,7 @@ function saveSettings() {
     </template>
     
     <template #header>
-      <UDashboardNavbar title="General Settings">
+      <UDashboardNavbar title="Settings">
         <template #leading>
           <UDashboardSidebarCollapse variant="subtle" />
         </template>
@@ -218,33 +322,247 @@ function saveSettings() {
                 <!-- Display Options -->
                 <div class="grid md:grid-cols-2 gap-6">
                   <div>
-                    <UFormGroup label="Compact Mode" help="Reduce spacing and padding">
+                    <UFormField label="Compact Mode" help="Reduce spacing and padding">
                       <UToggle v-model="settings.compactMode" />
-                    </UFormGroup>
+                    </UFormField>
                   </div>
                   
                   <div>
-                    <UFormGroup label="Show Avatars" help="Display user profile pictures">
+                    <UFormField label="Show Avatars" help="Display user profile pictures">
                       <UToggle v-model="settings.showAvatars" />
-                    </UFormGroup>
+                    </UFormField>
                   </div>
                   
                   <div>
-                    <UFormGroup label="Animations" help="Enable smooth transitions and animations">
+                    <UFormField label="Animations" help="Enable smooth transitions and animations">
                       <UToggle v-model="settings.animationsEnabled" />
-                    </UFormGroup>
+                    </UFormField>
                   </div>
 
                   <div>
-                    <UFormGroup label="Sound Effects" help="Play notification sounds">
+                    <UFormField label="Sound Effects" help="Play notification sounds">
                       <UToggle v-model="settings.soundEnabled" />
-                    </UFormGroup>
+                    </UFormField>
                   </div>
                 </div>
               </div>
             </UCard>
           </div>
 
+          <!-- Change Password -->
+          <UCard class="my-6">
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-lock" class="w-5 h-5" />
+                <h3 class="text-lg font-semibold">Change Password</h3>
+              </div>
+            </template>
+            
+            <form @submit.prevent="onPasswordSubmit">
+              <div class="space-y-4">
+                <UFormField
+                  label="Current Password"
+                  name="current_password"
+                  required
+                >
+                  <UInput
+                    v-model="passwordForm.current_password"
+                    type="password"
+                    placeholder="Enter current password"
+                    size="lg"
+                    :disabled="loading"
+                  />
+                </UFormField>
+
+                <UFormField
+                  label="New Password"
+                  name="new_password"
+                  required
+                >
+                  <UInput
+                    v-model="passwordForm.new_password"
+                    type="password"
+                    placeholder="Enter new password"
+                    size="lg"
+                    :disabled="loading"
+                  />
+                </UFormField>
+
+                <UFormField
+                  label="Confirm New Password"
+                  name="confirm_password"
+                  required
+                >
+                  <UInput
+                    v-model="passwordForm.confirm_password"
+                    type="password"
+                    placeholder="Confirm new password"
+                    size="lg"
+                    :disabled="loading"
+                  />
+                </UFormField>
+
+                <UAlert 
+                  color="info"
+                  icon="i-lucide-shield"
+                  title="Password Requirements"
+                  description="Must be at least 8 characters with uppercase, lowercase, and numbers."
+                  class="mt-2"
+                />
+              </div>
+
+              <div class="flex justify-end mt-6">
+                <UButton
+                  type="submit"
+                  label="Change Password"
+                  color="primary"
+                  :loading="loading"
+                />
+              </div>
+            </form>
+          </UCard>
+
+          <!-- Notification Settings -->
+          <UCard class="my-6">
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-bell" class="w-5 h-5" />
+                <h3 class="text-lg font-semibold">Notifications</h3>
+              </div>
+            </template>
+            
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">Email Notifications</p>
+                  <p class="text-sm text-gray-500">Receive notifications via email</p>
+                </div>
+                <UToggle v-model="notifications.email_notifications" />
+              </div>
+
+              <UDivider />
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">Push Notifications</p>
+                  <p class="text-sm text-gray-500">Receive push notifications in browser</p>
+                </div>
+                <UToggle v-model="notifications.push_notifications" />
+              </div>
+
+              <UDivider />
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">SMS Notifications</p>
+                  <p class="text-sm text-gray-500">Receive notifications via SMS</p>
+                </div>
+                <UToggle v-model="notifications.sms_notifications" />
+              </div>
+
+              <UDivider />
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">Marketing Emails</p>
+                  <p class="text-sm text-gray-500">Receive promotional emails and updates</p>
+                </div>
+                <UToggle v-model="notifications.marketing_emails" />
+              </div>
+
+              <div class="flex justify-end mt-6">
+                <UButton
+                  label="Save Preferences"
+                  color="primary"
+                  @click="saveNotificationSettings"
+                />
+              </div>
+            </div>
+          </UCard>
+
+          <!-- Privacy Settings -->
+          <UCard class="my-6">
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-shield-check" class="w-5 h-5" />
+                <h3 class="text-lg font-semibold">Privacy</h3>
+              </div>
+            </template>
+            
+            <div class="space-y-4">
+              <UFormField label="Profile Visibility" name="profile_visibility">
+                <USelectMenu
+                  v-model="privacy.profile_visibility"
+                  :options="[
+                    { value: 'public', label: 'Public' },
+                    { value: 'private', label: 'Private' },
+                    { value: 'friends', label: 'Friends Only' }
+                  ]"
+                  value-attribute="value"
+                  option-attribute="label"
+                />
+              </UFormField>
+
+              <UDivider />
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">Show Email Address</p>
+                  <p class="text-sm text-gray-500">Display your email on your profile</p>
+                </div>
+                <UToggle v-model="privacy.show_email" />
+              </div>
+
+              <UDivider />
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">Show Activity</p>
+                  <p class="text-sm text-gray-500">Let others see your activity</p>
+                </div>
+                <UToggle v-model="privacy.show_activity" />
+              </div>
+
+              <div class="flex justify-end mt-6">
+                <UButton
+                  label="Save Privacy Settings"
+                  color="primary"
+                  @click="savePrivacySettings"
+                />
+              </div>
+            </div>
+          </UCard>
+
+          <!-- Session Management -->
+          <UCard>
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-monitor-smartphone" class="w-5 h-5" />
+                <h3 class="text-lg font-semibold">Active Sessions</h3>
+              </div>
+            </template>
+            
+            <div class="space-y-4">
+              <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div class="flex items-center gap-3">
+                  <UIcon name="i-lucide-monitor" class="w-6 h-6 text-primary" />
+                  <div>
+                    <p class="font-medium">Current Device</p>
+                    <p class="text-sm text-gray-500">{{ user?.email }} • Active now</p>
+                  </div>
+                </div>
+                <UBadge label="Active" color="success" />
+              </div>
+
+              <UAlert
+                color="warning"
+                icon="i-lucide-alert-triangle"
+                title="Session Management"
+                description="Multi-device session management coming soon."
+              />
+            </div>
+          </UCard>
+          
           <!-- Language & Region -->
           <div class="mb-8">
             <UCard>
@@ -261,45 +579,45 @@ function saveSettings() {
               </template>
 
               <div class="grid md:grid-cols-2 gap-6">
-                <UFormGroup label="Language">
+                <UFormField label="Language">
                   <USelect
                     v-model="settings.language"
                     :options="languageOptions"
                     placeholder="Select language"
                   />
-                </UFormGroup>
+                </UFormField>
 
-                <UFormGroup label="Timezone">
+                <UFormField label="Timezone">
                   <USelect
                     v-model="settings.timezone"
                     :options="timezoneOptions"
                     placeholder="Select timezone"
                   />
-                </UFormGroup>
+                </UFormField>
 
-                <UFormGroup label="Date Format">
+                <UFormField label="Date Format">
                   <USelect
                     v-model="settings.dateFormat"
                     :options="dateFormatOptions"
                     placeholder="Select date format"
                   />
-                </UFormGroup>
+                </UFormField>
 
-                <UFormGroup label="Time Format">
+                <UFormField label="Time Format">
                   <USelect
                     v-model="settings.timeFormat"
                     :options="timeFormatOptions"
                     placeholder="Select time format"
                   />
-                </UFormGroup>
+                </UFormField>
 
-                <UFormGroup label="Currency">
+                <UFormField label="Currency">
                   <USelect
                     v-model="settings.currency"
                     :options="currencyOptions"
                     placeholder="Select currency"
                   />
-                </UFormGroup>
+                </UFormField>
               </div>
             </UCard>
           </div>
@@ -325,7 +643,7 @@ function saveSettings() {
                     <h3 class="text-sm font-medium text-gray-900 dark:text-white">Email Notifications</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Receive updates via email</p>
                   </div>
-                  <UToggle v-model="settings.emailNotifications" />
+                  <UToggle v-model="notifications.email_notifications" />
                 </div>
 
                 <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -333,7 +651,7 @@ function saveSettings() {
                     <h3 class="text-sm font-medium text-gray-900 dark:text-white">Push Notifications</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Get instant notifications on your device</p>
                   </div>
-                  <UToggle v-model="settings.pushNotifications" />
+                  <UToggle v-model="notifications.push_notifications" />
                 </div>
 
                 <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -341,7 +659,7 @@ function saveSettings() {
                     <h3 class="text-sm font-medium text-gray-900 dark:text-white">Marketing Emails</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Receive product updates and newsletters</p>
                   </div>
-                  <UToggle v-model="settings.marketingEmails" />
+                  <UToggle v-model="notifications.marketing_emails" />
                 </div>
               </div>
             </UCard>

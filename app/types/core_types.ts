@@ -18,6 +18,7 @@ export interface OurganizeContactInterface {
 export interface User {
   id: string
   name: string
+  avatar: string
   email: string
   email_verified_at?: string
   job_type_id?: string | null

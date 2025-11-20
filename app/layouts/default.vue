@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useAuthStore } from '~/stores/auth'
 import type { NavigationMenuItem, CommandPaletteGroup, CommandPaletteItem } from '@nuxt/ui'
 const route = useRoute()
+const authStore = useAuthStore()
+const user = computed(() => authStore.user)
 type MetaContent = string | string[]
 useHead({
     title: (): string => (route.meta?.title as string) ?? 'Ourganize',
@@ -48,11 +51,6 @@ const items: NavigationMenuItem[][] = [[
   icon: 'i-lucide-house',
   to: '/'
 },
-{
-  label: 'Profile',
-  icon: 'mdi:badge-account-horizontal-outline',
-  to: '/profile'
-}, 
 {
   label: 'Organize',
   icon: 'mdi:ship-wheel',
@@ -147,11 +145,19 @@ const items: NavigationMenuItem[][] = [[
       ]
     }
   ]
-}], [{
-  label: 'Help & Support',
-  icon: 'i-lucide-help-circle',
-  to: '/help',
-}]
+}], 
+[
+  {
+    label: 'Help & Support',
+    icon: 'i-lucide-help-circle',
+    to: '/help',
+  },
+  {
+    label: 'Settings',
+    icon: 'i-lucide-settings',
+    to: '/settings',
+  },
+]
 ]
 const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
   {
@@ -204,29 +210,19 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
         </template>
 
         <template #footer="{ collapsed }">
-          <div class="w-full flex justify-between">
-            <div>
-              <ULink to="/profile">
-              <UButton
-                  :avatar="{
-                  src: 'https://github.com/benjamincanac.png'
-                  }"
-                  :label="collapsed ? undefined : 'Hasan Yıldız'"
-                  color="neutral"
-                  variant="ghost"
-                  :block="collapsed"
-              />
-              </ULink>
-            </div>
-            <ULink v-if="!collapsed" to="/settings/general">
-              <UButton
-                  icon="i-lucide-settings"
-                  color="neutral"
-                  variant="ghost"
-                  :block="collapsed"
-              />
-            </ULink>
-          </div>
+          <ULink to="/profile" class="w-full h-full">
+            <UButton
+                :avatar="{ src: user?.avatar ? user.avatar : '/assets/images/avatars/default.png'}"
+                :label="collapsed ? undefined : user?.name"
+                color="neutral"
+                variant="ghost"
+                :class="[
+                  'w-full hover:cursor-pointer',
+                  route.path === '/profile' ? 'text-primary bg-primary/10' : ''
+                ]"
+                :block="collapsed"
+            />
+          </ULink>
         </template>
     </UDashboardSidebar>
 
