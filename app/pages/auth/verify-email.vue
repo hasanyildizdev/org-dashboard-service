@@ -109,7 +109,7 @@ const handleLogout = async () => {
 // Check if email is already verified and initialize cooldown
 onMounted(() => {
   if (authStore.user?.email_verified_at) {
-    router.push('/bio/profile')
+    router.push('/profile')
     return
   }
   

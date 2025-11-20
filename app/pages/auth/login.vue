@@ -87,7 +87,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       })
       
       // Redirect to profile page after successful login
-      await router.push('/bio/profile')
+      await router.push('/profile')
     } else {
       formError.value = result.error || 'Login failed'
     }

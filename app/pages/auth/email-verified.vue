@@ -48,7 +48,7 @@ onMounted(async () => {
       // Redirect to profile after 2 seconds
       setTimeout(() => {
         if (authStore.isAuthenticated) {
-          router.push('/bio/profile')
+          router.push('/profile')
         } else {
           router.push('/auth/login')
         }

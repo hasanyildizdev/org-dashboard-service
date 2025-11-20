@@ -43,7 +43,7 @@ async function fetchJobTypes() {
           />
       </template>
       <template #header>
-        <UDashboardNavbar title="Bio">
+        <UDashboardNavbar title="Profile">
             <template #leading>
                 <UDashboardSidebarCollapse variant="subtle" />
             </template>

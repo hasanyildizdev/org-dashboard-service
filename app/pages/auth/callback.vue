@@ -81,7 +81,7 @@ onMounted(async () => {
           })
 
           // Redirect to profile
-          await router.push('/bio/profile')
+          await router.push('/profile')
         } else {
           retries--
           if (retries > 0) {
