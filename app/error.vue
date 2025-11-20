@@ -75,10 +75,10 @@ const errorMessage = computed(() => {
         <p class="text-sm text-gray-500 dark:text-gray-400">
           {{ t('Need help?') }}
           <NuxtLink 
-            to="/contact" 
+            to="/help" 
             class="text-primary hover:text-primary/80 dark:text-white dark:hover:text-primary/80 font-medium transition-colors duration-300 ml-1"
           >
-            {{ t('Contact us') }}
+            {{ t('Help') }}
           </NuxtLink>
         </p>
       </div>

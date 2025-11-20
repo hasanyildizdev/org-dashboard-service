@@ -96,12 +96,12 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
     if (result.success) {
       toast.add({ 
         title: 'Success', 
-        description: 'Account created successfully! Welcome to Ourganize! 🎉',
+        description: 'Account created successfully! Please verify your email.',
         color: 'success'
       })
       
-      // Redirect to profile page after successful registration
-      await router.push('/bio/profile')
+      // Redirect to email verification page
+      await router.push('/auth/verify-email')
     } else {
       formError.value = result.error || 'Unable to create account. Please try again.'
     }

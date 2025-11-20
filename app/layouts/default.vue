@@ -173,8 +173,11 @@ const items: NavigationMenuItem[][] = [[
       ]
     }
   ]
-},
-]
+}], [{
+  label: 'Help & Support',
+  icon: 'i-lucide-help-circle',
+  to: '/help',
+}]
 ]
 const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
   {

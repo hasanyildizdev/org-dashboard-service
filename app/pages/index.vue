@@ -26,12 +26,6 @@ const items: NavigationMenuItem[][] = [
       to: 'https://ourganize.com/docs',
       target: '_blank'
     },
-    {
-      label: 'Help & Feedback',
-      icon: 'i-lucide-help-circle',
-      to: 'https://ourganize.com/contact',
-      target: '_blank'
-    }
   ]
 ]
 
