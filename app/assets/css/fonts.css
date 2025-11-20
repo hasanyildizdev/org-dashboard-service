@@ -1,0 +1,42 @@
+@font-face {
+    font-family: 'Neue';
+    src: url('../fonts/neue.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'NeueLight';
+    src: url('../fonts/neue_light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Rama';
+    src: url('../fonts/rama.otf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'SFproBold';
+    src: url('../fonts/sf_pro_bold.otf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'SFpro';
+    src: url('../fonts/sf_pro.otf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Roboto';
+    src: url('../fonts/roboto.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Georgia';
+    src: url('../fonts/georgia.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}

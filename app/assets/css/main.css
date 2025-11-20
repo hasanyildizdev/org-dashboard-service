@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+@import './fonts.css';
 
 @layer theme {
     :root {
@@ -12,6 +13,13 @@
 
 @theme {
   --color-primary: var(--color-primary);
+    --font-sans: Neue, sans-serif; 
+    --font-serif: NeueLight, serif; 
+    --font-rama: Rama, monospace;
+    --font-sfpro_bold: SFproBold, sans-serif;
+    --font-sfpro: SFpro, sans-serif;
+    --font-roboto: Roboto, sans-serif;
+    --font-georgia: Georgia, serif;
 }
 
 html {
