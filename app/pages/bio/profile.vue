@@ -3,7 +3,7 @@ import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({
   title: 'Profile',
-  middleware: 'auth'
+  middleware: ['auth', 'verified']
 })
 
 const jobTypes = ref<any[]>([])

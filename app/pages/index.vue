@@ -4,7 +4,7 @@ import type { TabsItem } from '@nuxt/ui'
 
 definePageMeta({
   title: 'Dashboard',
-  middleware: 'auth'
+  middleware: ['auth', 'verified']
 })
 
 const items: NavigationMenuItem[][] = [

@@ -18,30 +18,32 @@ const verified = ref(false)
 const error = ref('')
 
 onMounted(async () => {
-  const userId = route.query.id as string
+  const id = route.query.id as string
+  const hash = route.query.hash as string
+  const expires = route.query.expires as string
+  const signature = route.query.signature as string
   
-  if (!userId) {
-    error.value = 'Invalid verification link'
+  // Validate all required parameters
+  if (!id || !hash || !expires || !signature) {
+    error.value = 'Invalid verification link. Missing required parameters.'
     verifying.value = false
     return
   }
 
   try {
-    const result = await verifyEmail(userId)
+    const result = await verifyEmail({ id, hash, expires, signature })
 
     if (result.success) {
       verified.value = true
       
       toast.add({
         title: 'Email Verified!',
-        description: result.data.message,
+        description: result.data?.message || 'Email verified successfully!',
         color: 'success'
       })
 
-      // Refresh user data
-      if (authStore.user) {
-        await authStore.fetchUser()
-      }
+      // Refresh user data to get updated email_verified_at
+      await authStore.fetchUser()
 
       // Redirect to profile after 2 seconds
       setTimeout(() => {

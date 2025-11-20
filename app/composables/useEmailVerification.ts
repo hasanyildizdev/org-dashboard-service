@@ -5,12 +5,17 @@ export const useEmailVerification = () => {
   const toast = useToast()
 
   /**
-   * Verify email address
+   * Verify email address with secure signature
    */
-  const verifyEmail = async (userId: string) => {
+  const verifyEmail = async (params: {
+    id: string
+    hash: string
+    expires: string
+    signature: string
+  }) => {
     const VERIFY_EMAIL_MUTATION = gql`
-      mutation VerifyEmail($id: ID!) {
-        verifyEmail(id: $id) {
+      mutation VerifyEmail($id: ID!, $hash: String!, $expires: Int!, $signature: String!) {
+        verifyEmail(id: $id, hash: $hash, expires: $expires, signature: $signature) {
           status
           message
           verified
@@ -25,7 +30,12 @@ export const useEmailVerification = () => {
           message: string
           verified: boolean
         }
-      }>(VERIFY_EMAIL_MUTATION, { id: userId })
+      }>(VERIFY_EMAIL_MUTATION, {
+        id: params.id,
+        hash: params.hash,
+        expires: parseInt(params.expires),
+        signature: params.signature
+      })
 
       return {
         success: true,
