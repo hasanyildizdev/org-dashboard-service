@@ -12,16 +12,48 @@ const authStore = useAuthStore()
 const router = useRouter()
 const { resendVerificationEmail } = useEmailVerification()
 
+const COOLDOWN_KEY = 'email_verification_cooldown'
+const COOLDOWN_DURATION = 60 // seconds
+
 const resending = ref(false)
 const cooldown = ref(0)
-let cooldownInterval: NodeJS.Timeout | null = null
+let cooldownInterval: number | null = null
 
-// Check if email is already verified
-onMounted(() => {
-  if (authStore.user?.email_verified_at) {
-    router.push('/bio/profile')
+// Initialize cooldown from localStorage
+const initializeCooldown = () => {
+  const storedCooldownEnd = localStorage.getItem(COOLDOWN_KEY)
+  
+  if (storedCooldownEnd) {
+    const cooldownEnd = parseInt(storedCooldownEnd)
+    const now = Date.now()
+    const remainingSeconds = Math.ceil((cooldownEnd - now) / 1000)
+    
+    if (remainingSeconds > 0) {
+      cooldown.value = remainingSeconds
+      startCooldownTimer()
+    } else {
+      // Expired, clean up
+      localStorage.removeItem(COOLDOWN_KEY)
+    }
   }
-})
+}
+
+// Start cooldown timer
+const startCooldownTimer = () => {
+  if (cooldownInterval) {
+    clearInterval(cooldownInterval)
+  }
+  
+  cooldownInterval = setInterval(() => {
+    cooldown.value--
+    
+    if (cooldown.value <= 0) {
+      clearInterval(cooldownInterval!)
+      cooldownInterval = null
+      localStorage.removeItem(COOLDOWN_KEY)
+    }
+  }, 1000)
+}
 
 // Handle resend verification email
 const handleResend = async () => {
@@ -34,18 +66,25 @@ const handleResend = async () => {
   resending.value = false
 
   if (result.success) {
-    // Start cooldown (60 seconds)
-    cooldown.value = 60
+    // Store cooldown end time in localStorage
+    const cooldownEnd = Date.now() + (COOLDOWN_DURATION * 1000)
+    localStorage.setItem(COOLDOWN_KEY, cooldownEnd.toString())
     
-    cooldownInterval = setInterval(() => {
-      cooldown.value--
-      if (cooldown.value <= 0 && cooldownInterval) {
-        clearInterval(cooldownInterval)
-        cooldownInterval = null
-      }
-    }, 1000)
+    // Start cooldown
+    cooldown.value = COOLDOWN_DURATION
+    startCooldownTimer()
   }
 }
+
+// Check if email is already verified and initialize cooldown
+onMounted(() => {
+  if (authStore.user?.email_verified_at) {
+    router.push('/bio/profile')
+    return
+  }
+  
+  initializeCooldown()
+})
 
 // Cleanup interval on unmount
 onUnmounted(() => {
@@ -122,7 +161,7 @@ onUnmounted(() => {
               <div>
                 <UButton
                   to="/auth/login"
-                  color="gray"
+                  color="neutral"
                   variant="ghost"
                   size="sm"
                 >
