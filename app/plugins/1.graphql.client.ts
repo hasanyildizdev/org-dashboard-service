@@ -15,6 +15,7 @@ export default defineNuxtPlugin({
         return headers
       }
     })
+    console.log('GraphQL client initialized')
     return {
       provide: {
         graphql: graphqlClient

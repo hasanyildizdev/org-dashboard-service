@@ -189,7 +189,7 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
 
         <template #header="{ collapsed }">
             <AppLogo v-if="!collapsed" class="h-5 w-auto shrink-0" />
-            <UIcon v-else name="ic:baseline-sailing" class="size-5 text-primary mx-auto" />
+            <Logo v-else class="h-8 h-8 fill-primary dark:fill-white"/>
         </template>
 
         <template #default="{ collapsed }">
@@ -210,19 +210,19 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
         </template>
 
         <template #footer="{ collapsed }">
-          <ULink to="/profile" class="w-full h-full">
-            <UButton
-                :avatar="{ src: user?.avatar ? user.avatar : '/assets/images/avatars/default.png'}"
-                :label="collapsed ? undefined : user?.name"
-                color="neutral"
-                variant="ghost"
-                :class="[
-                  'w-full hover:cursor-pointer',
-                  route.path === '/profile' ? 'text-primary bg-primary/10' : ''
-                ]"
-                :block="collapsed"
-            />
-          </ULink>
+          <UUser
+             to="/profile"
+             :name="collapsed ? undefined : user?.name"
+             :description="collapsed ? undefined : user?.profession?.name || 'User'"
+             :avatar="{
+               src: user?.avatar ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name)}&background=random`
+             }"
+             :class="[
+               'px-2 py-1 rounded-md w-full hover:cursor-pointer',
+               route.path === '/profile' ? 'text-primary bg-primary/10' : ''
+             ]"
+             :block="collapsed"
+           />
         </template>
     </UDashboardSidebar>
 

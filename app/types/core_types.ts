@@ -21,8 +21,8 @@ export interface User {
   avatar: string
   email: string
   email_verified_at?: string
-  job_type_id?: string | null
-  job_type?: {
+  profession_id?: string | null
+  profession?: {
     id: string
     name: string
     slug: string

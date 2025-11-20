@@ -16,25 +16,25 @@ const showDeleteModal = ref(false)
 
 const user = computed(() => authStore.user)
 
-// Job types state
-const jobTypes = ref<any[]>([])
-const loadingJobTypes = ref(false)
+// Professions state
+const professions = ref<any[]>([])
+const loadingProfessions = ref(false)
 
 // Form state
 const formData = ref({
   name: user.value?.name || '',
   email: user.value?.email || '',
-  job_type_id: user.value?.job_type_id || null
+  profession_id: user.value?.profession_id || null
 })
 
-// Selected job type for USelectMenu
-const selectedJobType = computed({
+// Selected profession for USelectMenu
+const selectedProfession = computed({
   get: () => {
-    const jobType = jobTypes.value.find(jt => jt.id === formData.value.job_type_id)
-    return jobType ? { label: jobType.name, value: jobType.id } : undefined
+    const profession = professions.value.find(jt => jt.id === formData.value.profession_id)
+    return profession ? { label: profession.name, value: profession.id } : undefined
   },
   set: (value: any) => {
-    formData.value.job_type_id = value?.value || null
+    formData.value.profession_id = value?.value || null
   }
 })
 
@@ -43,25 +43,25 @@ watch(user, (newUser) => {
   if (newUser) {
     formData.value.name = newUser.name
     formData.value.email = newUser.email
-    formData.value.job_type_id = newUser.job_type_id || null
+    formData.value.profession_id = newUser.profession_id || null
   }
 }, { immediate: true })
 
-// Fetch job types on mount
+// Fetch professions on mount
 onMounted(async () => {
-  await fetchJobTypes()
+  await fetchProfessions()
 })
 
-async function fetchJobTypes() {
-  loadingJobTypes.value = true
-  console.log('🔍 Fetching job types...')
+async function fetchProfessions() {
+  loadingProfessions.value = true
+  console.log('🔍 Fetching professions...')
   
   try {
     const { $graphql } = useNuxtApp()
     
-    const JOB_TYPES_QUERY = `
-      query JobTypes {
-        jobTypes {
+    const PROFESSIONS_QUERY = `
+      query Professions {
+        professions {
           id
           name
           slug
@@ -69,13 +69,13 @@ async function fetchJobTypes() {
       }
     `
     
-    const data = await $graphql.request(JOB_TYPES_QUERY)
-    jobTypes.value = data.jobTypes
+    const data = await $graphql.request(PROFESSIONS_QUERY)
+    professions.value = data.professions
   } catch (error) {
-    console.error('❌ Error fetching job types:', error)
+    console.error('❌ Error fetching professions:', error)
     console.error('❌ Full error:', JSON.stringify(error, null, 2))
   } finally {
-    loadingJobTypes.value = false
+    loadingProfessions.value = false
   }
 }
 
@@ -111,14 +111,14 @@ async function onSubmit(event: Event) {
     const { $graphql } = useNuxtApp()
     
     const UPDATE_PROFILE_MUTATION = `
-      mutation UpdateProfile($name: String!, $email: String!, $job_type_id: ID) {
-        updateProfile(name: $name, email: $email, job_type_id: $job_type_id) {
+      mutation UpdateProfile($name: String!, $email: String!, $profession_id: ID) {
+        updateProfile(name: $name, email: $email, profession_id: $profession_id) {
           id
           name
           email
           email_verified_at
-          job_type_id
-          job_type {
+          profession_id
+          profession {
             id
             name
           }
@@ -131,7 +131,7 @@ async function onSubmit(event: Event) {
     const data = await $graphql.request(UPDATE_PROFILE_MUTATION, {
       name: formData.value.name,
       email: formData.value.email,
-      job_type_id: formData.value.job_type_id
+      profession_id: formData.value.profession_id
     })
     
     // Update user in store
@@ -309,14 +309,14 @@ async function deleteAccount() {
                     </UFormField>
 
                     <UFormField
-                      label="Job Type"
-                      name="job_type_id"
+                      label="Profession"
+                      name="profession_id"
                     >
                       <USelectMenu
-                        v-model="selectedJobType"
-                        :items="jobTypes.map(jt => ({ label: jt.name, value: jt.id }))"
-                        placeholder="Select your job type"
-                        :loading="loadingJobTypes"
+                        v-model="selectedProfession"
+                        :items="professions.map(jt => ({ label: jt.name, value: jt.id }))"
+                        placeholder="Select your profession"
+                        :loading="loadingProfessions"
                         :disabled="loading"
                         size="lg"
                       />

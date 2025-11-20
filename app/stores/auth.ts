@@ -235,8 +235,8 @@ export const useAuthStore = defineStore('auth', {
             email
             email_verified_at
             avatar
-            job_type_id
-            job_type {
+            profession_id
+            profession {
               id
               name
               slug

@@ -6,20 +6,22 @@ definePageMeta({
   middleware: ['auth']
 })
 
-const jobTypes = ref<any[]>([])
+const professions = ref<any[]>([])
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
 
+// Note: No need to fetch user here - auth middleware ensures user is loaded
 onMounted(async () => {
-  await fetchJobTypes()
+  await fetchProfessions()
   await authStore.fetchUser()
 })
-async function fetchJobTypes() {
+
+async function fetchProfessions() {
     const { $graphql } = useNuxtApp()
     
-    const JOB_TYPES_QUERY = `
-      query JobTypes {
-        jobTypes {
+    const PROFESSIONS_QUERY = `
+      query Professions {
+        professions {
           id
           name
           slug
@@ -27,8 +29,8 @@ async function fetchJobTypes() {
       }
     `
     
-    const data = await $graphql.request(JOB_TYPES_QUERY)
-    jobTypes.value = data.jobTypes
+    const data = await $graphql.request(PROFESSIONS_QUERY)
+    professions.value = data.professions
 }
 </script>
 
@@ -59,7 +61,8 @@ async function fetchJobTypes() {
                   <div class="flex items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
                       <div class="w-16 h-16 rounded-full bg-primary-500 flex items-center justify-center text-white text-2xl font-bold">
-                        {{ user?.name?.charAt(0).toUpperCase() }}
+                        <img v-if="user?.avatar" :src="user.avatar" alt="Avatar" class="w-16 h-16 rounded-full">
+                        <span v-else>{{ user?.name?.charAt(0).toUpperCase() }}</span>
                       </div>
                       <div>
                         <h3 class="text-xl font-semibold">{{ user?.name }}</h3>
@@ -98,13 +101,13 @@ async function fetchJobTypes() {
                     </div>
                     
                     <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Job Type</p>
-                      <p class="font-medium mt-1">{{ jobTypes.find(jt => jt.id === user?.job_type_id)?.name || 'Not specified' }}</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Profession</p>
+                      <p class="font-medium mt-1">{{ professions.find((p: any) => p.id === user?.profession_id)?.name || 'Not specified' }}</p>
                     </div>
                     
                     <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <p class="text-sm text-gray-500 dark:text-gray-400">Account Created</p>
-                      <p class="font-medium mt-1">{{ new Date(user?.created_at || '').toLocaleDateString() }}</p>
+                      <p class="font-medium mt-1">{{ new Date(user?.created_at).toLocaleDateString() }}</p>
                     </div>
                     
                   </div>
