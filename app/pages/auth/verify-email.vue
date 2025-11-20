@@ -10,12 +10,14 @@ definePageMeta({
 
 const authStore = useAuthStore()
 const router = useRouter()
+const toast = useToast()
 const { resendVerificationEmail } = useEmailVerification()
 
 const COOLDOWN_KEY = 'email_verification_cooldown'
 const COOLDOWN_DURATION = 60 // seconds
 
 const resending = ref(false)
+const loggingOut = ref(false)
 const cooldown = ref(0)
 let cooldownInterval: number | null = null
 
@@ -73,6 +75,34 @@ const handleResend = async () => {
     // Start cooldown
     cooldown.value = COOLDOWN_DURATION
     startCooldownTimer()
+  }
+}
+
+// Handle logout
+const handleLogout = async () => {
+  loggingOut.value = true
+  
+  try {
+    await authStore.logout()
+    
+    // Clear cooldown
+    localStorage.removeItem(COOLDOWN_KEY)
+    
+    toast.add({
+      title: 'Logged Out',
+      description: 'You have been logged out successfully',
+      color: 'success'
+    })
+    
+    router.push('/auth/login')
+  } catch (error) {
+    toast.add({
+      title: 'Error',
+      description: 'Failed to logout',
+      color: 'error'
+    })
+  } finally {
+    loggingOut.value = false
   }
 }
 
@@ -157,17 +187,23 @@ onUnmounted(() => {
               <!-- Divider -->
               <UDivider />
 
-              <!-- Back to Login -->
+              <!-- Logout Button -->
               <div>
                 <UButton
-                  to="/auth/login"
+                  @click="handleLogout"
+                  :loading="loggingOut"
+                  :disabled="loggingOut"
                   color="neutral"
                   variant="ghost"
                   size="sm"
+                  block
                 >
-                  <UIcon name="i-lucide-arrow-left" class="mr-2" />
-                  Back to Login
+                  <UIcon name="i-lucide-log-out" class="mr-2" />
+                  Logout
                 </UButton>
+                <p class="text-xs text-gray-500 mt-2 text-center">
+                  Need to use a different account?
+                </p>
               </div>
             </div>
           </UPageCard>
