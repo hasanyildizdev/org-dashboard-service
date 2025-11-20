@@ -2,7 +2,7 @@
 
 definePageMeta({
   title: 'Settings',
-  middleware: 'auth'
+  middleware: ['auth', 'verified']
 })
 
 const colorMode = useColorMode()

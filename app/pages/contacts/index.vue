@@ -3,7 +3,7 @@ import type { Contact } from '@/types/core_types'
 
 definePageMeta({
   title: 'Contacts',
-  middleware: 'auth'
+  middleware: ['auth', 'verified']
 })
 
 const contacts: Contact[] = [
