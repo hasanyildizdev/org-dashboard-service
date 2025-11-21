@@ -8,10 +8,8 @@ export const useProfessionsStore = defineStore('professions', {
     loading: false,
     error: null as Error | null,
   }),
-
   actions: {
     async getProfessions() {
-      if (this.professions.length > 0) return
       try {
         this.loading = true
         const { data, error } = await useAsyncQuery<ProfessionsData>(GET_PROFESSIONS)

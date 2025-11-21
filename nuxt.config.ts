@@ -36,6 +36,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@pinia/nuxt',
     '@nuxtjs/apollo',
+    '@nuxt/icon'
   ],
 
   components: [

@@ -214,7 +214,7 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
              :name="collapsed ? undefined : user?.name"
              :description="collapsed ? undefined : user?.profession?.name || 'User'"
              :avatar="{
-               src: user?.avatar ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || '')}&background=random`
+               src: user?.avatar ?? ''
              }"
              :class="[
                'px-2 py-1 rounded-md w-full hover:cursor-pointer',

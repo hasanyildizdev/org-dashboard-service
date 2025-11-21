@@ -5,7 +5,6 @@ import * as z from 'zod'
 
 definePageMeta({
   title: 'Edit Profile',
-  middleware: ['auth']
 })
 
 const router = useRouter()

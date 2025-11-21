@@ -1,7 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
   title: 'Organa',
-  middleware: ['auth']
 })
 
 const features = [

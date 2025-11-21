@@ -5,7 +5,6 @@ import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 
 definePageMeta({
   title: 'Chat',
-  middleware: ['auth']
 })
 
 interface Contact {

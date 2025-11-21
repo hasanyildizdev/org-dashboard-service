@@ -3,7 +3,6 @@ import { useAuthStore } from '~/stores/auth'
 import { useProfessionsStore } from '~/stores/professions_store'
 definePageMeta({
   title: 'Profile',
-  middleware: ['auth']
 })
 const user = computed(() => useAuthStore().user)
 const professions = computed(() => useProfessionsStore().professions)

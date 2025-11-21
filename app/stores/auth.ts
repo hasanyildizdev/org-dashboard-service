@@ -177,12 +177,6 @@ export const useAuthStore = defineStore('auth', {
 
     async fetchUser() {
       if(this.user) return
-      const token = useCookie('auth_token')
-      if (!token.value) {
-        this.user = null
-        return null
-      }
-      
       try {
         this.loading = true
         const { data, error } = await useAsyncQuery<{ me: User }>(ME_QUERY)
@@ -205,7 +199,6 @@ export const useAuthStore = defineStore('auth', {
         
         if (isAuthError) {
           console.log('🔒 Authentication error - clearing token')
-          token.value = null
           this.user = null
         } else {
           console.log('⚠️ Non-auth error (network/CORS) - keeping token')

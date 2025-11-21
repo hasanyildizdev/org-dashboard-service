@@ -1,7 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
   title: 'PLM',
-  middleware: ['auth']
 })
 </script>
 

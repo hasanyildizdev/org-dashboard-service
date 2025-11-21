@@ -23,6 +23,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   }
   
   if(!authStore.user){
+    console.log('Fetching user in middleware...')
     await authStore.fetchUser()
   }
   
