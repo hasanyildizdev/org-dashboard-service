@@ -93,7 +93,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       password_confirmation: payload.data.password_confirmation
     })
 
-    if (result.success) {
+    if (result?.success) {
       toast.add({ 
         title: 'Success', 
         description: 'Account created successfully! Please verify your email.',
@@ -103,7 +103,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       // Redirect to email verification page
       await router.push('/auth/verify-email')
     } else {
-      formError.value = result.error || 'Unable to create account. Please try again.'
+      formError.value = result?.error || 'Unable to create account. Please try again.'
     }
   } catch (error: any) {
     formError.value = error.message || 'An unexpected error occurred'

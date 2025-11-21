@@ -9,7 +9,6 @@ definePageMeta({
 
 const router = useRouter()
 const route = useRoute()
-const authStore = useAuthStore()
 const toast = useToast()
 
 const processing = ref(true)
@@ -68,15 +67,15 @@ onMounted(async () => {
     
     while (retries > 0 && !fetchSuccess) {
       try {
-        await authStore.fetchUser()
+        const user = computed(() => useAuthStore().user)
         
-        if (authStore.user) {
+        if (user.value) {
           fetchSuccess = true
-          console.log('User fetched successfully:', authStore.user.email)
+          console.log('User fetched successfully:', user.value.email)
           
           toast.add({
             title: 'Success!',
-            description: `Welcome back, ${authStore.user.name}! 🎉`,
+            description: `Welcome back, ${user.value.name}! 🎉`,
             color: 'success'
           })
 

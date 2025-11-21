@@ -1,37 +1,12 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
-
+import { useProfessionsStore } from '~/stores/professions_store'
 definePageMeta({
   title: 'Profile',
   middleware: ['auth']
 })
-
-const professions = ref<any[]>([])
-const authStore = useAuthStore()
-const user = computed(() => authStore.user)
-
-// Note: No need to fetch user here - auth middleware ensures user is loaded
-onMounted(async () => {
-  await fetchProfessions()
-  await authStore.fetchUser()
-})
-
-async function fetchProfessions() {
-    const { $graphql } = useNuxtApp()
-    
-    const PROFESSIONS_QUERY = `
-      query Professions {
-        professions {
-          id
-          name
-          slug
-        }
-      }
-    `
-    
-    const data = await $graphql.request(PROFESSIONS_QUERY)
-    professions.value = data.professions
-}
+const user = computed(() => useAuthStore().user)
+const professions = computed(() => useProfessionsStore().professions)
 </script>
 
 <template>
@@ -87,7 +62,7 @@ async function fetchProfessions() {
                         variant="soft"
                         size="lg"
                         block
-                        @click="authStore.logout"
+                        @click="useAuthStore().logout"
                       />
                     </div>
                   </div>
@@ -107,7 +82,7 @@ async function fetchProfessions() {
                     
                     <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <p class="text-sm text-gray-500 dark:text-gray-400">Account Created</p>
-                      <p class="font-medium mt-1">{{ new Date(user?.created_at).toLocaleDateString() }}</p>
+                      <p class="font-medium mt-1">{{ new Date(user?.created_at || '').toLocaleDateString() }}</p>
                     </div>
                     
                   </div>

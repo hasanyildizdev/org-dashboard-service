@@ -2,7 +2,8 @@
 import * as z from 'zod'
 import AppLogo from '~/components/AppLogo.vue'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
-const config = useRuntimeConfig()
+import { useAuthStore } from '~/stores/auth'
+import { useSocialAuth } from '~/composables/useSocialAuth'
 
 definePageMeta({
   title: 'Sign In',
@@ -10,12 +11,10 @@ definePageMeta({
   middleware: 'guest'
 })
 
-import { useAuthStore } from '~/stores/auth'
-import { useSocialAuth } from '~/composables/useSocialAuth'
-
-const authStore = useAuthStore()
+const config = useRuntimeConfig()
 const router = useRouter()
 const toast = useToast()
+const authStore = useAuthStore()
 const loading = ref(false)
 const formError = ref('')
 const { loginWithGoogle, loginWithGithub } = useSocialAuth()
@@ -79,7 +78,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       remember: payload.data.remember
     })
 
-    if (result.success) {
+    if (result?.success) {
       toast.add({ 
         title: 'Success', 
         description: 'Welcome back! Redirecting to your profile...',
@@ -89,7 +88,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       // Redirect to profile page after successful login
       await router.push('/profile')
     } else {
-      formError.value = result.error || 'Login failed'
+      formError.value = result?.error || 'Login failed'
     }
   } catch (error: any) {
     formError.value = error.message || 'An unexpected error occurred'

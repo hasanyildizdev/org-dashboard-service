@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
+import { UPDATE_PROFILE_MUTATION, DELETE_ACCOUNT_MUTATION } from '~/graphql/mutations'
 import * as z from 'zod'
 
 definePageMeta({
@@ -7,14 +8,13 @@ definePageMeta({
   middleware: ['auth']
 })
 
-const authStore = useAuthStore()
 const router = useRouter()
 const toast = useToast()
 const loading = ref(false)
 const deleteLoading = ref(false)
 const showDeleteModal = ref(false)
 
-const user = computed(() => authStore.user)
+const user = computed(() => useAuthStore().user)
 
 // Professions state
 const professions = ref<any[]>([])
@@ -47,38 +47,6 @@ watch(user, (newUser) => {
   }
 }, { immediate: true })
 
-// Fetch professions on mount
-onMounted(async () => {
-  await fetchProfessions()
-})
-
-async function fetchProfessions() {
-  loadingProfessions.value = true
-  console.log('🔍 Fetching professions...')
-  
-  try {
-    const { $graphql } = useNuxtApp()
-    
-    const PROFESSIONS_QUERY = `
-      query Professions {
-        professions {
-          id
-          name
-          slug
-        }
-      }
-    `
-    
-    const data = await $graphql.request(PROFESSIONS_QUERY)
-    professions.value = data.professions
-  } catch (error) {
-    console.error('❌ Error fetching professions:', error)
-    console.error('❌ Full error:', JSON.stringify(error, null, 2))
-  } finally {
-    loadingProfessions.value = false
-  }
-}
-
 const schema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address')
@@ -107,39 +75,18 @@ async function onSubmit(event: Event) {
   event.preventDefault()
   loading.value = true
   
-  try {
-    const { $graphql } = useNuxtApp()
-    
-    const UPDATE_PROFILE_MUTATION = `
-      mutation UpdateProfile($name: String!, $email: String!, $profession_id: ID) {
-        updateProfile(name: $name, email: $email, profession_id: $profession_id) {
-          id
-          name
-          email
-          email_verified_at
-          profession_id
-          profession {
-            id
-            name
-          }
-          created_at
-          updated_at
-        }
-      }
-    `
-    
-    const data = await $graphql.request(UPDATE_PROFILE_MUTATION, {
+  try {    
+    const { mutate } = useMutation<{ updateProfile: any }>(UPDATE_PROFILE_MUTATION)
+    const result = await mutate({
       name: formData.value.name,
       email: formData.value.email,
       profession_id: formData.value.profession_id
     })
     
     // Update user in store
-    authStore.user = data.updateProfile
+    useAuthStore().user = result?.data?.updateProfile
     
-    const result = { success: true }
-    
-    if (result.success) {
+    if (result?.data?.updateProfile) {
       toast.add({
         title: 'Success',
         description: 'Profile updated successfully!',
@@ -168,23 +115,22 @@ async function deleteAccount() {
   deleteLoading.value = true
   
   try {
-    const { $graphql } = useNuxtApp()
-    
-    const DELETE_ACCOUNT_MUTATION = `
-      mutation DeleteAccount {
-        deleteAccount {
-          status
-          message
-        }
-      }
-    `
-    
-    await $graphql.request(DELETE_ACCOUNT_MUTATION)
+    const { mutate } = useMutation<{ deleteAccount: any }>(DELETE_ACCOUNT_MUTATION)
+    const result = await mutate()
+    if(result?.errors && result.errors.length > 0) {
+      console.error('Delete account error:', result.errors)
+      toast.add({
+        title: 'Error',
+        description: result.errors[0]?.message || 'Failed to delete account',
+        color: 'error'
+      })
+      return
+    }
     
     // Clear auth state
     const token = useCookie('auth_token')
     token.value = null
-    authStore.user = null
+    useAuthStore().user = null
     
     toast.add({
       title: 'Account Deleted',

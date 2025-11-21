@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { useAuthStore } from '~/stores/auth'
 import type { NavigationMenuItem, CommandPaletteGroup, CommandPaletteItem } from '@nuxt/ui'
+import { useAuthStore } from '~/stores/auth'
 const route = useRoute()
-const authStore = useAuthStore()
-const user = computed(() => authStore.user)
+const user = computed(() => useAuthStore().user)
 type MetaContent = string | string[]
 useHead({
     title: (): string => (route.meta?.title as string) ?? 'Ourganize',
@@ -215,7 +214,7 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
              :name="collapsed ? undefined : user?.name"
              :description="collapsed ? undefined : user?.profession?.name || 'User'"
              :avatar="{
-               src: user?.avatar ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name)}&background=random`
+               src: user?.avatar ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || '')}&background=random`
              }"
              :class="[
                'px-2 py-1 rounded-md w-full hover:cursor-pointer',

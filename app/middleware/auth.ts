@@ -13,9 +13,16 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo('/auth/login')
   }
   
-  // Wait for auth initialization if not done yet
-  if (!authStore.initialized) {
-    console.log('⏳ Not initialized - fetching user...')
+  // Sync cookie token to localStorage for Apollo
+  if (token.value && typeof window !== 'undefined') {
+    const storedToken = localStorage.getItem('token')
+    if (storedToken !== token.value) {
+      localStorage.setItem('token', token.value)
+      console.log('🔄 Token synced in middleware')
+    }
+  }
+  
+  if(!authStore.user){
     await authStore.fetchUser()
   }
   

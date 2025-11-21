@@ -3,6 +3,10 @@ import meta from './app/config/meta'
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  devServer: {
+    port: 3001,
+    host: '0.0.0.0'
+  },
 
   css: ['~/assets/css/main.css'],
 
@@ -30,13 +34,15 @@ export default defineNuxtConfig({
     '@nuxt/scripts',
     '@nuxt/test-utils',
     '@nuxtjs/i18n',
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    '@nuxtjs/apollo',
   ],
 
   components: [
     {
       path: '~/components',
       pathPrefix: false,   
+      extensions: ['.vue'],
     },
   ],
 
@@ -64,10 +70,21 @@ export default defineNuxtConfig({
     typeCheck: false
   },
 
+  apollo: {
+    clients: {
+      default: {
+        httpEndpoint: process.env.BACKEND_API_URL + '/graphql',
+        tokenName: 'token', 
+        tokenStorage: 'localStorage',
+        authType: 'Bearer',
+        authHeader: 'Authorization'
+      },
+    },
+  },
+  
   runtimeConfig: {
     public: {
-      graphqlEndpoint: process.env.GRAPHQL_ENDPOINT || 'http://localhost:8000/graphql',
-      apiUrl: process.env.API_URL || 'http://localhost:8000',
+      apiUrl: process.env.BACKEND_API_URL || 'http://localhost:8000',
       websiteUrl: process.env.WEBSITE_URL || 'http://localhost:3000',
     }
   }

@@ -9,7 +9,6 @@ definePageMeta({
 
 const route = useRoute()
 const router = useRouter()
-const authStore = useAuthStore()
 const toast = useToast()
 const { verifyEmail } = useEmailVerification()
 
@@ -42,12 +41,9 @@ onMounted(async () => {
         color: 'success'
       })
 
-      // Refresh user data to get updated email_verified_at
-      await authStore.fetchUser()
-
       // Redirect to profile after 2 seconds
       setTimeout(() => {
-        if (authStore.isAuthenticated) {
+        if (useAuthStore().isAuthenticated) {
           router.push('/profile')
         } else {
           router.push('/auth/login')

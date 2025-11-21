@@ -1,45 +1,30 @@
-import { gql } from 'graphql-request'
+import { RESEND_VERIFICATION_MUTATION, VERIFY_EMAIL_MUTATION } from '~/graphql/mutations'
 
 export const useEmailVerification = () => {
-  const { $graphql } = useNuxtApp()
   const toast = useToast()
-
-  /**
-   * Verify email address with secure signature
-   */
   const verifyEmail = async (params: {
     id: string
     hash: string
     expires: string
     signature: string
   }) => {
-    const VERIFY_EMAIL_MUTATION = gql`
-      mutation VerifyEmail($id: ID!, $hash: String!, $expires: Int!, $signature: String!) {
-        verifyEmail(id: $id, hash: $hash, expires: $expires, signature: $signature) {
-          status
-          message
-          verified
-        }
-      }
-    `
-
     try {
-      const data = await $graphql.request<{
+      const { mutate } = useMutation<{
         verifyEmail: {
           status: string
           message: string
           verified: boolean
         }
-      }>(VERIFY_EMAIL_MUTATION, {
+      }>(VERIFY_EMAIL_MUTATION)
+      const result = await mutate({
         id: params.id,
         hash: params.hash,
         expires: parseInt(params.expires),
         signature: params.signature
       })
-
       return {
         success: true,
-        data: data.verifyEmail
+        data: result?.data?.verifyEmail
       }
     } catch (error: any) {
       console.error('Email verification error:', error)
@@ -54,44 +39,31 @@ export const useEmailVerification = () => {
    * Resend verification email
    */
   const resendVerificationEmail = async () => {
-    const RESEND_VERIFICATION_MUTATION = gql`
-      mutation ResendVerificationEmail {
-        resendVerificationEmail {
-          status
-          message
-        }
-      }
-    `
-
     try {
-      const data = await $graphql.request<{
+      const { mutate } = useMutation<{
         resendVerificationEmail: {
           status: string
           message: string
         }
       }>(RESEND_VERIFICATION_MUTATION)
-
+      const result = await mutate()
       toast.add({
         title: 'Success',
-        description: data.resendVerificationEmail.message,
+        description: result?.data?.resendVerificationEmail.message,
         color: 'success'
       })
-
       return {
         success: true,
-        data: data.resendVerificationEmail
+        data: result?.data?.resendVerificationEmail
       }
     } catch (error: any) {
       console.error('Resend verification error:', error)
-      
       const errorMessage = error.response?.errors?.[0]?.message || 'Failed to resend verification email'
-      
       toast.add({
         title: 'Error',
         description: errorMessage,
         color: 'error'
       })
-
       return {
         success: false,
         error: errorMessage

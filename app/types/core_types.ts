@@ -64,3 +64,15 @@ export interface Contact {
   unreadMessages: number
   tags: string[]
 }
+
+export interface Profession {
+  id: string
+  name: string
+  slug: string
+  sort_order: number
+  is_active: boolean
+}
+
+export interface ProfessionsData {
+  professions: Profession[]
+}
