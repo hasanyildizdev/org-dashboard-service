@@ -26,6 +26,12 @@ export default defineNuxtConfig({
     }
   },
 
+  nitro: {
+    prerender: {
+      routes: ['/']
+    }
+  },
+
   modules: [
     '@nuxt/ui',
     '@nuxt/content',

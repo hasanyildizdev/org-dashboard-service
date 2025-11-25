@@ -73,6 +73,7 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: false, error: 'Login failed' }
       }
       tokenCookie.value = payload?.access_token ?? null
+      // User data already includes profession from backend
       setUser(payload?.user ?? null)
       return { success: true, user: payload.user }
     } catch (err: any) {

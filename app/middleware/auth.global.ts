@@ -3,10 +3,10 @@ import { useAuthStore } from '~/stores/auth'
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const authStore = useAuthStore()
   const token = useCookie('auth_token')
-  const userCookie = useCookie('auth_user')
   
-  // Skip auth check for login page
-  if (to.path === '/auth/login') {
+  // Skip auth check for public auth pages
+  const publicAuthPages = ['/auth/login', '/auth/register', '/auth/callback', '/auth/forgot-password']
+  if (publicAuthPages.includes(to.path)) {
     return
   }
 

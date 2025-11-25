@@ -10,6 +10,12 @@ export const LOGIN_MUTATION = gql`
         email
         email_verified_at
         avatar
+        profession_id
+        profession {
+          id
+          name
+          slug
+        }
         created_at
         updated_at
       }
@@ -29,6 +35,12 @@ mutation Register($name: String!, $email: String!, $password: String!, $password
         email
         email_verified_at
         avatar
+        profession_id
+        profession {
+          id
+          name
+          slug
+        }
         created_at
         updated_at
     }
@@ -43,10 +55,12 @@ export const UPDATE_PROFILE_MUTATION = gql`
       name
       email
       email_verified_at
+      avatar
       profession_id
       profession {
         id
         name
+        slug
       }
       created_at
       updated_at

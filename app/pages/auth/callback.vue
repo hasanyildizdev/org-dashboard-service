@@ -56,50 +56,35 @@ onMounted(async () => {
     })
     authToken.value = token
 
-    console.log('Token stored:', token.substring(0, 20) + '...')
+    console.log('✅ Token stored:', token.substring(0, 20) + '...')
 
     // Small delay to ensure cookie is set
     await new Promise(resolve => setTimeout(resolve, 100))
 
-    // Fetch user data with retries
-    let retries = 3
-    let fetchSuccess = false
+    // Fetch user data using auth store
+    const authStore = useAuthStore()
+    console.log('🔄 Fetching user data...')
     
-    while (retries > 0 && !fetchSuccess) {
-      try {
-        const user = computed(() => useAuthStore().user)
-        
-        if (user.value) {
-          fetchSuccess = true
-          console.log('User fetched successfully:', user.value.email)
-          
-          toast.add({
-            title: 'Success!',
-            description: `Welcome back, ${user.value.name}! 🎉`,
-            color: 'success'
-          })
+    const user = await authStore.fetchUser()
+    
+    if (!user) {
+      throw new Error('Failed to fetch user data')
+    }
 
-          // Redirect to profile
-          await router.push('/profile')
-        } else {
-          retries--
-          if (retries > 0) {
-            console.log(`User fetch returned null, retrying... (${retries} attempts left)`)
-            await new Promise(resolve => setTimeout(resolve, 500))
-          }
-        }
-      } catch (fetchErr: any) {
-        console.error('Fetch attempt failed:', fetchErr)
-        retries--
-        if (retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, 500))
-        }
-      }
-    }
+    console.log('✅ User fetched successfully:', user.email)
+    console.log('✅ User profession:', user.profession?.name || 'None')
     
-    if (!fetchSuccess) {
-      throw new Error('Failed to fetch user data after multiple attempts')
-    }
+    toast.add({
+      title: 'Success!',
+      description: `Welcome back, ${user.name}! 🎉`,
+      color: 'success'
+    })
+
+    // Small delay for UX
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    // Redirect to profile
+    await router.push('/profile')
   } catch (err: any) {
     console.error('Social auth callback error:', err)
     error.value = err.message || 'Authentication failed'
