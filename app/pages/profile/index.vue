@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
-import { useProfessionsStore } from '~/stores/professions_store'
+import { useProfileStore } from '~/stores/profile'
 definePageMeta({
   title: 'Profile',
 })
 const user = computed(() => useAuthStore().user)
-const professions = computed(() => useProfessionsStore().professions)
+const professions = computed(() => useProfileStore().professions)
 </script>
 
 <template>

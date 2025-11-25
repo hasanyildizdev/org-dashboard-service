@@ -75,10 +75,10 @@ export default defineNuxtConfig({
     clients: {
       default: {
         httpEndpoint: process.env.BACKEND_API_URL + '/graphql',
-        tokenName: 'token', 
-        tokenStorage: 'localStorage',
+        tokenStorage: 'cookie',
+        tokenName: 'auth_token',
         authType: 'Bearer',
-        authHeader: 'Authorization'
+        authHeader: 'Authorization',
       },
     },
   },

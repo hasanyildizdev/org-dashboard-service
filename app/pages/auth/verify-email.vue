@@ -5,7 +5,6 @@ import { useEmailVerification } from '~/composables/useEmailVerification'
 definePageMeta({
   title: 'Verify Email',
   layout: 'auth',
-  middleware: 'auth'
 })
 
 const authStore = useAuthStore()

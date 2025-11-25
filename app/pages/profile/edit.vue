@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
-import { UPDATE_PROFILE_MUTATION, DELETE_ACCOUNT_MUTATION } from '~/graphql/mutations'
+import { useProfileStore } from '~/stores/profile'
 import * as z from 'zod'
 
 definePageMeta({
@@ -16,8 +16,8 @@ const showDeleteModal = ref(false)
 const user = computed(() => useAuthStore().user)
 
 // Professions state
-const professions = ref<any[]>([])
-const loadingProfessions = ref(false)
+const profileStore = useProfileStore()
+await profileStore.fetchProfessions()
 
 // Form state
 const formData = ref({
@@ -29,7 +29,7 @@ const formData = ref({
 // Selected profession for USelectMenu
 const selectedProfession = computed({
   get: () => {
-    const profession = professions.value.find(jt => jt.id === formData.value.profession_id)
+    const profession = profileStore.professions.find((jt: any) => jt.id === formData.value.profession_id)
     return profession ? { label: profession.name, value: profession.id } : undefined
   },
   set: (value: any) => {
@@ -75,26 +75,15 @@ async function onSubmit(event: Event) {
   loading.value = true
   
   try {    
-    const { mutate } = useMutation<{ updateProfile: any }>(UPDATE_PROFILE_MUTATION)
-    const result = await mutate({
-      name: formData.value.name,
-      email: formData.value.email,
-      profession_id: formData.value.profession_id
+    await useProfileStore().updateProfile(formData.value.name, formData.value.email, formData.value.profession_id)
+    toast.add({
+      title: 'Success',
+      description: 'Profile updated successfully!',
+      color: 'success'
     })
     
-    // Update user in store
-    useAuthStore().user = result?.data?.updateProfile
-    
-    if (result?.data?.updateProfile) {
-      toast.add({
-        title: 'Success',
-        description: 'Profile updated successfully!',
-        color: 'success'
-      })
-      
-      // Redirect back to profile
-      router.push('/profile')
-    }
+    // Redirect back to profile
+    router.push('/profile')
   } catch (error: any) {
     toast.add({
       title: 'Error',
@@ -112,25 +101,8 @@ async function confirmDeleteAccount() {
 
 async function deleteAccount() {
   deleteLoading.value = true
-  
   try {
-    const { mutate } = useMutation<{ deleteAccount: any }>(DELETE_ACCOUNT_MUTATION)
-    const result = await mutate()
-    if(result?.errors && result.errors.length > 0) {
-      console.error('Delete account error:', result.errors)
-      toast.add({
-        title: 'Error',
-        description: result.errors[0]?.message || 'Failed to delete account',
-        color: 'error'
-      })
-      return
-    }
-    
-    // Clear auth state
-    const token = useCookie('auth_token')
-    token.value = null
-    useAuthStore().user = null
-    
+    await useProfileStore().deleteAccount()
     toast.add({
       title: 'Account Deleted',
       description: 'Your account has been permanently deleted.',
@@ -259,9 +231,9 @@ async function deleteAccount() {
                     >
                       <USelectMenu
                         v-model="selectedProfession"
-                        :items="professions.map(jt => ({ label: jt.name, value: jt.id }))"
+                        :items="profileStore.professions.map((jt: any) => ({ label: jt.name, value: jt.id }))"
                         placeholder="Select your profession"
-                        :loading="loadingProfessions"
+                        :loading="profileStore.loading"
                         :disabled="loading"
                         size="lg"
                       />
