@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
-import { useProfileStore } from '~/stores/profile'
 definePageMeta({
   title: 'Profile',
 })
 const user = computed(() => useAuthStore().user)
-const professions = computed(() => useProfileStore().professions)
 </script>
 
 <template>
@@ -76,7 +74,7 @@ const professions = computed(() => useProfileStore().professions)
                     
                     <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <p class="text-sm text-gray-500 dark:text-gray-400">Profession</p>
-                      <p class="font-medium mt-1">{{ professions.find((p: any) => p.id === user?.profession_id)?.name || 'Not specified' }}</p>
+                      <p class="font-medium mt-1">{{ user?.profession?.name || 'Not specified' }}</p>
                     </div>
                     
                     <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
