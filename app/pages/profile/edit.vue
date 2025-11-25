@@ -164,8 +164,15 @@ async function deleteAccount() {
                 </template>
                 
                 <div class="flex items-center gap-6">
-                  <div class="w-24 h-24 rounded-full bg-primary-500 flex items-center justify-center text-white text-3xl font-bold">
-                    {{ user?.name?.charAt(0).toUpperCase() }}
+                  <div class="w-24 h-24 rounded-full bg-primary-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+                    <img
+                      v-if="user?.avatar"
+                      :src="user.avatar"
+                      class="w-full h-full object-cover"
+                      />
+                      <span v-else>
+                        {{ user?.name?.charAt(0)?.toUpperCase() }}
+                      </span>
                   </div>
                   <div class="flex-1">
                     <p class="text-sm text-gray-500 mb-2">
