@@ -72,7 +72,3 @@ export interface Profession {
   sort_order: number
   is_active: boolean
 }
-
-export interface ProfessionsData {
-  professions: Profession[]
-}

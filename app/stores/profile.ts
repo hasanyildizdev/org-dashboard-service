@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import type { 
   User, 
   Profession,
-  ProfessionsData 
 } from "~/types/core_types";
 import { GET_PROFESSIONS } from '~/graphql/queries'
 import { 
