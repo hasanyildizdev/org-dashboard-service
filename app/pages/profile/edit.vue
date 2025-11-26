@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 import { useProfileStore } from '~/stores/profile'
+import { useUserEducationStore } from '~/stores/user_education'
+import type { UserEducation, UserEducationInput } from '~/types/core_types'
 import * as z from 'zod'
 
 definePageMeta({
@@ -14,6 +16,42 @@ const deleteLoading = ref(false)
 const showDeleteModal = ref(false)
 
 const user = computed(() => useAuthStore().user)
+
+// Education state
+const educationStore = useUserEducationStore()
+const showEducationModal = ref(false)
+const editingEducationId = ref<string | null>(null)
+const educationLoading = ref(false)
+const showDeleteEducationModal = ref(false)
+const deletingEducationId = ref<string | null>(null)
+
+// Month options for dropdowns
+const months = ref([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+
+// Generate year options (last 60 years to next 5 years)
+const currentYear = new Date().getFullYear()
+const years = Array.from({ length: 65 }, (_, i) => currentYear - 60 + i)
+
+// Education form data
+const educationForm = ref<UserEducationInput>({
+  institution: '',
+  degree: null,
+  field_of_study: null,
+  city: null,
+  country: null,
+  start_month: null,
+  start_year: null,
+  end_month: null,
+  end_year: null,
+  grade: null,
+  is_current: false,
+  description: null
+})
+
+// Load educations on mount
+onMounted(async () => {
+  await educationStore.fetchUserEducations()
+})
 
 // Professions state
 const profileStore = useProfileStore()
@@ -70,12 +108,141 @@ const fields = [
   }
 ]
 
+// Education Functions
+function openEducationModal() {
+  resetEducationForm()
+  editingEducationId.value = null
+  showEducationModal.value = true
+}
+
+function editEducation(education: UserEducation) {
+  editingEducationId.value = education.id
+  educationForm.value = {
+    institution: education.institution,
+    degree: education.degree,
+    field_of_study: education.field_of_study,
+    city: education.city,
+    country: education.country,
+    start_month: education.start_month,
+    start_year: education.start_year,
+    end_month: education.end_month,
+    end_year: education.end_year,
+    grade: education.grade,
+    is_current: education.is_current,
+    description: education.description
+  }
+  showEducationModal.value = true
+}
+
+function resetEducationForm() {
+  educationForm.value = {
+    institution: '',
+    degree: null,
+    field_of_study: null,
+    city: null,
+    country: null,
+    start_month: null,
+    start_year: null,
+    end_month: null,
+    end_year: null,
+    grade: null,
+    is_current: false,
+    description: null
+  }
+}
+
+async function saveEducation() {
+  if (!educationForm.value.institution) {
+    toast.add({
+      title: 'Error',
+      description: 'Institution name is required',
+      color: 'error'
+    })
+    return
+  }
+
+  educationLoading.value = true
+
+  try {
+    let result
+    if (editingEducationId.value) {
+      result = await educationStore.updateUserEducation(editingEducationId.value, educationForm.value)
+    } else {
+      result = await educationStore.createUserEducation(educationForm.value)
+    }
+
+    if (result.success) {
+      toast.add({
+        title: 'Success',
+        description: editingEducationId.value ? 'Education updated successfully' : 'Education added successfully',
+        color: 'success'
+      })
+      showEducationModal.value = false
+      resetEducationForm()
+    } else {
+      toast.add({
+        title: 'Error',
+        description: result.error || 'Failed to save education',
+        color: 'error'
+      })
+    }
+  } catch (error: any) {
+    toast.add({
+      title: 'Error',
+      description: error.message || 'Failed to save education',
+      color: 'error'
+    })
+  } finally {
+    educationLoading.value = false
+  }
+}
+
+function confirmDeleteEducation(id: string) {
+  deletingEducationId.value = id
+  showDeleteEducationModal.value = true
+}
+
+async function deleteEducation() {
+  if (!deletingEducationId.value) return
+
+  educationLoading.value = true
+
+  try {
+    const result = await educationStore.deleteUserEducation(deletingEducationId.value)
+
+    if (result.success) {
+      toast.add({
+        title: 'Success',
+        description: 'Education deleted successfully',
+        color: 'success'
+      })
+      showDeleteEducationModal.value = false
+      deletingEducationId.value = null
+    } else {
+      toast.add({
+        title: 'Error',
+        description: result.error || 'Failed to delete education',
+        color: 'error'
+      })
+    }
+  } catch (error: any) {
+    toast.add({
+      title: 'Error',
+      description: error.message || 'Failed to delete education',
+      color: 'error'
+    })
+  } finally {
+    educationLoading.value = false
+  }
+}
+
 async function onSubmit(event: Event) {
   event.preventDefault()
   loading.value = true
   
   try {    
-    await useProfileStore().updateProfile(formData.value.name, formData.value.email, formData.value.profession_id)
+    const professionId = formData.value.profession_id ? Number(formData.value.profession_id) : undefined
+    await useProfileStore().updateProfile(formData.value.name, formData.value.email, professionId as any)
     toast.add({
       title: 'Success',
       description: 'Profile updated successfully!',
@@ -273,26 +440,311 @@ async function deleteAccount() {
                 </form>
               </UCard>
 
+              <!-- Education Section -->
+              <UCard id="education">
+                <template #header>
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">Education</h3>
+                    <!-- Education Modal -->
+                    <UButton
+                      label="Add Education"
+                      icon="i-lucide-plus"
+                      color="primary"
+                      trailing
+                      @click="openEducationModal"
+                    />
+                    <UModal v-model:open="showEducationModal" :title="editingEducationId ? 'Edit Education' : 'Add Education'">
+                      <template #body>
+                        <form @submit.prevent="saveEducation" class="space-y-4">
+                          <UFormField label="Institution *" name="institution" required>
+                            <UInput
+                              v-model="educationForm.institution"
+                              placeholder="e.g., MIT, Stanford University"
+                              size="lg"
+                              :disabled="educationLoading"
+                            />
+                          </UFormField>
+                  
+                          <div class="grid grid-cols-2 gap-4">
+                            <UFormField label="Degree" name="degree">
+                              <UInput
+                                v-model="educationForm.degree"
+                                placeholder="e.g., Bachelor's, Master's"
+                                size="lg"
+                                :disabled="educationLoading"
+                              />
+                            </UFormField>
+                  
+                            <UFormField label="Field of Study" name="field_of_study">
+                              <UInput
+                                v-model="educationForm.field_of_study"
+                                placeholder="e.g., Computer Science"
+                                size="lg"
+                                :disabled="educationLoading"
+                              />
+                            </UFormField>
+                          </div>
+                  
+                          <div class="grid grid-cols-2 gap-4">
+                            <UFormField label="City" name="city">
+                              <UInput
+                                v-model="educationForm.city"
+                                placeholder="e.g., Cambridge"
+                                size="lg"
+                                :disabled="educationLoading"
+                              />
+                            </UFormField>
+                  
+                            <UFormField label="Country" name="country">
+                              <UInput
+                                v-model="educationForm.country"
+                                placeholder="e.g., United States"
+                                size="lg"
+                                :disabled="educationLoading"
+                              />
+                            </UFormField>
+                          </div>
+                  
+                          <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                              <label class="text-sm font-medium">Start Date</label>
+                              <div class="grid grid-cols-2 gap-2">
+                                <USelectMenu
+                                  :items="months"
+                                  v-model="educationForm.start_month"
+                                  placeholder="Month"
+                                  size="lg"
+                                  :disabled="educationLoading"
+                                />
+                                <USelectMenu
+                                  v-model="educationForm.start_year"
+                                  :items="years"
+                                  value-attribute="value"
+                                  option-attribute="label"
+                                  placeholder="Year"
+                                  size="lg"
+                                  :disabled="educationLoading"
+                                />
+                              </div>
+                            </div>
+                  
+                            <div class="space-y-2">
+                              <label class="text-sm font-medium">End Date</label>
+                              <div class="grid grid-cols-2 gap-2">
+                                <USelectMenu
+                                  :items="months"
+                                  v-model="educationForm.end_month"
+                                  placeholder="Month"
+                                  size="lg"
+                                  :disabled="educationLoading || educationForm.is_current"
+                                />
+                                <USelectMenu
+                                  v-model="educationForm.end_year"
+                                  :items="years"
+                                  value-attribute="value"
+                                  option-attribute="label"
+                                  placeholder="Year"
+                                  size="lg"
+                                  :disabled="educationLoading || educationForm.is_current"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                  
+                          <UFormField>
+                            <UCheckbox
+                              v-model="educationForm.is_current"
+                              label="I currently study here"
+                              :disabled="educationLoading"
+                            />
+                          </UFormField>
+                  
+                          <UFormField label="Grade/GPA" name="grade">
+                            <UInput
+                              v-model="educationForm.grade"
+                              placeholder="e.g., 3.8/4.0, First Class Honours"
+                              size="lg"
+                              :disabled="educationLoading"
+                            />
+                          </UFormField>
+                  
+                          <UFormField label="Description" name="description">
+                            <UTextarea
+                              v-model="educationForm.description"
+                              placeholder="Describe your studies, achievements, etc."
+                              :rows="4"
+                              size="lg"
+                              :disabled="educationLoading"
+                            />
+                          </UFormField>
+                        </form>
+                      </template>
+                      <template #footer>
+                        <div class="w-full flex justify-end gap-3">
+                          <UButton
+                            :label="editingEducationId ? 'Update' : 'Add'"
+                            color="primary"
+                            @click="saveEducation"
+                            :loading="educationLoading"
+                          />
+                        </div>
+                      </template>
+                    </UModal>
+                  </div>
+                </template>
+
+                <div v-if="educationStore.userEducations.length === 0" class="text-center py-8">
+                  <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <UIcon name="i-lucide-graduation-cap" class="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p class="text-gray-500 dark:text-gray-400 mb-4">No education added yet</p>
+                </div>
+
+                <div v-else class="space-y-4">
+                  <div
+                    v-for="education in educationStore.userEducations"
+                    :key="education.id"
+                    class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-500 dark:hover:border-primary-500 transition-colors"
+                  >
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <div class="flex items-start gap-3">
+                          <div class="w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center flex-shrink-0">
+                            <UIcon name="i-lucide-graduation-cap" class="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                          </div>
+                          <div class="flex-1">
+                            <div class="flex items-start justify-between gap-2">
+                              <div>
+                                <h4 class="font-semibold text-base">{{ education.institution }}</h4>
+                                <p v-if="education.degree || education.field_of_study" class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                  <span v-if="education.degree">{{ education.degree }}</span>
+                                  <span v-if="education.degree && education.field_of_study"> in </span>
+                                  <span v-if="education.field_of_study">{{ education.field_of_study }}</span>
+                                </p>
+                              </div>
+                              <UBadge v-if="education.is_current" color="primary" variant="soft" size="xs">
+                                Current
+                              </UBadge>
+                            </div>
+                            <div class="flex items-center gap-2 mt-2 text-sm text-gray-500">
+                              <UIcon name="i-lucide-calendar" class="w-4 h-4" />
+                              <span>{{ education.education_period }}</span>
+                            </div>
+                            <div v-if="education.city || education.country" class="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                              <UIcon name="i-lucide-map-pin" class="w-4 h-4" />
+                              <span>{{ [education.city, education.country].filter(Boolean).join(', ') }}</span>
+                            </div>
+                            <p v-if="education.grade" class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                              <span class="font-medium">Grade:</span> {{ education.grade }}
+                            </p>
+                            <p v-if="education.description" class="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
+                              {{ education.description }}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex gap-2 ml-4">
+                        <UButton
+                          icon="i-lucide-pencil"
+                          size="sm"
+                          color="neutral"
+                          variant="ghost"
+                          square
+                          @click="editEducation(education)"
+                        />
+                        <!-- Delete Education Confirmation Modal -->
+                        <UModal 
+                          v-model="showDeleteEducationModal"
+                          title="Delete Education"
+                          description="This action cannot be undone"
+                          color="error">
+                            <UButton
+                              icon="i-lucide-trash-2"
+                              size="sm"
+                              color="error"
+                              variant="ghost"
+                              square
+                              @click="confirmDeleteEducation(education.id)"
+                            />
+                            <template #body>
+                              <div class="space-y-4">
+                                <p class="text-gray-700 dark:text-gray-300">
+                                  Are you sure you want to delete this education? This will permanently remove it from your profile.
+                                </p>
+                              </div>
+                            </template>
+                            <template #footer>
+                              <div class="w-full flex justify-end gap-3">
+                                <UButton
+                                  label="Delete"
+                                  color="error"
+                                  @click="deleteEducation"
+                                  :loading="educationLoading"
+                                />
+                              </div>
+                            </template>
+                        </UModal>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </UCard>
+
               <!-- Danger Zone -->
               <UCard>
                 <template #header>
                   <h3 class="text-lg font-semibold text-red-600">Danger Zone</h3>
                 </template>
-                
                 <div class="space-y-4">
                   <div>
                     <h4 class="font-medium mb-1">Delete Account</h4>
                     <p class="text-sm text-gray-500 mb-3">
                       Once you delete your account, there is no going back. Please be certain.
                     </p>
-                    <UButton
-                      label="Delete Account"
-                      color="error"
-                      variant="outline"
-                      icon="i-lucide-trash-2"
-                      @click="confirmDeleteAccount"
-                      :loading="deleteLoading"
-                    />
+                    <!-- Delete Account Confirmation Modal -->
+                    <UModal 
+                      v-model="showDeleteModal"
+                      title="Delete Account"
+                      description="This action cannot be undone"
+                      color="error">
+                      <UButton
+                        label="Delete Account"
+                        color="error"
+                        variant="outline"
+                        icon="i-lucide-trash-2"
+                        @click="confirmDeleteAccount"
+                        :loading="deleteLoading"
+                      />
+                      <template #body>
+                        <div class="space-y-4">
+                          <p class="text-gray-700 dark:text-gray-300">
+                            Are you absolutely sure you want to delete your account? This will:
+                          </p>
+                          <ul class="list-disc list-inside space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                            <li>Permanently delete your profile</li>
+                            <li>Remove all your data</li>
+                            <li>Revoke all active sessions</li>
+                            <li>This action cannot be reversed</li>
+                          </ul>
+                          <UAlert
+                            color="error"
+                            icon="i-lucide-shield-alert"
+                            title="Warning"
+                            description="All your data will be permanently deleted."
+                          />
+                        </div>
+                      </template>
+                      <template #footer>
+                        <div class="w-full flex justify-end gap-3">
+                          <UButton
+                            label="Delete My Account"
+                            color="error"
+                            @click="deleteAccount"
+                            :loading="deleteLoading"
+                          />
+                        </div>
+                      </template>
+                    </UModal>
                   </div>
                 </div>
               </UCard>
@@ -300,57 +752,4 @@ async function deleteAccount() {
           </UContainer>
       </template>
   </UDashboardPanel>
-
-  <!-- Delete Account Confirmation Modal -->
-  <UModal v-if="showDeleteModal" v-model="showDeleteModal">
-    <UCard>
-      <template #header>
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
-            <UIcon name="i-lucide-alert-triangle" class="w-6 h-6 text-red-600" />
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold">Delete Account</h3>
-            <p class="text-sm text-gray-500">This action cannot be undone</p>
-          </div>
-        </div>
-      </template>
-
-      <div class="space-y-4">
-        <p class="text-gray-700 dark:text-gray-300">
-          Are you absolutely sure you want to delete your account? This will:
-        </p>
-        <ul class="list-disc list-inside space-y-2 text-sm text-gray-600 dark:text-gray-400">
-          <li>Permanently delete your profile</li>
-          <li>Remove all your data</li>
-          <li>Revoke all active sessions</li>
-          <li>This action cannot be reversed</li>
-        </ul>
-        <UAlert
-          color="error"
-          icon="i-lucide-shield-alert"
-          title="Warning"
-          description="All your data will be permanently deleted."
-        />
-      </div>
-
-      <template #footer>
-        <div class="flex justify-end gap-3">
-          <UButton
-            label="Cancel"
-            color="neutral"
-            variant="ghost"
-            @click="showDeleteModal = false"
-            :disabled="deleteLoading"
-          />
-          <UButton
-            label="Delete My Account"
-            color="error"
-            @click="deleteAccount"
-            :loading="deleteLoading"
-          />
-        </div>
-      </template>
-    </UCard>
-  </UModal>
 </template>

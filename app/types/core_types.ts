@@ -72,3 +72,48 @@ export interface Profession {
   sort_order: number
   is_active: boolean
 }
+
+export interface UserEducation {
+  id: string;
+  user_id: string;
+  institution: string;
+  degree?: string | null;
+  field_of_study?: string | null;
+  city?: string | null;
+  country?: string | null;
+  start_month?: number | null;
+  start_year?: number | null;
+  end_month?: number | null;
+  end_year?: number | null;
+  grade?: string | null;
+  is_current: boolean;
+  description?: string | null;
+  start_date_formatted?: string | null;
+  end_date_formatted?: string | null;
+  education_period?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserEducationInput {
+  institution: string;
+  degree?: string | null;
+  field_of_study?: string | null;
+  city?: string | null;
+  country?: string | null;
+  start_month?: number | null;
+  start_year?: number | null;
+  end_month?: number | null;
+  end_year?: number | null;
+  grade?: string | null;
+  is_current?: boolean | null;
+  description?: string | null;
+}
+
+export interface UserEducationsData {
+  userEducations: UserEducation[];
+}
+
+export interface UserEducationData {
+  userEducation: UserEducation | null;
+}

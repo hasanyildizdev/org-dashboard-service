@@ -29,3 +29,29 @@ export const ME_QUERY = gql`
     }
   }
 `
+
+export const GET_USER_EDUCATIONS = gql`
+  query GetUserEducations {
+    userEducations {
+      id
+      user_id
+      institution
+      degree
+      field_of_study
+      city
+      country
+      start_month
+      start_year
+      end_month
+      end_year
+      grade
+      is_current
+      description
+      start_date_formatted
+      end_date_formatted
+      education_period
+      created_at
+      updated_at
+    }
+  }
+`

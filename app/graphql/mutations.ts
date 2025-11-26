@@ -103,3 +103,61 @@ export const DELETE_ACCOUNT_MUTATION = gql`
     }
   }
 `
+
+export const CREATE_USER_EDUCATION_MUTATION = gql`
+  mutation CreateUserEducation($input: UserEducationInput!) {
+    createUserEducation(input: $input) {
+      id
+      user_id
+      institution
+      degree
+      field_of_study
+      city
+      country
+      start_month
+      start_year
+      end_month
+      end_year
+      grade
+      is_current
+      description
+      start_date_formatted
+      end_date_formatted
+      education_period
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const UPDATE_USER_EDUCATION_MUTATION = gql`
+  mutation UpdateUserEducation($id: ID!, $input: UserEducationInput!) {
+    updateUserEducation(id: $id, input: $input) {
+      id
+      user_id
+      institution
+      degree
+      field_of_study
+      city
+      country
+      start_month
+      start_year
+      end_month
+      end_year
+      grade
+      is_current
+      description
+      start_date_formatted
+      end_date_formatted
+      education_period
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const DELETE_USER_EDUCATION_MUTATION = gql`
+  mutation DeleteUserEducation($id: ID!) {
+    deleteUserEducation(id: $id)
+  }
+`

@@ -1,9 +1,18 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
+import { useUserEducationStore } from '~/stores/user_education'
+
 definePageMeta({
   title: 'Profile',
 })
+
 const user = computed(() => useAuthStore().user)
+const educationStore = useUserEducationStore()
+
+// Fetch educations on mount
+onMounted(async () => {
+  await educationStore.fetchUserEducations()
+})
 </script>
 
 <template>
@@ -82,6 +91,58 @@ const user = computed(() => useAuthStore().user)
                       <p class="font-medium mt-1">{{ new Date(user?.created_at || '').toLocaleDateString() }}</p>
                     </div>
                     
+                  </div>
+                </div>
+              </UCard>
+
+              <!-- Education Section -->
+              <UCard v-if="educationStore.userEducations.length > 0">
+                <template #header>
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">Education</h3>
+                    <UButton
+                      label="Edit"
+                      icon="i-lucide-pencil"
+                      size="sm"
+                      variant="ghost"
+                      to="/profile/edit#education"
+                    />
+                  </div>
+                </template>
+
+                <div class="space-y-4">
+                  <div 
+                    v-for="education in educationStore.userEducations" 
+                    :key="education.id"
+                    class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  >
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <h4 class="font-semibold text-base">{{ education.institution }}</h4>
+                        <p v-if="education.degree || education.field_of_study" class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          <span v-if="education.degree">{{ education.degree }}</span>
+                          <span v-if="education.degree && education.field_of_study"> in </span>
+                          <span v-if="education.field_of_study">{{ education.field_of_study }}</span>
+                        </p>
+                        <div class="flex items-center gap-2 mt-2 text-sm text-gray-500">
+                          <UIcon name="i-lucide-calendar" class="w-4 h-4" />
+                          <span>{{ education.education_period }}</span>
+                        </div>
+                        <div v-if="education.city || education.country" class="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                          <UIcon name="i-lucide-map-pin" class="w-4 h-4" />
+                          <span>{{ [education.city, education.country].filter(Boolean).join(', ') }}</span>
+                        </div>
+                        <p v-if="education.grade" class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                          <span class="font-medium">Grade:</span> {{ education.grade }}
+                        </p>
+                        <p v-if="education.description" class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                          {{ education.description }}
+                        </p>
+                      </div>
+                      <UBadge v-if="education.is_current" color="primary" variant="soft">
+                        Current
+                      </UBadge>
+                    </div>
                   </div>
                 </div>
               </UCard>

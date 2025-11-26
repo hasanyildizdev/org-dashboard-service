@@ -11,12 +11,10 @@ import {
 import { useAuthStore } from '~/stores/auth'
 
 export const useProfileStore = defineStore('profile', () => {
-  // State - persists across calls
+  const apollo = useApolloClient().client
   const professions = ref<Profession[]>([])
   const loading = ref(false)
-  const error = ref<Error | null>(null)
-  
-  // Get auth token once at store level
+  const main_error = ref<Error | null>(null)
   const authToken = useCookie('auth_token')
 
   // Action to fetch professions
@@ -28,9 +26,8 @@ export const useProfileStore = defineStore('profile', () => {
 
     try {
       loading.value = true
-      const apollo = useApolloClient().client
       
-      const { data, errors } = await apollo.query({
+      const { data, error } = await apollo.query({
         query: GET_PROFESSIONS,
         context: {
           headers: {
@@ -39,16 +36,16 @@ export const useProfileStore = defineStore('profile', () => {
         }
       })
       
-      if (errors && errors.length > 0) {
-        console.error('Error fetching professions:', errors)
-        error.value = new Error(errors[0]?.message || 'Failed to fetch professions')
+      if (error) {
+        console.error('Error fetching professions:', error)
+        main_error.value = new Error(error.message || 'Failed to fetch professions')
         return
       }
       
       professions.value = data?.professions || []
     } catch (err: any) {
       console.error('Error fetching professions:', err)
-      error.value = err as Error
+      main_error.value = err as Error
     } finally {
       loading.value = false
     }
@@ -85,7 +82,7 @@ export const useProfileStore = defineStore('profile', () => {
             })
             .join(' ')
 
-          error.value = new Error(messages)
+          main_error.value = new Error(messages)
           return { success: false, error: messages }
         }
         return { success: false, error: 'Profile update failed' }
@@ -125,7 +122,7 @@ export const useProfileStore = defineStore('profile', () => {
               return err.message
             })
             .join(' ')
-          error.value = new Error(messages)
+          main_error.value = new Error(messages)
           return { success: false, error: messages }
         }
         return { success: false, error: 'Account deletion failed' }
@@ -145,7 +142,7 @@ export const useProfileStore = defineStore('profile', () => {
   return { 
     professions,
     loading,
-    error,
+    main_error,
     updateProfile,
     deleteAccount,
     fetchProfessions
