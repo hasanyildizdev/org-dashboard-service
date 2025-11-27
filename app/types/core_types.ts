@@ -109,11 +109,3 @@ export interface UserEducationInput {
   is_current?: boolean | null;
   description?: string | null;
 }
-
-export interface UserEducationsData {
-  userEducations: UserEducation[];
-}
-
-export interface UserEducationData {
-  userEducation: UserEducation | null;
-}

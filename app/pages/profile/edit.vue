@@ -48,14 +48,14 @@ const educationForm = ref<UserEducationInput>({
   description: null
 })
 
-// Load educations on mount
-onMounted(async () => {
-  await educationStore.fetchUserEducations()
-})
-
 // Professions state
 const profileStore = useProfileStore()
 await profileStore.fetchProfessions()
+
+// Load educations on mount (client-only)
+onMounted(async () => {
+  await educationStore.fetchUserEducations()
+})
 
 // Form state
 const formData = ref({
@@ -440,7 +440,8 @@ async function deleteAccount() {
                 </form>
               </UCard>
 
-              <!-- Education Section -->
+              <!-- Education Section (client-only, no SSR) -->
+              <ClientOnly>
               <UCard id="education">
                 <template #header>
                   <div class="flex items-center justify-between">
@@ -511,16 +512,16 @@ async function deleteAccount() {
                               <div class="grid grid-cols-2 gap-2">
                                 <USelectMenu
                                   :items="months"
-                                  v-model="educationForm.start_month"
+                                  :model-value="educationForm.start_month ?? undefined"
+                                  @update:model-value="(v: number | undefined) => educationForm.start_month = v ?? null"
                                   placeholder="Month"
                                   size="lg"
                                   :disabled="educationLoading"
                                 />
                                 <USelectMenu
-                                  v-model="educationForm.start_year"
                                   :items="years"
-                                  value-attribute="value"
-                                  option-attribute="label"
+                                  :model-value="educationForm.start_year ?? undefined"
+                                  @update:model-value="(v: number | undefined) => educationForm.start_year = v ?? null"
                                   placeholder="Year"
                                   size="lg"
                                   :disabled="educationLoading"
@@ -533,19 +534,19 @@ async function deleteAccount() {
                               <div class="grid grid-cols-2 gap-2">
                                 <USelectMenu
                                   :items="months"
-                                  v-model="educationForm.end_month"
+                                  :model-value="educationForm.end_month ?? undefined"
+                                  @update:model-value="(v: number | undefined) => educationForm.end_month = v ?? null"
                                   placeholder="Month"
                                   size="lg"
-                                  :disabled="educationLoading || educationForm.is_current"
+                                  :disabled="educationLoading || !!educationForm.is_current"
                                 />
                                 <USelectMenu
-                                  v-model="educationForm.end_year"
                                   :items="years"
-                                  value-attribute="value"
-                                  option-attribute="label"
+                                  :model-value="educationForm.end_year ?? undefined"
+                                  @update:model-value="(v: number | undefined) => educationForm.end_year = v ?? null"
                                   placeholder="Year"
                                   size="lg"
-                                  :disabled="educationLoading || educationForm.is_current"
+                                  :disabled="educationLoading || !!educationForm.is_current"
                                 />
                               </div>
                             </div>
@@ -553,7 +554,8 @@ async function deleteAccount() {
                   
                           <UFormField>
                             <UCheckbox
-                              v-model="educationForm.is_current"
+                              :model-value="!!educationForm.is_current"
+                              @update:model-value="(v: boolean | 'indeterminate') => educationForm.is_current = v === true"
                               label="I currently study here"
                               :disabled="educationLoading"
                             />
@@ -689,6 +691,7 @@ async function deleteAccount() {
                   </div>
                 </div>
               </UCard>
+              </ClientOnly>
 
               <!-- Danger Zone -->
               <UCard>

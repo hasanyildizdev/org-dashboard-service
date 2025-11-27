@@ -8,11 +8,7 @@ definePageMeta({
 
 const user = computed(() => useAuthStore().user)
 const educationStore = useUserEducationStore()
-
-// Fetch educations on mount
-onMounted(async () => {
-  await educationStore.fetchUserEducations()
-})
+await educationStore.fetchUserEducations()
 </script>
 
 <template>

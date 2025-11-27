@@ -2,7 +2,6 @@ import { useAuthStore } from '~/stores/auth'
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const authStore = useAuthStore()
-  const token = useCookie('auth_token')
   
   // Skip auth check for public auth pages
   const publicAuthPages = ['/auth/login', '/auth/register', '/auth/callback', '/auth/forgot-password']
@@ -10,18 +9,15 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return
   }
 
-  // If no user in store but token exists, try to fetch user
-  if (!authStore.user && token.value) {
+  // If no user in store, try to fetch from server (will check httpOnly cookie)
+  if (!authStore.user) {
     console.log('🔄 User not in store, fetching from API...')
     await authStore.fetchUser()
   }
   
-  // If still no user or token, redirect to login
-  if (!authStore.user || !token.value) {
-    console.log('❌ No user or token - redirecting to login', {
-      user: authStore.user,
-      token: token.value ? 'exists' : 'missing'
-    })
+  // If still no user, redirect to login
+  if (!authStore.user) {
+    console.log('❌ No user - redirecting to login')
     return navigateTo('/auth/login')
   }
   

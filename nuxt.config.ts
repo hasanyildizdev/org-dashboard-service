@@ -79,11 +79,15 @@ export default defineNuxtConfig({
   apollo: {
     clients: {
       default: {
-        httpEndpoint: process.env.BACKEND_API_URL + '/graphql',
+        // Use server proxy endpoint with baseURL prefix
+        httpEndpoint: '/dashboard/api/graphql',
+        // Don't try to read token from cookie (it's httpOnly)
         tokenStorage: 'cookie',
         tokenName: 'auth_token',
-        authType: 'Bearer',
-        authHeader: 'Authorization',
+        // Server handles auth, so don't add headers client-side
+        httpLinkOptions: {
+          credentials: 'include', // Send cookies with requests
+        },
       },
     },
   },
@@ -92,6 +96,27 @@ export default defineNuxtConfig({
     public: {
       apiUrl: process.env.BACKEND_API_URL || 'http://localhost:8000',
       websiteUrl: process.env.WEBSITE_URL || 'http://localhost:3000',
+    }
+  },
+
+  routeRules: {
+    '/**': {
+      headers: {
+        'Content-Security-Policy': [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Nuxt/Vite needs inline scripts
+          "style-src 'self' 'unsafe-inline'", // Vue/Tailwind needs inline styles
+          "img-src 'self' data: blob: https:", // Allow images from CDN
+          "font-src 'self' data:", // Allow fonts
+          "connect-src 'self' ws: wss: http://localhost:* http://127.0.0.1:*", // Allow API/WebSocket
+          "frame-src 'self' data:", // Allow iframes for DevTools and error overlays
+          "object-src 'none'",
+          "base-uri 'self'",
+          "form-action 'self'",
+          "frame-ancestors 'none'",
+          "upgrade-insecure-requests"
+        ].join('; ')
+      }
     }
   }
 })

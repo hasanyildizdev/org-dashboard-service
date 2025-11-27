@@ -9,15 +9,17 @@ import {
   DELETE_ACCOUNT_MUTATION 
 } from '~/graphql/mutations'
 import { useAuthStore } from '~/stores/auth'
+import { useApolloClient } from '@vue/apollo-composable'
 
 export const useProfileStore = defineStore('profile', () => {
   const apollo = useApolloClient().client
   const professions = ref<Profession[]>([])
   const loading = ref(false)
-  const main_error = ref<Error | null>(null)
-  const authToken = useCookie('auth_token')
+  const main_error = ref<{ message: string } | null>(null)
 
-  // Action to fetch professions
+  /* ----------------------------------------------
+   * FETCH USER Professions
+   * ---------------------------------------------- */
   async function fetchProfessions() {
     // Don't fetch again if already loaded
     if (professions.value.length > 0) {
@@ -28,24 +30,20 @@ export const useProfileStore = defineStore('profile', () => {
       loading.value = true
       
       const { data, error } = await apollo.query({
-        query: GET_PROFESSIONS,
-        context: {
-          headers: {
-            Authorization: authToken.value ? `Bearer ${authToken.value}` : ''
-          }
-        }
+        query: GET_PROFESSIONS
       })
       
       if (error) {
         console.error('Error fetching professions:', error)
-        main_error.value = new Error(error.message || 'Failed to fetch professions')
+        main_error.value = { message: error.message || 'Failed to fetch professions' }
         return
       }
       
       professions.value = data?.professions || []
+      console.log("Professions fetched successfully:", professions.value)
     } catch (err: any) {
       console.error('Error fetching professions:', err)
-      main_error.value = err as Error
+      main_error.value = { message: err?.message || 'Failed to fetch professions' }
     } finally {
       loading.value = false
     }
@@ -62,12 +60,7 @@ export const useProfileStore = defineStore('profile', () => {
       
       const result = await apollo.mutate({
         mutation: UPDATE_PROFILE_MUTATION,
-        variables: { name, email, profession_id },
-        context: {
-          headers: {
-            Authorization: authToken.value ? `Bearer ${authToken.value}` : ''
-          }
-        }
+        variables: { name, email, profession_id }
       })
       const updatedUser: User | null = result?.data?.updateProfile ?? null
       if (!updatedUser) {
@@ -82,7 +75,7 @@ export const useProfileStore = defineStore('profile', () => {
             })
             .join(' ')
 
-          main_error.value = new Error(messages)
+          main_error.value = { message: messages }
           return { success: false, error: messages }
         }
         return { success: false, error: 'Profile update failed' }
@@ -103,12 +96,7 @@ export const useProfileStore = defineStore('profile', () => {
       const apollo = useApolloClient().client
       
       const result = await apollo.mutate({
-        mutation: DELETE_ACCOUNT_MUTATION,
-        context: {
-          headers: {
-            Authorization: authToken.value ? `Bearer ${authToken.value}` : ''
-          }
-        }
+        mutation: DELETE_ACCOUNT_MUTATION
       })
       const deletedUser: User | null = result?.data?.deleteAccount ?? null
       if (!deletedUser) {
@@ -122,13 +110,12 @@ export const useProfileStore = defineStore('profile', () => {
               return err.message
             })
             .join(' ')
-          main_error.value = new Error(messages)
+          main_error.value = { message: messages }
           return { success: false, error: messages }
         }
         return { success: false, error: 'Account deletion failed' }
       }
       // Clear auth state
-      authToken.value = null
       useAuthStore().clearUser()
       return { success: true, user: deletedUser }
     } catch (err: any) {

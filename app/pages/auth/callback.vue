@@ -49,34 +49,30 @@ onMounted(async () => {
   }
 
   try {
-    // Store the token
-    const authToken = useCookie('auth_token', {
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      sameSite: 'lax'
-    })
-    authToken.value = token
+    console.log('✅ Token received from social auth')
 
-    console.log('✅ Token stored:', token.substring(0, 20) + '...')
-
-    // Small delay to ensure cookie is set
-    await new Promise(resolve => setTimeout(resolve, 100))
-
-    // Fetch user data using auth store
+    // Call server API to set httpOnly cookie and get user data
     const authStore = useAuthStore()
-    console.log('🔄 Fetching user data...')
+    console.log('🔄 Authenticating with server...')
     
-    const user = await authStore.fetchUser()
+    const response = await $fetch<{ success: boolean, user: any }>('/api/auth/callback', {
+      method: 'POST',
+      body: { token }
+    })
     
-    if (!user) {
-      throw new Error('Failed to fetch user data')
+    if (!response.success || !response.user) {
+      throw new Error('Failed to authenticate with server')
     }
 
-    console.log('✅ User fetched successfully:', user.email)
-    console.log('✅ User profession:', user.profession?.name || 'None')
+    // Set user in store
+    authStore.setUser(response.user)
+
+    console.log('✅ User authenticated successfully:', response.user.email)
+    console.log('✅ User profession:', response.user.profession?.name || 'None')
     
     toast.add({
       title: 'Success!',
-      description: `Welcome back, ${user.name}! 🎉`,
+      description: `Welcome back, ${response.user.name}! 🎉`,
       color: 'success'
     })
 
@@ -87,17 +83,13 @@ onMounted(async () => {
     await router.push('/profile')
   } catch (err: any) {
     console.error('Social auth callback error:', err)
-    error.value = err.message || 'Authentication failed'
+    error.value = err?.data?.message || err.message || 'Authentication failed'
     
     toast.add({
       title: 'Authentication Failed',
       description: error.value,
       color: 'error'
     })
-
-    // Clear the invalid token
-    const authToken = useCookie('auth_token')
-    authToken.value = null
 
     setTimeout(() => {
       router.push('/auth/login')

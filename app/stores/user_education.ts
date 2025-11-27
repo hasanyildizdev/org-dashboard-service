@@ -1,4 +1,8 @@
 import { defineStore } from 'pinia'
+import type { 
+  UserEducation, 
+  UserEducationInput 
+} from '~/types/core_types'
 import { GET_USER_EDUCATIONS } from '~/graphql/queries'
 import { 
   CREATE_USER_EDUCATION_MUTATION,
@@ -6,52 +10,107 @@ import {
   DELETE_USER_EDUCATION_MUTATION 
 } from '~/graphql/mutations'
 import { useApolloClient } from '@vue/apollo-composable'
-import type { UserEducation, UserEducationInput, UserEducationsData } from '~/types/core_types'
+import {
+  getAllEducations,
+  saveAllEducations,
+  saveEducation,
+  deleteEducation as deleteEducationFromDB
+} from '~/utils/db'
 
 export const useUserEducationStore = defineStore('user_education', () => {
-  // State
-  const userEducations = ref<UserEducation[]>([])
-  const loading = ref(false)
-  const error = ref<Error | null>(null)
-  
-  // Get auth token and apollo client
-  const authToken = useCookie('auth_token')
   const apollo = useApolloClient().client
+  const loading = ref(false)
+  const main_error = ref<{ message: string } | null>(null)
+  const isInitialized = ref(false)
+  
+  // State - IndexedDB only (no cookies, unlimited size)
+  const userEducations = ref<UserEducation[]>([])
+
+  /**
+   * Initialize from IndexedDB on first access (client-only)
+   */
+  async function initFromIndexedDB() {
+    if (import.meta.server || isInitialized.value) return
+    
+    try {
+      const cached = await getAllEducations()
+      if (cached.length > 0) {
+        userEducations.value = cached
+        console.log(`⚡ Loaded ${cached.length} educations from IndexedDB`)
+      }
+      isInitialized.value = true
+    } catch (error) {
+      console.error('❌ Error loading from IndexedDB:', error)
+      isInitialized.value = true
+    }
+  }
+
+  /**
+   * Clear all educations from memory and IndexedDB
+   */
+  async function clearUserEducations() {
+    userEducations.value = []
+    isInitialized.value = false
+    
+    if (import.meta.server) return
+    
+    try {
+      await saveAllEducations([])
+      console.log('🗑️ Educations cleared from IndexedDB')
+    } catch (error) {
+      console.error('❌ Error clearing educations:', error)
+    }
+  }
 
   /* ----------------------------------------------
    * FETCH USER EDUCATIONS
    * ---------------------------------------------- */
-  async function fetchUserEducations(force = false) {
-    // Don't fetch again if already loaded unless forced
+  async function fetchUserEducations(force = false): Promise<UserEducation[]> {
+    // Initialize from IndexedDB first
+    await initFromIndexedDB()
+    
+    // If we have data and not forcing, return immediately
     if (userEducations.value.length > 0 && !force) {
-      return
+      console.log('📦 Using cached educations from IndexedDB')
+      return userEducations.value 
     }
 
+    // Fetch from API
     try {
       loading.value = true
-      const { data, errors } = await apollo.query<UserEducationsData>({
+      console.log('🌐 Fetching educations from API...')
+
+      const { data, error } = await apollo.query({
         query: GET_USER_EDUCATIONS,
-        fetchPolicy: force ? 'network-only' : 'cache-first',
-        context: {
-          headers: {
-            Authorization: authToken.value ? `Bearer ${authToken.value}` : ''
-          }
-        }
+        fetchPolicy: force ? 'network-only' : 'cache-first'
       })
       
-      if (errors && errors.length > 0) {
-        console.error('Error fetching user educations:', errors)
-        error.value = new Error(errors[0]?.message || 'Failed to fetch user educations')
-        return
+      if (error) {
+        console.error('❌ Error fetching user educations:', error)
+        main_error.value = { message: error.message || 'Failed to fetch user educations' }
+        return []
       }
       
-      userEducations.value = data?.userEducations || []
+      const educations = data?.userEducations || []
+      userEducations.value = educations
+      
+      // Save to IndexedDB
+      if (import.meta.client) {
+        try {
+          await saveAllEducations(educations)
+          console.log(`✅ Fetched and saved ${educations.length} educations`)
+        } catch (dbError) {
+          console.error('❌ Error saving to IndexedDB:', dbError)
+        }
+      }
     } catch (err: any) {
-      console.error('Error fetching user educations:', err)
-      error.value = err as Error
+      console.error('❌ Error fetching user educations:', err)
+      main_error.value = { message: err?.message || 'Failed to fetch user educations' }
+      return []
     } finally {
       loading.value = false
     }
+    return userEducations.value
   }
 
   /* ----------------------------------------------
@@ -62,12 +121,7 @@ export const useUserEducationStore = defineStore('user_education', () => {
       loading.value = true
       const result = await apollo.mutate({
         mutation: CREATE_USER_EDUCATION_MUTATION,
-        variables: { input },
-        context: {
-          headers: {
-            Authorization: authToken.value ? `Bearer ${authToken.value}` : ''
-          }
-        }
+        variables: { input }
       })
       
       if (result.errors && result.errors.length > 0) {
@@ -79,19 +133,29 @@ export const useUserEducationStore = defineStore('user_education', () => {
             return err.message
           })
           .join(' ')
-        error.value = new Error(messages)
+        main_error.value = { message: messages }
         return { success: false, error: messages }
       }
       
       const newEducation = result.data?.createUserEducation
       if (newEducation) {
-        userEducations.value = [...userEducations.value, newEducation]
+        userEducations.value.push(newEducation)
+        
+        // Save to IndexedDB
+        if (import.meta.client) {
+          try {
+            await saveAllEducations(userEducations.value)
+            console.log('✅ New education added')
+          } catch (dbError) {
+            console.error('❌ Error saving to IndexedDB:', dbError)
+          }
+        }
       }
       
       return { success: true, education: newEducation }
     } catch (err: any) {
       console.error('Error creating user education:', err)
-      error.value = err as Error
+      main_error.value = { message: err?.message || 'Failed to create education' }
       return { success: false, error: err?.message ?? 'Failed to create education' }
     } finally {
       loading.value = false
@@ -106,12 +170,7 @@ export const useUserEducationStore = defineStore('user_education', () => {
       loading.value = true
       const result = await apollo.mutate({
         mutation: UPDATE_USER_EDUCATION_MUTATION,
-        variables: { id, input },
-        context: {
-          headers: {
-            Authorization: authToken.value ? `Bearer ${authToken.value}` : ''
-          }
-        }
+        variables: { id, input }
       })
       
       if (result.errors && result.errors.length > 0) {
@@ -123,21 +182,32 @@ export const useUserEducationStore = defineStore('user_education', () => {
             return err.message
           })
           .join(' ')
-        error.value = new Error(messages)
+        main_error.value = { message: messages }
         return { success: false, error: messages }
       }
       
       const updatedEducation = result.data?.updateUserEducation
       if (updatedEducation) {
-        userEducations.value = userEducations.value.map((edu) =>
-          edu.id === id ? updatedEducation : edu
-        )
+        const index = userEducations.value.findIndex(e => e.id === id)
+        if (index !== -1) {
+          userEducations.value[index] = updatedEducation
+        }
+        
+        // Save to IndexedDB
+        if (import.meta.client) {
+          try {
+            await saveAllEducations(userEducations.value)
+            console.log('✅ Education updated')
+          } catch (dbError) {
+            console.error('❌ Error saving to IndexedDB:', dbError)
+          }
+        }
       }
       
       return { success: true, education: updatedEducation }
     } catch (err: any) {
       console.error('Error updating user education:', err)
-      error.value = err as Error
+      main_error.value = { message: err?.message || 'Failed to update education' }
       return { success: false, error: err?.message ?? 'Failed to update education' }
     } finally {
       loading.value = false
@@ -152,43 +222,48 @@ export const useUserEducationStore = defineStore('user_education', () => {
       loading.value = true
       const result = await apollo.mutate({
         mutation: DELETE_USER_EDUCATION_MUTATION,
-        variables: { id },
-        context: {
-          headers: {
-            Authorization: authToken.value ? `Bearer ${authToken.value}` : ''
-          }
-        }
+        variables: { id }
       })
       
       if (result.errors && result.errors.length > 0) {
         const messages = result.errors
           .map((err: any) => err.message)
           .join(' ')
-        error.value = new Error(messages)
+        main_error.value = { message: messages }
         return { success: false, error: messages }
       }
       
-      // Remove from local state
       userEducations.value = userEducations.value.filter(e => e.id !== id)
+      
+      // Save to IndexedDB
+      if (import.meta.client) {
+        try {
+          await saveAllEducations(userEducations.value)
+          console.log('✅ Education deleted')
+        } catch (dbError) {
+          console.error('❌ Error saving to IndexedDB:', dbError)
+        }
+      }
       
       return { success: true }
     } catch (err: any) {
       console.error('Error deleting user education:', err)
-      error.value = err as Error
+      main_error.value = { message: err?.message || 'Failed to delete education' }
       return { success: false, error: err?.message ?? 'Failed to delete education' }
     } finally {
       loading.value = false
     }
   }
 
-
   return {
     userEducations,
     loading,
-    error,
+    main_error,
+    isInitialized,
     fetchUserEducations,
     createUserEducation,
     updateUserEducation,
-    deleteUserEducation
+    deleteUserEducation,
+    clearUserEducations
   }
 })

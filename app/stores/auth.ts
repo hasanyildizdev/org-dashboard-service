@@ -1,16 +1,9 @@
 import { defineStore } from 'pinia'
 import type { 
   User, 
-  AuthPayload, 
   LoginCredentials, 
   RegisterCredentials 
 } from '~/types/core_types'
-import { ME_QUERY } from '~/graphql/queries'
-import { 
-  LOGOUT_MUTATION, 
-  LOGIN_MUTATION, 
-  REGISTER_MUTATION, 
-} from '~/graphql/mutations'
 
 export const useAuthStore = defineStore('auth', () => {
   // Cookie for user data persistence
@@ -52,35 +45,30 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /* ----------------------------------------------
-   * LOGIN
+   * LOGIN (via secure server API)
    * ---------------------------------------------- */
   async function login(credentials: LoginCredentials) {
-      const tokenCookie = useCookie('auth_token', {
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        sameSite: 'lax'
-      })
     try {
       loading.value = true
-      const apollo = useApolloClient().client
-      const result = await apollo.mutate({
-        mutation: LOGIN_MUTATION,
-        variables: credentials
+      
+      // Call server API - it will set httpOnly cookie
+      const response = await $fetch<{ success: boolean, user: User }>('/api/auth/login', {
+        method: 'POST',
+        body: credentials,
       })
 
-      const payload: AuthPayload | null = result?.data?.login ?? null
-      if (!payload) {
-        error.value = new Error('Login failed. No response returned.')
+      if (!response.success || !response.user) {
+        error.value = new Error('Login failed. No user data received.')
         return { success: false, error: 'Login failed' }
       }
-      tokenCookie.value = payload?.access_token ?? null
-      // User data already includes profession from backend
-      setUser(payload?.user ?? null)
-      return { success: true, user: payload.user }
+      
+      setUser(response.user)
+      return { success: true, user: response.user }
     } catch (err: any) {
       error.value = err
       return {
         success: false,
-        error: err?.message ?? 'Login failed',
+        error: err?.data?.message || err?.message || 'Login failed',
       }
     } finally {
       loading.value = false
@@ -88,53 +76,30 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /* ----------------------------------------------
-   * REGISTER
+   * REGISTER (via secure server API)
    * ---------------------------------------------- */
   async function register(credentials: RegisterCredentials) {
-      const tokenCookie = useCookie('auth_token', {
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        sameSite: 'lax'
-      })
-
     try {
       loading.value = true
-      const apollo = useApolloClient().client
-      const result = await apollo.mutate({
-        mutation: REGISTER_MUTATION,
-        variables: {
-          name: credentials.name,
-          email: credentials.email,
-          password: credentials.password,
-          password_confirmation: credentials.password_confirmation,
-        },
+      
+      // Call server API - it will set httpOnly cookie
+      const response = await $fetch<{ success: boolean, user: User }>('/api/auth/register', {
+        method: 'POST',
+        body: credentials,
       })
-      const payload: AuthPayload | null = result?.data?.register ?? null
-      if (!payload) {
-        const errors = result?.errors
-        if (errors?.length) {
-          const messages = errors
-            .map((err: any) => {
-              if (err.extensions?.validation) {
-                return Object.values(err.extensions.validation).flat().join(' ')
-              }
-              return err.message
-            })
-            .join(' ')
 
-          error.value = new Error(messages)
-          return { success: false, error: messages }
-        }
-        error.value = new Error('Registration failed. No response returned.')
+      if (!response.success || !response.user) {
+        error.value = new Error('Registration failed. No user data received.')
         return { success: false, error: 'Registration failed' }
       }
-      tokenCookie.value = payload.access_token ?? null
-      setUser(payload.user ?? null)
-      return { success: true, user: payload.user }
+      
+      setUser(response.user)
+      return { success: true, user: response.user }
     } catch (err: any) {
       error.value = err
       return {
         success: false,
-        error: err?.message ?? 'Registration failed',
+        error: err?.data?.message || err?.message || 'Registration failed',
       }
     } finally {
       loading.value = false
@@ -142,55 +107,56 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /* ----------------------------------------------
-  * LOGOUT
+  * LOGOUT (via secure server API)
   * ---------------------------------------------- */
   async function logout() {
     if(!user.value) return
-      const router = useRouter()
-      const tokenCookie = useCookie('auth_token')
-      try {
-        const apollo = useApolloClient().client
-        await apollo.mutate({
-          mutation: LOGOUT_MUTATION,
-        })
-      } catch (err: any) {
-        console.error('Logout error:', err)
-        error.value = err
+    const router = useRouter()
+    
+    try {
+      // Call server API - it will clear httpOnly cookie
+      await $fetch('/api/auth/logout', {
+        method: 'POST',
+      })
+    } catch (err: any) {
+      console.error('Logout error:', err)
+      error.value = err
     } finally {
-      tokenCookie.value = null
       clearUser()
+      
+      // Clear IndexedDB data on logout
+      try {
+        const { clearAllData } = await import('~/utils/db')
+        await clearAllData()
+        console.log('🗑️ IndexedDB cleared on logout')
+      } catch (dbError) {
+        console.error('❌ Error clearing IndexedDB:', dbError)
+      }
+      
       await router.push('/auth/login')
     }
   }
 
 
   /* ----------------------------------------------
-  * FETCH USER
+  * FETCH USER (via secure server API)
   * ---------------------------------------------- */
   async function fetchUser() {
     if (user.value) return user.value
     
-    const tokenCookie = useCookie('auth_token')
-    if (!tokenCookie.value) {
-      clearUser()
-      return null
-    }
-    
     try {
       loading.value = true
-      const apollo = useApolloClient().client
-      const { data } = await apollo.query({
-        query: ME_QUERY,
-        fetchPolicy: 'network-only',
-        context: {
-          headers: {
-            Authorization: `Bearer ${tokenCookie.value}`
-          }
-        }
-      })
-      const fetchedUser = data?.me ?? null
-      setUser(fetchedUser)
-      return fetchedUser
+      
+      // Call server API - it will read httpOnly cookie
+      const response = await $fetch<{ success: boolean, user: User }>('/api/auth/me')
+      
+      if (!response.success || !response.user) {
+        clearUser()
+        return null
+      }
+      
+      setUser(response.user)
+      return response.user
     } catch (err: any) {
       clearUser()
       return null
