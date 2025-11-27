@@ -215,3 +215,37 @@ export const DELETE_USER_EXPERIENCE_MUTATION = gql`
     deleteUserExperience(id: $id)
   }
 `
+
+export const CREATE_USER_SKILL_MUTATION = gql`
+  mutation CreateUserSkill($input: UserSkillInput!) {
+    createUserSkill(input: $input) {
+      id
+      user_id
+      name
+      level
+      is_primary
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const UPDATE_USER_SKILL_MUTATION = gql`
+  mutation UpdateUserSkill($id: ID!, $input: UserSkillInput!) {
+    updateUserSkill(id: $id, input: $input) {
+      id
+      user_id
+      name
+      level
+      is_primary
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const DELETE_USER_SKILL_MUTATION = gql`
+  mutation DeleteUserSkill($id: ID!) {
+    deleteUserSkill(id: $id)
+  }
+`

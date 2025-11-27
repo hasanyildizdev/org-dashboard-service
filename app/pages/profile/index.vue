@@ -2,6 +2,7 @@
 import { useAuthStore } from '~/stores/auth'
 import { useUserEducationStore } from '~/stores/user_education'
 import { useUserExperienceStore } from '~/stores/user_experience'
+import { useUserSkillStore } from '~/stores/user_skill'
 
 definePageMeta({
   title: 'Profile',
@@ -10,10 +11,12 @@ definePageMeta({
 const user = computed(() => useAuthStore().user)
 const educationStore = useUserEducationStore()
 const experienceStore = useUserExperienceStore()
+const skillStore = useUserSkillStore()
 
 await Promise.all([
   educationStore.fetchUserEducations(),
-  experienceStore.fetchUserExperiences()
+  experienceStore.fetchUserExperiences(),
+  skillStore.fetchUserSkills()
 ])
 </script>
 
@@ -191,6 +194,52 @@ await Promise.all([
                       <UBadge v-if="experience.is_current" color="primary" variant="soft">
                         Current
                       </UBadge>
+                    </div>
+                  </div>
+                </div>
+              </UCard>
+
+              <!-- User Skills Card -->
+              <UCard>
+                <template #header>
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">Skills</h3>
+                    <NuxtLink to="/profile/edit">
+                      <UButton 
+                        icon="i-lucide-pencil" 
+                        size="sm"
+                        variant="ghost"
+                        label="Edit"
+                      />
+                    </NuxtLink>
+                  </div>
+                </template>
+                
+                <div v-if="skillStore.userSkills.length === 0" class="text-center py-8 text-gray-500">
+                  <UIcon name="i-lucide-code" class="w-12 h-12 mx-auto mb-2 opacity-30" />
+                  <p>No skills added yet</p>
+                </div>
+                
+                <div v-else class="space-y-3">
+                  <div 
+                    v-for="skill in skillStore.userSkills" 
+                    :key="skill.id"
+                    class="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-800 rounded-lg"
+                  >
+                    <div class="flex items-center gap-3 flex-1">
+                      <UIcon name="i-lucide-code" class="w-5 h-5 text-gray-400" />
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <p class="font-medium">{{ skill.name }}</p>
+                          <UBadge v-if="skill.is_primary" color="primary" variant="soft" size="xs">
+                            Primary
+                          </UBadge>
+                        </div>
+                        <div class="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                          <UIcon name="i-lucide-signal" class="w-3 h-3" />
+                          <span class="capitalize">{{ skill.level }}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

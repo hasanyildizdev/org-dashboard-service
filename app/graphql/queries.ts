@@ -79,3 +79,17 @@ export const GET_USER_EXPERIENCES = gql`
     }
   }
 `
+
+export const GET_USER_SKILLS = gql`
+  query GetUserSkills {
+    userSkills {
+      id
+      user_id
+      name
+      level
+      is_primary
+      created_at
+      updated_at
+    }
+  }
+`

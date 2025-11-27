@@ -142,3 +142,25 @@ export interface UserExperienceInput {
   description?: string | null;
   is_current?: boolean | null;
 }
+
+export interface UserSkill {
+  id: string;
+  user_id: string;
+  name: string;
+  level: string;
+  is_primary: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SelectMenuItem {
+  label: string;
+  value: string;
+  icon?: string;
+}
+
+export interface UserSkillInput {
+  name: string;
+  level: string;
+  is_primary?: boolean;
+}
