@@ -5,6 +5,7 @@ import { useProfileStore } from '~/stores/profile'
 import { useUserEducationStore } from '~/stores/user_education'
 import { useUserExperienceStore } from '~/stores/user_experience'
 import { useUserSkillStore } from '~/stores/user_skill'
+import { useSkillLevelsIcons } from '~/composables/skillLevelsIcons'
 import type { UserEducation, UserEducationInput, UserExperience, UserExperienceInput, UserSkill, UserSkillInput } from '~/types/core_types'
 
 definePageMeta({
@@ -48,12 +49,7 @@ const currentYear = new Date().getFullYear()
 const years = Array.from({ length: 65 }, (_, i) => currentYear - 60 + i) // Generate year options (last 60 years to next 5 years)
 const degreeTypes = ref(['High School', 'Associate', 'Bachelor', 'Master', 'Doctorate', 'Professional', 'Certificate', 'Diploma'])
 
-const skillLevelsIcons = ref({
-  beginner: { icon: 'solar:alt-arrow-up-outline', color: 'text-gray-400' },
-  intermediate: { icon: 'solar:double-alt-arrow-up-outline', color: 'text-blue-400' },
-  advanced: { icon: 'solar:shield-star-bold', color: 'text-green-400' },
-  expert: { icon: 'solar:crown-star-bold', color: 'text-amber-400' }
-})
+const { skillLevelsIcons } = useSkillLevelsIcons()
 const skillLevels = ref([
   { 
     id: 'beginner',

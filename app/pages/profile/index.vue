@@ -3,6 +3,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useUserEducationStore } from '~/stores/user_education'
 import { useUserExperienceStore } from '~/stores/user_experience'
 import { useUserSkillStore } from '~/stores/user_skill'
+import { useSkillLevelsIcons } from '~/composables/skillLevelsIcons'
 
 definePageMeta({
   title: 'Profile',
@@ -12,6 +13,7 @@ const user = computed(() => useAuthStore().user)
 const educationStore = useUserEducationStore()
 const experienceStore = useUserExperienceStore()
 const skillStore = useUserSkillStore()
+const { skillLevelsIcons } = useSkillLevelsIcons()
 
 await Promise.all([
   educationStore.fetchUserEducations(),
@@ -220,28 +222,33 @@ await Promise.all([
                   <p>No skills added yet</p>
                 </div>
                 
-                <div v-else class="space-y-3">
-                  <div 
-                    v-for="skill in skillStore.userSkills" 
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                  <UCard
+                    v-for="skill in skillStore.userSkills"
                     :key="skill.id"
-                    class="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-800 rounded-lg"
-                  >
-                    <div class="flex items-center gap-3 flex-1">
-                      <UIcon name="i-lucide-code" class="w-5 h-5 text-gray-400" />
-                      <div>
-                        <div class="flex items-center gap-2">
-                          <p class="font-medium">{{ skill.name }}</p>
-                          <UBadge v-if="skill.is_primary" color="primary" variant="soft" size="xs">
-                            Primary
-                          </UBadge>
-                        </div>
-                        <div class="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                          <UIcon name="i-lucide-signal" class="w-3 h-3" />
-                          <span class="capitalize">{{ skill.level }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    class="transition hover:shadow-xl hover:-translate-y-1 duration-200"
+                    :ui="{body: 'p-0 sm:p-2'}"
+>
+                    <!-- Skill Level -->
+                    <div class="flex items-center justify-center">
+                      <UBadge
+                        :class="skillLevelsIcons[skill.level as keyof typeof skillLevelsIcons].color"
+                        :icon="skillLevelsIcons[skill.level as keyof typeof skillLevelsIcons].icon"
+                        variant="soft"
+                        size="xl"
+                        class="capitalize"
+                      >
+                        {{ skill.level }}
+                      </UBadge>
+                     </div>
+                    <div class="flex items-center justify-center mt-3">
+                        <h4 class="font-semibold text-lg truncate">{{ skill.name }}</h4>
+                        <UIcon v-if="skill.is_primary" 
+                            name="tabler:pinned-filled" 
+                            variant="solid" 
+                            class="text-blue-500 size-5"/>
+                     </div>
+                  </UCard>
                 </div>
               </UCard>
             </div>
