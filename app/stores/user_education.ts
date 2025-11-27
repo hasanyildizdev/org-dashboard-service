@@ -128,7 +128,17 @@ export const useUserEducationStore = defineStore('user_education', () => {
         const messages = result.errors
           .map((err: any) => {
             if (err.extensions?.validation) {
-              return Object.values(err.extensions.validation).flat().join(' ')
+              const validationObj = err.extensions.validation
+              const errors: string[] = []
+              for (const key in validationObj) {
+                const value = validationObj[key]
+                if (Array.isArray(value)) {
+                  errors.push(...value)
+                } else {
+                  errors.push(String(value))
+                }
+              }
+              return errors.join(' ')
             }
             return err.message
           })
@@ -139,7 +149,8 @@ export const useUserEducationStore = defineStore('user_education', () => {
       
       const newEducation = result.data?.createUserEducation
       if (newEducation) {
-        userEducations.value.push(newEducation)
+        // Create new array to avoid read-only issues
+        userEducations.value = [newEducation, ...userEducations.value]
         
         // Save to IndexedDB
         if (import.meta.client) {
@@ -177,7 +188,17 @@ export const useUserEducationStore = defineStore('user_education', () => {
         const messages = result.errors
           .map((err: any) => {
             if (err.extensions?.validation) {
-              return Object.values(err.extensions.validation).flat().join(' ')
+              const validationObj = err.extensions.validation
+              const errors: string[] = []
+              for (const key in validationObj) {
+                const value = validationObj[key]
+                if (Array.isArray(value)) {
+                  errors.push(...value)
+                } else {
+                  errors.push(String(value))
+                }
+              }
+              return errors.join(' ')
             }
             return err.message
           })
@@ -190,7 +211,10 @@ export const useUserEducationStore = defineStore('user_education', () => {
       if (updatedEducation) {
         const index = userEducations.value.findIndex(e => e.id === id)
         if (index !== -1) {
-          userEducations.value[index] = updatedEducation
+          // Create new array to avoid read-only issues
+          const newEducations = [...userEducations.value]
+          newEducations[index] = updatedEducation
+          userEducations.value = newEducations
         }
         
         // Save to IndexedDB
@@ -202,9 +226,10 @@ export const useUserEducationStore = defineStore('user_education', () => {
             console.error('❌ Error saving to IndexedDB:', dbError)
           }
         }
+        return { success: true, education: updatedEducation }
       }
       
-      return { success: true, education: updatedEducation }
+      return { success: false, error: 'No data returned from mutation' }
     } catch (err: any) {
       console.error('Error updating user education:', err)
       main_error.value = { message: err?.message || 'Failed to update education' }

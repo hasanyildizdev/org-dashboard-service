@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 import { useUserEducationStore } from '~/stores/user_education'
+import { useUserExperienceStore } from '~/stores/user_experience'
 
 definePageMeta({
   title: 'Profile',
@@ -8,7 +9,12 @@ definePageMeta({
 
 const user = computed(() => useAuthStore().user)
 const educationStore = useUserEducationStore()
-await educationStore.fetchUserEducations()
+const experienceStore = useUserExperienceStore()
+
+await Promise.all([
+  educationStore.fetchUserEducations(),
+  experienceStore.fetchUserExperiences()
+])
 </script>
 
 <template>
@@ -136,6 +142,53 @@ await educationStore.fetchUserEducations()
                         </p>
                       </div>
                       <UBadge v-if="education.is_current" color="primary" variant="soft">
+                        Current
+                      </UBadge>
+                    </div>
+                  </div>
+                </div>
+              </UCard>
+
+              <!-- Experience Section -->
+              <UCard v-if="experienceStore.userExperiences.length > 0">
+                <template #header>
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">Experience</h3>
+                    <UButton
+                      label="Edit"
+                      icon="i-lucide-pencil"
+                      size="sm"
+                      variant="ghost"
+                      to="/profile/edit#experience"
+                    />
+                  </div>
+                </template>
+
+                <div class="space-y-4">
+                  <div 
+                    v-for="experience in experienceStore.userExperiences" 
+                    :key="experience.id"
+                    class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  >
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <h4 class="font-semibold text-base">{{ experience.title }}</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          {{ experience.company }}
+                        </p>
+                        <div class="flex items-center gap-2 mt-2 text-sm text-gray-500">
+                          <UIcon name="i-lucide-calendar" class="w-4 h-4" />
+                          <span>{{ experience.experience_period }}</span>
+                        </div>
+                        <div v-if="experience.city || experience.country" class="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                          <UIcon name="i-lucide-map-pin" class="w-4 h-4" />
+                          <span>{{ [experience.city, experience.country].filter(Boolean).join(', ') }}</span>
+                        </div>
+                        <p v-if="experience.description" class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                          {{ experience.description }}
+                        </p>
+                      </div>
+                      <UBadge v-if="experience.is_current" color="primary" variant="soft">
                         Current
                       </UBadge>
                     </div>

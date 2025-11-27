@@ -22,10 +22,7 @@ export const useProfileStore = defineStore('profile', () => {
    * ---------------------------------------------- */
   async function fetchProfessions() {
     // Don't fetch again if already loaded
-    if (professions.value.length > 0) {
-      return
-    }
-
+    if (professions.value.length > 0) return
     try {
       loading.value = true
       
@@ -40,7 +37,6 @@ export const useProfileStore = defineStore('profile', () => {
       }
       
       professions.value = data?.professions || []
-      console.log("Professions fetched successfully:", professions.value)
     } catch (err: any) {
       console.error('Error fetching professions:', err)
       main_error.value = { message: err?.message || 'Failed to fetch professions' }

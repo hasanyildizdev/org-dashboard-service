@@ -55,3 +55,27 @@ export const GET_USER_EDUCATIONS = gql`
     }
   }
 `
+
+export const GET_USER_EXPERIENCES = gql`
+  query GetUserExperiences {
+    userExperiences {
+      id
+      user_id
+      company
+      title
+      city
+      country
+      start_month
+      start_year
+      end_month
+      end_year
+      description
+      is_current
+      start_date_formatted
+      end_date_formatted
+      experience_period
+      created_at
+      updated_at
+    }
+  }
+`

@@ -109,3 +109,36 @@ export interface UserEducationInput {
   is_current?: boolean | null;
   description?: string | null;
 }
+
+export interface UserExperience {
+  id: string;
+  user_id: string;
+  company: string;
+  title: string;
+  city?: string | null;
+  country?: string | null;
+  start_month?: number | null;
+  start_year?: number | null;
+  end_month?: number | null;
+  end_year?: number | null;
+  description?: string | null;
+  is_current: boolean;
+  start_date_formatted?: string | null;
+  end_date_formatted?: string | null;
+  experience_period?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserExperienceInput {
+  company: string;
+  title: string;
+  city?: string | null;
+  country?: string | null;
+  start_month?: number | null;
+  start_year?: number | null;
+  end_month?: number | null;
+  end_year?: number | null;
+  description?: string | null;
+  is_current?: boolean | null;
+}

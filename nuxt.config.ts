@@ -3,12 +3,11 @@ import meta from './app/config/meta'
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  css: ['~/assets/css/main.css'],
   devServer: {
     port: 3001,
     host: '0.0.0.0'
   },
-
-  css: ['~/assets/css/main.css'],
 
   app: {
     baseURL: '/dashboard',

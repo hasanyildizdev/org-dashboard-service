@@ -1,5 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
-import type { UserEducation } from '~/types/core_types'
+import type { UserEducation, UserExperience } from '~/types/core_types'
 
 // Define the database schema
 interface AppDB extends DBSchema {
@@ -11,13 +11,18 @@ interface AppDB extends DBSchema {
       'by-current': number
     }
   }
-  // You can add more stores for skills, experiences, etc.
-  // userSkills: { ... }
-  // userExperiences: { ... }
+  userExperiences: {
+    key: string
+    value: UserExperience
+    indexes: {
+      'by-user': string
+      'by-current': number
+    }
+  }
 }
 
 const DB_NAME = 'ourganize-app-db'
-const DB_VERSION = 2 // Increased to force schema recreation
+const DB_VERSION = 3 // Increased to add userExperiences store
 
 let dbInstance: IDBPDatabase<AppDB> | null = null
 
@@ -38,6 +43,9 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
         if (db.objectStoreNames.contains('userEducations')) {
           db.deleteObjectStore('userEducations')
         }
+        if (db.objectStoreNames.contains('userExperiences')) {
+          db.deleteObjectStore('userExperiences')
+        }
         
         // Create user educations store
         const educationStore = db.createObjectStore('userEducations', {
@@ -47,6 +55,15 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
         // Create indexes for efficient querying
         educationStore.createIndex('by-user', 'user_id')
         educationStore.createIndex('by-current', 'is_current')
+        
+        // Create user experiences store
+        const experienceStore = db.createObjectStore('userExperiences', {
+          keyPath: 'id'
+        })
+        
+        // Create indexes for efficient querying
+        experienceStore.createIndex('by-user', 'user_id')
+        experienceStore.createIndex('by-current', 'is_current')
         
         console.log('✅ IndexedDB schema created successfully')
       },
@@ -66,10 +83,11 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
  */
 export async function clearAllData(): Promise<void> {
   const db = await getDB()
-  const tx = db.transaction(['userEducations'], 'readwrite')
+  const tx = db.transaction(['userEducations', 'userExperiences'], 'readwrite')
   
   await Promise.all([
     tx.objectStore('userEducations').clear(),
+    tx.objectStore('userExperiences').clear(),
     tx.done
   ])
   
@@ -194,6 +212,117 @@ export async function getCurrentEducations(): Promise<UserEducation[]> {
     return await db.getAllFromIndex('userEducations', 'by-current', 1)
   } catch (error) {
     console.error('❌ Error getting current educations:', error)
+    return []
+  }
+}
+
+// ==========================================
+// USER EXPERIENCE OPERATIONS
+// ==========================================
+
+/**
+ * Get all user experiences from IndexedDB
+ */
+export async function getAllExperiences(): Promise<UserExperience[]> {
+  try {
+    const db = await getDB()
+    const experiences = await db.getAll('userExperiences')
+    console.log(`💼 Retrieved ${experiences.length} experiences from IndexedDB`)
+    return experiences
+  } catch (error) {
+    console.error('❌ Error getting experiences from IndexedDB:', error)
+    return []
+  }
+}
+
+/**
+ * Get a single experience by ID
+ */
+export async function getExperienceById(id: string): Promise<UserExperience | undefined> {
+  try {
+    const db = await getDB()
+    return await db.get('userExperiences', id)
+  } catch (error) {
+    console.error('❌ Error getting experience by ID:', error)
+    return undefined
+  }
+}
+
+/**
+ * Save all experiences to IndexedDB (bulk operation)
+ */
+export async function saveAllExperiences(experiences: UserExperience[]): Promise<void> {
+  try {
+    const db = await getDB()
+    const tx = db.transaction('userExperiences', 'readwrite')
+    const store = tx.objectStore('userExperiences')
+    
+    // Clear existing data first
+    await store.clear()
+    
+    // Add all experiences
+    await Promise.all(
+      experiences.map(experience => store.put(experience))
+    )
+    
+    await tx.done
+    console.log(`✅ Saved ${experiences.length} experiences to IndexedDB`)
+  } catch (error) {
+    console.error('❌ Error saving experiences to IndexedDB:', error)
+    throw error
+  }
+}
+
+/**
+ * Add or update a single experience
+ */
+export async function saveExperience(experience: UserExperience): Promise<void> {
+  try {
+    const db = await getDB()
+    await db.put('userExperiences', experience)
+    console.log(`✅ Saved experience "${experience.company}" to IndexedDB`)
+  } catch (error) {
+    console.error('❌ Error saving experience to IndexedDB:', error)
+    throw error
+  }
+}
+
+/**
+ * Delete an experience by ID
+ */
+export async function deleteExperience(id: string): Promise<void> {
+  try {
+    const db = await getDB()
+    await db.delete('userExperiences', id)
+    console.log(`🗑️ Deleted experience ${id} from IndexedDB`)
+  } catch (error) {
+    console.error('❌ Error deleting experience from IndexedDB:', error)
+    throw error
+  }
+}
+
+/**
+ * Get experiences by user ID (using index)
+ */
+export async function getExperiencesByUserId(userId: string): Promise<UserExperience[]> {
+  try {
+    const db = await getDB()
+    return await db.getAllFromIndex('userExperiences', 'by-user', userId)
+  } catch (error) {
+    console.error('❌ Error getting experiences by user ID:', error)
+    return []
+  }
+}
+
+/**
+ * Get current experiences (using index)
+ */
+export async function getCurrentExperiences(): Promise<UserExperience[]> {
+  try {
+    const db = await getDB()
+    return await db.getAllFromIndex('userExperiences', 'by-current', 1)
+  } catch (error) {
+    console.error('❌ Error getting current experiences:', error)
     return []
   }
 }

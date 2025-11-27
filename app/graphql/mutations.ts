@@ -161,3 +161,57 @@ export const DELETE_USER_EDUCATION_MUTATION = gql`
     deleteUserEducation(id: $id)
   }
 `
+
+export const CREATE_USER_EXPERIENCE_MUTATION = gql`
+  mutation CreateUserExperience($input: UserExperienceInput!) {
+    createUserExperience(input: $input) {
+      id
+      user_id
+      company
+      title
+      city
+      country
+      start_month
+      start_year
+      end_month
+      end_year
+      description
+      is_current
+      start_date_formatted
+      end_date_formatted
+      experience_period
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const UPDATE_USER_EXPERIENCE_MUTATION = gql`
+  mutation UpdateUserExperience($id: ID!, $input: UserExperienceInput!) {
+    updateUserExperience(id: $id, input: $input) {
+      id
+      user_id
+      company
+      title
+      city
+      country
+      start_month
+      start_year
+      end_month
+      end_year
+      description
+      is_current
+      start_date_formatted
+      end_date_formatted
+      experience_period
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const DELETE_USER_EXPERIENCE_MUTATION = gql`
+  mutation DeleteUserExperience($id: ID!) {
+    deleteUserExperience(id: $id)
+  }
+`
