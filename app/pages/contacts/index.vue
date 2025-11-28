@@ -405,11 +405,12 @@ function getStatusIcon(status: string) {
               </div>
               
               <div v-if="filteredContacts.length === 0" class="p-12 text-center">
-                <UIcon name="i-lucide-users" class="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No contacts found</h3>
-                <p class="text-gray-600 dark:text-gray-400 mb-4">
-                  Try adjusting your search criteria or filters.
-                </p>
+                <UEmpty 
+                  title="No contacts found" 
+                  description="Try adjusting your search criteria or filters." 
+                  icon="i-lucide-users" 
+                  size="lg" 
+                />
                 <UButton variant="outline" icon="i-lucide-user-plus">
                   Add New Contact
                 </UButton>

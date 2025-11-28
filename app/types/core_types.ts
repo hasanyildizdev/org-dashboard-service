@@ -27,6 +27,9 @@ export interface User {
     name: string
     slug: string
   } | null
+  phone: string
+  country: string
+  city: string
   created_at: string
   updated_at: string
 }

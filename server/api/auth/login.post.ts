@@ -22,15 +22,19 @@ export default defineEventHandler(async (event) => {
                 user {
                   id
                   name
+                  avatar
                   email
                   email_verified_at
                   profession_id
-                  created_at
-                  updated_at
                   profession {
                     id
                     name
                   }
+                  phone
+                  country
+                  city
+                  created_at
+                  updated_at
                 }
               }
             }

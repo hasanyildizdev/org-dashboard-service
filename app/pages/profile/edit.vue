@@ -731,11 +731,13 @@ async function onSubmit(event: Event) {
                     </div>
                   </template>
 
-                  <div v-if="educationStore.userEducations.length === 0" class="text-center py-8">
-                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                      <UIcon name="i-lucide-graduation-cap" class="w-8 h-8 text-gray-400" />
-                    </div>
-                    <p class="text-gray-500 dark:text-gray-400 mb-4">No education added yet</p>
+                  <div v-if="educationStore.userEducations.length === 0">
+                    <UEmpty 
+                      title="No education added yet" 
+                      description="Add your education to your profile"
+                      icon="i-lucide-graduation-cap"
+                      size="lg"
+                    />
                   </div>
 
                   <div v-else class="space-y-4">
@@ -821,11 +823,13 @@ async function onSubmit(event: Event) {
                   </template>
 
                   <!-- Experience List -->
-                  <div v-if="experienceStore.userExperiences.length === 0" class="text-center py-8 text-gray-500">
-                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                      <UIcon name="i-lucide-briefcase" class="w-8 h-8 text-gray-400" />
-                    </div>
-                    <p class="text-gray-500 dark:text-gray-400 mb-4">No work experience added yet</p>
+                  <div v-if="experienceStore.userExperiences.length === 0">
+                    <UEmpty 
+                      title="No experience added yet" 
+                      description="Add your work experience to your profile" 
+                      icon="i-lucide-briefcase" 
+                      size="lg" 
+                    />
                   </div>
 
                   <div v-else class="space-y-4">
@@ -893,12 +897,16 @@ async function onSubmit(event: Event) {
                   </div>
                 </template>
                 
-                <div v-if="skillStore.userSkills.length === 0" class="text-center py-8 text-gray-500">
-                  <UIcon name="i-lucide-code" class="w-12 h-12 mx-auto mb-2 opacity-30" />
-                  <p>No skills added yet</p>
+                <div v-if="skillStore.userSkills.length === 0">
+                   <UEmpty 
+                      title="No skills added yet" 
+                      description="Add your skills to your profile" 
+                      icon="i-lucide-code" 
+                      size="lg" 
+                    />
                 </div>
                 
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-else class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   <UCard
                     v-for="skill in skillStore.userSkills"
                     :key="skill.id"
@@ -1147,7 +1155,7 @@ async function onSubmit(event: Event) {
                           :items="degreeTypes"
                           :model-value="educationForm.degree ?? undefined"
                           @update:model-value="(v: string | undefined) => educationForm.degree = v ?? null"
-                          placeholder="Month"
+                          placeholder="Degree"
                           size="lg"
                           class="w-48" 
                           :disabled="educationLoading"

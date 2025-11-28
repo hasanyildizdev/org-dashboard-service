@@ -58,6 +58,28 @@ await Promise.all([
                       </div>
                     </div>
                     <div class="flex items-center gap-3">
+                      <ULink to="/cv" target="_blank">
+                        <UButton 
+                          label="View CV" 
+                          icon="i-lucide-file-text"
+                          color="primary"
+                          variant="soft"
+                          size="lg"
+                          trailing
+                          block
+                        />
+                      </ULink>
+                      <ULink to="/cv2" target="_blank">
+                        <UButton 
+                          label="View CV2" 
+                          icon="i-lucide-file-text"
+                          color="primary"
+                          variant="soft"
+                          size="lg"
+                          trailing
+                          block
+                        />
+                      </ULink>
                       <UButton 
                         label="Edit Profile" 
                         icon="i-lucide-user-pen"
@@ -202,7 +224,7 @@ await Promise.all([
               </UCard>
 
               <!-- User Skills Card -->
-              <UCard>
+              <UCard v-if="skillStore.userSkills.length > 0">
                 <template #header>
                   <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold">Skills</h3>
@@ -216,13 +238,7 @@ await Promise.all([
                     </NuxtLink>
                   </div>
                 </template>
-                
-                <div v-if="skillStore.userSkills.length === 0" class="text-center py-8 text-gray-500">
-                  <UIcon name="i-lucide-code" class="w-12 h-12 mx-auto mb-2 opacity-30" />
-                  <p>No skills added yet</p>
-                </div>
-                
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                <div class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                   <UCard
                     v-for="skill in skillStore.userSkills"
                     :key="skill.id"
