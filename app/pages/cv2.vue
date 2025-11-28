@@ -3,6 +3,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useUserSkillStore } from '~/stores/user_skill'
 import { useUserEducationStore } from '~/stores/user_education'
 import { useUserExperienceStore } from '~/stores/user_experience'
+import { useUserSocialAccountStore } from '~/stores/user_social_account'
 
 definePageMeta({
   title: 'CV2',
@@ -13,12 +14,14 @@ const user = computed(() => useAuthStore().user)
 const skillStore = useUserSkillStore()
 const educationStore = useUserEducationStore()
 const experienceStore = useUserExperienceStore()
+const socialAccountStore = useUserSocialAccountStore()
 
 onMounted(async () => {
   await Promise.all([
     skillStore.fetchUserSkills(),
     educationStore.fetchUserEducations(),
-    experienceStore.fetchUserExperiences()
+    experienceStore.fetchUserExperiences(),
+    socialAccountStore.fetchUserSocialAccounts()
   ])
 })
 
@@ -35,10 +38,50 @@ const cvData = computed(() => ({
     { icon: 'i-heroicons-map-pin', label: user.value?.city + ', ' + user.value?.country || '' }
   ],
 
-  socials: [
-    { icon: 'i-simple-icons-github', url: 'https://github.com/hasanyildizdev' },
-    { icon: 'i-simple-icons-linkedin', url: 'https://linkedin.com/in/hasanyildizdev' },
-  ],
+  socials: socialAccountStore.userSocialAccounts.map(account => {
+    // Map provider to icon
+    const getSocialIcon = (provider: string): string => {
+      const icons: Record<string, string> = {
+        github: 'i-simple-icons-github',
+        linkedin: 'i-simple-icons-linkedin',
+        twitter: 'i-simple-icons-x',
+        instagram: 'i-simple-icons-instagram',
+        facebook: 'i-simple-icons-facebook',
+        youtube: 'i-simple-icons-youtube',
+        tiktok: 'i-simple-icons-tiktok',
+        dribbble: 'i-simple-icons-dribbble',
+        behance: 'i-simple-icons-behance',
+        medium: 'i-simple-icons-medium',
+        dev: 'i-simple-icons-devdotto',
+        stackoverflow: 'i-simple-icons-stackoverflow'
+      }
+      return icons[provider.toLowerCase()] || 'i-lucide-link'
+    }
+    
+    // Generate URL based on provider
+    const getSocialUrl = (provider: string, username: string): string => {
+      const urls: Record<string, string> = {
+        github: `https://github.com/${username}`,
+        linkedin: `https://linkedin.com/in/${username}`,
+        twitter: `https://twitter.com/${username.replace('@', '')}`,
+        instagram: `https://instagram.com/${username.replace('@', '')}`,
+        facebook: `https://facebook.com/${username}`,
+        youtube: `https://youtube.com/${username}`,
+        tiktok: `https://tiktok.com/@${username.replace('@', '')}`,
+        dribbble: `https://dribbble.com/${username}`,
+        behance: `https://behance.net/${username}`,
+        medium: `https://medium.com/@${username.replace('@', '')}`,
+        dev: `https://dev.to/${username}`,
+        stackoverflow: `https://stackoverflow.com/users/${username}`
+      }
+      return urls[provider.toLowerCase()] || `https://www.${provider}.com/${username}`
+    }
+    
+    return {
+      icon: getSocialIcon(account.provider),
+      url: getSocialUrl(account.provider, account.username)
+    }
+  }),
 
   skills: skillStore.userSkills.map(skill => ({
     label: skill.name,
