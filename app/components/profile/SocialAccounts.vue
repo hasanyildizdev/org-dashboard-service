@@ -294,6 +294,13 @@ onMounted(async () => {
                 variant="soft"
                 @click="confirmDeleteSocialAccount(account.id)"
               />
+              <ULink :href="`https://www.${account.provider}.com/${account.username}`" target="_blank">
+                <UButton
+                  icon="i-lucide-link"
+                  size="lg"
+                  variant="soft"
+                />
+              </ULink>
               <UButton
                 icon="i-lucide-pencil"
                 size="lg"
