@@ -249,3 +249,35 @@ export const DELETE_USER_SKILL_MUTATION = gql`
     deleteUserSkill(id: $id)
   }
 `
+
+export const CREATE_USER_SOCIAL_ACCOUNT_MUTATION = gql`
+  mutation CreateUserSocialAccount($input: UserSocialAccountInput!) {
+    createUserSocialAccount(input: $input) {
+      id
+      user_id
+      provider
+      username
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const UPDATE_USER_SOCIAL_ACCOUNT_MUTATION = gql`
+  mutation UpdateUserSocialAccount($id: ID!, $input: UserSocialAccountInput!) {
+    updateUserSocialAccount(id: $id, input: $input) {
+      id
+      user_id
+      provider
+      username
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const DELETE_USER_SOCIAL_ACCOUNT_MUTATION = gql`
+  mutation DeleteUserSocialAccount($id: ID!) {
+    deleteUserSocialAccount(id: $id)
+  }
+`

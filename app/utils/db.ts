@@ -1,5 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
-import type { UserEducation, UserExperience, UserSkill } from '~/types/core_types'
+import type { UserEducation, UserExperience, UserSkill, UserSocialAccount } from '~/types/core_types'
 
 // Define the database schema
 interface AppDB extends DBSchema {
@@ -27,10 +27,18 @@ interface AppDB extends DBSchema {
       'by-primary': number
     }
   }
+  userSocialAccounts: {
+    key: string
+    value: UserSocialAccount
+    indexes: {
+      'by-user': string
+      'by-provider': string
+    }
+  }
 }
 
 const DB_NAME = 'ourganize-app-db'
-const DB_VERSION = 4 // Increased to add userSkills store
+const DB_VERSION = 5 // Increased to add userSocialAccounts store
 
 let dbInstance: IDBPDatabase<AppDB> | null = null
 
@@ -56,6 +64,9 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
         }
         if (db.objectStoreNames.contains('userSkills')) {
           db.deleteObjectStore('userSkills')
+        }
+        if (db.objectStoreNames.contains('userSocialAccounts')) {
+          db.deleteObjectStore('userSocialAccounts')
         }
         
         // Create user educations store
@@ -85,6 +96,15 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
         skillStore.createIndex('by-user', 'user_id')
         skillStore.createIndex('by-primary', 'is_primary')
         
+        // Create user social accounts store
+        const socialAccountStore = db.createObjectStore('userSocialAccounts', {
+          keyPath: 'id'
+        })
+        
+        // Create indexes for efficient querying
+        socialAccountStore.createIndex('by-user', 'user_id')
+        socialAccountStore.createIndex('by-provider', 'provider')
+        
         console.log('✅ IndexedDB schema created successfully')
       },
     })
@@ -103,12 +123,13 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
  */
 export async function clearAllData(): Promise<void> {
   const db = await getDB()
-  const tx = db.transaction(['userEducations', 'userExperiences', 'userSkills'], 'readwrite')
+  const tx = db.transaction(['userEducations', 'userExperiences', 'userSkills', 'userSocialAccounts'], 'readwrite')
   
   await Promise.all([
     tx.objectStore('userEducations').clear(),
     tx.objectStore('userExperiences').clear(),
     tx.objectStore('userSkills').clear(),
+    tx.objectStore('userSocialAccounts').clear(),
     tx.done
   ])
   
@@ -449,6 +470,111 @@ export async function getPrimarySkills(): Promise<UserSkill[]> {
     return await db.getAllFromIndex('userSkills', 'by-primary', 1)
   } catch (error) {
     console.error('❌ Error getting primary skills:', error)
+    return []
+  }
+}
+
+/* ============================================
+ * USER SOCIAL ACCOUNTS FUNCTIONS
+ * ============================================ */
+
+/**
+ * Get all social accounts from IndexedDB
+ */
+export async function getAllSocialAccounts(): Promise<UserSocialAccount[]> {
+  try {
+    const db = await getDB()
+    return await db.getAll('userSocialAccounts')
+  } catch (error) {
+    console.error('❌ Error getting all social accounts from IndexedDB:', error)
+    return []
+  }
+}
+
+/**
+ * Get social account by ID
+ */
+export async function getSocialAccountById(id: string): Promise<UserSocialAccount | undefined> {
+  try {
+    const db = await getDB()
+    return await db.get('userSocialAccounts', id)
+  } catch (error) {
+    console.error('❌ Error getting social account by ID:', error)
+    return undefined
+  }
+}
+
+/**
+ * Save all social accounts (replaces existing data)
+ */
+export async function saveAllSocialAccounts(accounts: UserSocialAccount[]): Promise<void> {
+  try {
+    const db = await getDB()
+    const tx = db.transaction('userSocialAccounts', 'readwrite')
+    
+    // Clear existing data
+    await tx.objectStore('userSocialAccounts').clear()
+    
+    // Add all social accounts
+    for (const account of accounts) {
+      await tx.objectStore('userSocialAccounts').put(account)
+    }
+    
+    await tx.done
+  } catch (error) {
+    console.error('❌ Error saving social accounts to IndexedDB:', error)
+    throw error
+  }
+}
+
+/**
+ * Save single social account (create or update)
+ */
+export async function saveSocialAccount(account: UserSocialAccount): Promise<void> {
+  try {
+    const db = await getDB()
+    await db.put('userSocialAccounts', account)
+  } catch (error) {
+    console.error('❌ Error saving social account to IndexedDB:', error)
+    throw error
+  }
+}
+
+/**
+ * Delete social account by ID
+ */
+export async function deleteSocialAccount(id: string): Promise<void> {
+  try {
+    const db = await getDB()
+    await db.delete('userSocialAccounts', id)
+  } catch (error) {
+    console.error('❌ Error deleting social account from IndexedDB:', error)
+    throw error
+  }
+}
+
+/**
+ * Get social accounts by user ID (using index)
+ */
+export async function getSocialAccountsByUserId(userId: string): Promise<UserSocialAccount[]> {
+  try {
+    const db = await getDB()
+    return await db.getAllFromIndex('userSocialAccounts', 'by-user', userId)
+  } catch (error) {
+    console.error('❌ Error getting social accounts by user ID:', error)
+    return []
+  }
+}
+
+/**
+ * Get social accounts by provider (using index)
+ */
+export async function getSocialAccountsByProvider(provider: string): Promise<UserSocialAccount[]> {
+  try {
+    const db = await getDB()
+    return await db.getAllFromIndex('userSocialAccounts', 'by-provider', provider)
+  } catch (error) {
+    console.error('❌ Error getting social accounts by provider:', error)
     return []
   }
 }

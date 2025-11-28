@@ -4,6 +4,7 @@ import { useUserEducationStore } from '~/stores/user_education'
 import { useUserExperienceStore } from '~/stores/user_experience'
 import { useUserSkillStore } from '~/stores/user_skill'
 import { useSkillLevelsIcons } from '~/composables/skillLevelsIcons'
+import { useUserSocialAccountStore } from '~/stores/user_social_account'
 
 definePageMeta({
   title: 'Profile',
@@ -13,13 +14,52 @@ const user = computed(() => useAuthStore().user)
 const educationStore = useUserEducationStore()
 const experienceStore = useUserExperienceStore()
 const skillStore = useUserSkillStore()
+const socialAccountStore = useUserSocialAccountStore()
 const { skillLevelsIcons } = useSkillLevelsIcons()
 
 await Promise.all([
   educationStore.fetchUserEducations(),
   experienceStore.fetchUserExperiences(),
-  skillStore.fetchUserSkills()
+  skillStore.fetchUserSkills(),
+  socialAccountStore.fetchUserSocialAccounts()
 ])
+
+// Helper functions for social account icons and colors
+function getSocialIcon(provider: string): string {
+  const icons: Record<string, string> = {
+    github: 'i-simple-icons-github',
+    linkedin: 'i-simple-icons-linkedin',
+    twitter: 'i-simple-icons-x',
+    instagram: 'i-simple-icons-instagram',
+    facebook: 'i-simple-icons-facebook',
+    youtube: 'i-simple-icons-youtube',
+    tiktok: 'i-simple-icons-tiktok',
+    dribbble: 'i-simple-icons-dribbble',
+    behance: 'i-simple-icons-behance',
+    medium: 'i-simple-icons-medium',
+    dev: 'i-simple-icons-devdotto',
+    stackoverflow: 'i-simple-icons-stackoverflow'
+  }
+  return icons[provider.toLowerCase()] || 'i-lucide-link'
+}
+
+function getSocialColor(provider: string): string {
+  const colors: Record<string, string> = {
+    github: 'text-gray-900 dark:text-white',
+    linkedin: 'text-blue-700',
+    twitter: 'text-gray-900 dark:text-white',
+    instagram: 'text-pink-600',
+    facebook: 'text-blue-600',
+    youtube: 'text-red-600',
+    tiktok: 'text-gray-900 dark:text-white',
+    dribbble: 'text-pink-500',
+    behance: 'text-blue-600',
+    medium: 'text-gray-900 dark:text-white',
+    dev: 'text-gray-900 dark:text-white',
+    stackoverflow: 'text-orange-600'
+  }
+  return colors[provider.toLowerCase()] || 'text-gray-600'
+}
 </script>
 
 <template>
@@ -265,6 +305,46 @@ await Promise.all([
                             class="text-blue-500 size-5"/>
                      </div>
                   </UCard>
+                </div>
+              </UCard>
+
+              <!-- User Social Accounts Card -->
+              <UCard>
+                <template #header>
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">Social Accounts</h3>
+                    <NuxtLink to="/profile/edit">
+                      <UButton 
+                        icon="i-lucide-pencil" 
+                        size="sm"
+                        variant="ghost"
+                        label="Edit"
+                      />
+                    </NuxtLink>
+                  </div>
+                </template>
+                
+                <div v-if="socialAccountStore.userSocialAccounts.length === 0" class="text-center py-8 text-gray-500">
+                  <UIcon name="i-lucide-share-2" class="w-12 h-12 mx-auto mb-2 opacity-30" />
+                  <p>No social accounts added yet</p>
+                </div>
+                
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div 
+                    v-for="account in socialAccountStore.userSocialAccounts" 
+                    :key="account.id"
+                    class="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-800 rounded-lg"
+                  >
+                    <UIcon 
+                      :name="getSocialIcon(account.provider)" 
+                      class="w-6 h-6"
+                      :class="getSocialColor(account.provider)"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">{{ account.provider }}</p>
+                      <p class="font-medium truncate">{{ account.username }}</p>
+                    </div>
+                  </div>
                 </div>
               </UCard>
             </div>

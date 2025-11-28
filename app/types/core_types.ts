@@ -165,5 +165,19 @@ export interface SelectMenuItem {
 export interface UserSkillInput {
   name: string;
   level: string;
-  is_primary?: boolean;
+  is_primary?: boolean | null;
+}
+
+export interface UserSocialAccount {
+  id: string;
+  user_id: string;
+  provider: string;
+  username: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserSocialAccountInput {
+  provider: string;
+  username: string;
 }

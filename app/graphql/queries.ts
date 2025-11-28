@@ -93,3 +93,16 @@ export const GET_USER_SKILLS = gql`
     }
   }
 `
+
+export const GET_USER_SOCIAL_ACCOUNTS = gql`
+  query GetUserSocialAccounts {
+    userSocialAccounts {
+      id
+      user_id
+      provider
+      username
+      created_at
+      updated_at
+    }
+  }
+`
