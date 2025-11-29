@@ -181,3 +181,84 @@ export interface UserSocialAccountInput {
   provider: string;
   username: string;
 }
+
+// ==========================================
+// PMS (Project Management System) Types
+// ==========================================
+
+export interface Organization {
+  id: string;
+  user_id: string;
+  name: string;
+  slug: string;
+  created_at?: string;
+  updated_at?: string;
+  workspaces?: Workspace[];
+}
+
+export interface OrganizationInput {
+  name: string;
+  slug?: string;
+}
+
+export interface Workspace {
+  id: string;
+  organization_id: string;
+  name: string;
+  description: string | null;
+  created_at?: string;
+  updated_at?: string;
+  organization?: Organization;
+  projects?: Project[];
+}
+
+export interface WorkspaceInput {
+  organization_id: string;
+  name: string;
+  description?: string | null;
+}
+
+export interface Project {
+  id: string;
+  workspace_id: string;
+  name: string;
+  description: string | null;
+  sort: number;
+  is_featured: boolean;
+  status: 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+  start_date: string | null;
+  end_date: string | null;
+  created_at?: string;
+  updated_at?: string;
+  workspace?: Workspace;
+  project_detail?: ProjectDetail;
+}
+
+export interface ProjectInput {
+  workspace_id: string;
+  name: string;
+  description?: string | null;
+  sort?: number;
+  is_featured?: boolean;
+  status?: 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+  start_date?: string | null;
+  end_date?: string | null;
+}
+
+export interface ProjectDetail {
+  id: string;
+  project_id: string;
+  website: string | null;
+  allocated_budget: number | null;
+  technologies: string | null;
+  created_at?: string;
+  updated_at?: string;
+  project?: Project;
+}
+
+export interface ProjectDetailInput {
+  project_id: string;
+  website?: string | null;
+  allocated_budget?: number | null;
+  technologies?: string | null;
+}

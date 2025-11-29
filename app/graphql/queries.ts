@@ -106,3 +106,29 @@ export const GET_USER_SOCIAL_ACCOUNTS = gql`
     }
   }
 `
+
+// ==========================================
+// PMS (Project Management System) Queries
+// ==========================================
+
+export const GET_ORGANIZATIONS = gql`
+  query GetOrganizations {
+    organizations {
+      id
+      user_id
+      name
+      slug
+    }
+  }
+`
+
+export const GET_ORGANIZATION = gql`
+  query GetOrganization($id: ID!) {
+    organization(id: $id) {
+      id
+      user_id
+      name
+      slug
+    }
+  }
+`

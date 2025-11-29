@@ -281,3 +281,35 @@ export const DELETE_USER_SOCIAL_ACCOUNT_MUTATION = gql`
     deleteUserSocialAccount(id: $id)
   }
 `
+
+// ==========================================
+// PMS (Project Management System) Mutations
+// ==========================================
+
+export const CREATE_ORGANIZATION_MUTATION = gql`
+  mutation CreateOrganization($input: OrganizationInput!) {
+    createOrganization(input: $input) {
+      id
+      user_id
+      name
+      slug
+    }
+  }
+`
+
+export const UPDATE_ORGANIZATION_MUTATION = gql`
+  mutation UpdateOrganization($id: ID!, $input: OrganizationInput!) {
+    updateOrganization(id: $id, input: $input) {
+      id
+      user_id
+      name
+      slug
+    }
+  }
+`
+
+export const DELETE_ORGANIZATION_MUTATION = gql`
+  mutation DeleteOrganization($id: ID!) {
+    deleteOrganization(id: $id)
+  }
+`
