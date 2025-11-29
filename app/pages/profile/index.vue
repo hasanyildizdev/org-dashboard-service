@@ -60,6 +60,50 @@ function getSocialColor(provider: string): string {
   }
   return colors[provider.toLowerCase()] || 'text-gray-600'
 }
+
+// Calculate profile completion percentage dynamically
+const profile_completion_messages = []
+const profile_progress = computed(() => {
+  let completedFields = 0
+  const totalFields = 5
+  
+  // Check if profession is completed
+  if (user.value?.profession) {
+    completedFields++
+  } else {
+    profile_completion_messages.push('Add your profession')
+  }
+  
+  // Check if education is completed
+  if (educationStore.userEducations.length > 0) {
+    completedFields++
+  } else {
+    profile_completion_messages.push('Add your education')
+  }
+  
+  // Check if experiences is completed
+  if (experienceStore.userExperiences.length > 0) {
+    completedFields++
+  } else {
+    profile_completion_messages.push('Add your work experience')
+  }
+  
+  // Check if skills is completed
+  if (skillStore.userSkills.length > 0) {
+    completedFields++
+  } else {  
+    profile_completion_messages.push('Add your skills')
+  }
+  
+  // Check if social accounts is completed
+  if (socialAccountStore.userSocialAccounts.length > 0) {
+    completedFields++
+  } else {
+    profile_completion_messages.push('Add your social accounts')
+  }
+  
+  return Math.round((completedFields / totalFields) * 100)
+})
 </script>
 
 <template>
@@ -87,39 +131,73 @@ function getSocialColor(provider: string): string {
               <UCard>
                 <template #header>
                   <div class="flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                      <div class="w-16 h-16 rounded-full bg-primary-500 flex items-center justify-center text-white text-2xl font-bold">
-                        <img v-if="user?.avatar" :src="user.avatar" alt="Avatar" class="w-16 h-16 rounded-full">
-                        <span v-else>{{ user?.name?.charAt(0).toUpperCase() }}</span>
+                    <div class="space-y-2">
+                      <div class="flex items-center gap-3">
+                        <div class="w-16 h-16 rounded-full bg-primary-500 flex items-center justify-center text-white text-2xl font-bold">
+                          <img v-if="user?.avatar" :src="user.avatar" alt="Avatar" class="w-16 h-16 rounded-full">
+                          <span v-else>{{ user?.name?.charAt(0).toUpperCase() }}</span>
+                        </div>
+                        <div>
+                          <h3 class="text-xl font-semibold">{{ user?.name }}</h3>
+                          <p class="text-sm text-gray-500">{{ user?.email }}</p>
+                        </div>
                       </div>
                       <div>
-                        <h3 class="text-xl font-semibold">{{ user?.name }}</h3>
-                        <p class="text-sm text-gray-500">{{ user?.email }}</p>
+                        <p class="text-sm text-gray-600">Profile completion: {{ profile_progress }}%</p>
+                        <UProgress v-model="profile_progress" size="xl" class="mt-2" color="success"/>
+                        <UPopover>
+                          <UButton 
+                            label="What you missed" 
+                            color="neutral" 
+                            variant="outline" 
+                            trailing   
+                            icon="i-lucide-help-circle" 
+                            class="mt-2" />
+                            <template #content>
+                              <div class="space-y-2 p-2">
+                                <p v-for="message in profile_completion_messages" :key="message" class="text-sm">{{ message }}</p>
+                              </div>
+                            </template>
+                        </UPopover>
                       </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                      <ULink to="/cv" target="_blank">
+                    <div class="flex flex-col items-end gap-3">
+                      <div>
                         <UButton 
-                          label="View CV" 
-                          icon="i-lucide-file-text"
-                          color="primary"
+                          label="Logout" 
+                          trailing
+                          icon="i-lucide-log-out"
+                          color="error"
                           variant="soft"
                           size="lg"
-                          trailing
                           block
+                          @click="useAuthStore().logout"
                         />
-                      </ULink>
-                      <ULink to="/cv2" target="_blank">
-                        <UButton 
-                          label="View CV2" 
-                          icon="i-lucide-file-text"
-                          color="primary"
-                          variant="soft"
-                          size="lg"
-                          trailing
-                          block
-                        />
-                      </ULink>
+                      </div>
+                      <div class="flex gap-3">
+                        <ULink to="/cv" target="_blank">
+                          <UButton 
+                            label="View CV" 
+                            icon="i-lucide-file-text"
+                            color="primary"
+                            variant="soft"
+                            size="lg"
+                            trailing
+                            block
+                          />
+                        </ULink>
+                        <ULink to="/cv2" target="_blank">
+                          <UButton 
+                            label="View CV2" 
+                            icon="i-lucide-file-text"
+                            color="primary"
+                            variant="soft"
+                            size="lg"
+                            trailing
+                            block
+                          />
+                        </ULink>
+                      </div>
                       <UButton 
                         label="Edit Profile" 
                         icon="i-lucide-user-pen"
@@ -128,16 +206,6 @@ function getSocialColor(provider: string): string {
                         size="lg"
                         block
                         to="/profile/edit"
-                      />
-                      <UButton 
-                        label="Logout" 
-                        trailing
-                        icon="i-lucide-log-out"
-                        color="error"
-                        variant="soft"
-                        size="lg"
-                        block
-                        @click="useAuthStore().logout"
                       />
                     </div>
                   </div>

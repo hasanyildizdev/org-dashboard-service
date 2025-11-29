@@ -3,7 +3,7 @@ import { useOrganizationStore } from '~/stores/organization'
 import type { OrganizationInput } from '~/types/core_types'
 
 definePageMeta({
-  title: 'PMS - Project Management',
+  title: 'Project Management System',
 })
 
 const toast = useToast()
@@ -157,7 +157,7 @@ watch(() => organizationForm.value.name, (newName) => {
         <template #leading>
           <UDashboardSidebarCollapse variant="subtle" />
         </template>
-        <template #trailing>
+        <template #right>
           <UButton
             label="New Organization"
             icon="i-lucide-plus"
