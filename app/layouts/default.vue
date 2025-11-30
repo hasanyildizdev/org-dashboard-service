@@ -47,103 +47,13 @@ useHead({
 const items: NavigationMenuItem[][] = [[
 {
   label: 'Home',
-  icon: 'i-lucide-house',
-  to: '/'
-},
-{
-  label: 'Organize',
   icon: 'mdi:ship-wheel',
-  children: 
-  [
-    {
-      label: 'Organa',
-      icon: 'mdi:robot',
-      to: '/organa',
-      children: 
-      [
-        {
-          label: 'AI Mentor',
-          to: '/organa'
-        },
-        {
-          label: 'Chat',
-          to: '/organa/chat'
-        }, 
-      ]
-    }, 
-    {
-      label: 'Modules',
-      icon: 'mdi:package-variant-closed-plus',
-      children: 
-      [
-        {
-          label: 'PMS',
-          icon: 'mdi:compass-outline',
-          to: '/modules/pms'
-        }, 
-        {
-          label: 'ERD',
-          icon: 'mdi:drawing-box',
-          to: '/modules/erd'
-        }, 
-        {
-          label: 'CRM',
-          icon: 'mdi:handshake',
-          to: '/modules/crm',
-          badge: 'Paid🔒'
-        }, 
-        {
-          label: 'PLM',
-          icon: 'mdi:recycle',
-          to: '/modules/plm',
-          badge: 'Paid 🔒'
-        }, 
-        {
-          label: 'IMS',
-          icon: 'mdi:warehouse',
-          to: '/modules/ims',
-          badge: 'Paid 🔒'
-        }, 
-        {
-          label: 'ERP',
-          icon: 'mdi:clipboard-flow-outline',
-          to: '/modules/erp',
-          badge: 'Paid 🔒'
-        }, 
-      ]
-    }
-  ]
+  to: '/'
 },
 {
   label: 'Map',
   icon: 'mdi:earth',
-  children:
-  [
-    {
-      label: 'Map',
-      to: '/map',
-      icon: 'mdi:map'
-    },
-    {
-      label: 'Contacts',
-      icon: 'i-lucide-users',
-      to: '/contacts',
-      children: 
-      [
-        {
-          label: 'Contact List',
-          to: '/contacts',
-          icon: 'mdi:account-group',
-        },
-        {
-          label: 'Chat',
-          badge: '4',
-          to: '/contacts/chat',
-          icon: 'i-lucide-message-circle',
-        }, 
-      ]
-    }
-  ]
+  to: '/map'
 }], 
 [
   {
@@ -155,6 +65,11 @@ const items: NavigationMenuItem[][] = [[
     label: 'Settings',
     icon: 'i-lucide-settings',
     to: '/settings',
+  },
+  {
+    label: 'Modules',
+    icon: 'mdi:package-variant-closed-plus',
+    to: '/modules',
   },
 ]
 ]

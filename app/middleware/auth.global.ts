@@ -11,19 +11,19 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   // If no user in store, try to fetch from server (will check httpOnly cookie)
   if (!authStore.user) {
-    console.log('🔄 User not in store, fetching from API...')
+    console.error('🔄 User not in store, fetching from API...')
     await authStore.fetchUser()
   }
   
   // If still no user, redirect to login
   if (!authStore.user) {
-    console.log('❌ No user - redirecting to login')
+    console.error('❌ No user - redirecting to login')
     return navigateTo('/auth/login')
   }
   
   // Check if email is verified
   if (!authStore.isEmailVerified && to.path !== '/auth/verify-email' && to.path !== '/auth/email-verified') {
-    console.log('⚠️ Email not verified, redirecting to verification page')
+    console.error('⚠️ Email not verified, redirecting to verification page')
     return navigateTo('/auth/verify-email')
   }
 })

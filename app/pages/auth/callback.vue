@@ -49,11 +49,9 @@ onMounted(async () => {
   }
 
   try {
-    console.log('✅ Token received from social auth')
 
     // Call server API to set httpOnly cookie and get user data
     const authStore = useAuthStore()
-    console.log('🔄 Authenticating with server...')
     
     const response = await $fetch<{ success: boolean, user: any }>('/api/auth/callback', {
       method: 'POST',
@@ -66,9 +64,6 @@ onMounted(async () => {
 
     // Set user in store
     authStore.setUser(response.user)
-
-    console.log('✅ User authenticated successfully:', response.user.email)
-    console.log('✅ User profession:', response.user.profession?.name || 'None')
     
     toast.add({
       title: 'Success!',

@@ -36,7 +36,6 @@ export const useUserExperienceStore = defineStore('user_experience', () => {
       const cached = await getAllExperiences()
       if (cached.length > 0) {
         userExperiences.value = cached
-        console.log(`⚡ Loaded ${cached.length} experiences from IndexedDB`)
       }
       isInitialized.value = true
     } catch (error) {
@@ -54,14 +53,12 @@ export const useUserExperienceStore = defineStore('user_experience', () => {
     
     // If we have data and not forcing, return immediately
     if (userExperiences.value.length > 0 && !force) {
-      console.log('📦 Using cached experiences from IndexedDB')
       return userExperiences.value 
     }
 
     // Fetch from API
     try {
       loading.value = true
-      console.log('🌐 Fetching experiences from API...')
 
       const { data, error } = await apollo.query({
         query: GET_USER_EXPERIENCES,
@@ -81,7 +78,6 @@ export const useUserExperienceStore = defineStore('user_experience', () => {
       if (import.meta.client) {
         try {
           await saveAllExperiences(experiences)
-          console.log(`✅ Fetched and saved ${experiences.length} experiences`)
         } catch (dbError) {
           console.error('❌ Error saving to IndexedDB:', dbError)
         }
@@ -140,7 +136,6 @@ export const useUserExperienceStore = defineStore('user_experience', () => {
         if (import.meta.client) {
           try {
             await saveAllExperiences(userExperiences.value)
-            console.log('✅ Experience created and saved to IndexedDB')
           } catch (dbError) {
             console.error('❌ Error saving to IndexedDB:', dbError)
           }
@@ -211,7 +206,6 @@ export const useUserExperienceStore = defineStore('user_experience', () => {
       if (import.meta.client) {
         try {
           await saveAllExperiences(userExperiences.value)
-          console.log('✅ Experience updated and saved to IndexedDB')
         } catch (dbError) {
           console.error('❌ Error saving to IndexedDB:', dbError)
         }
@@ -251,7 +245,6 @@ export const useUserExperienceStore = defineStore('user_experience', () => {
         if (import.meta.client) {
           try {
             await deleteExperienceFromDB(id)
-            console.log('✅ Experience deleted from IndexedDB')
           } catch (dbError) {
             console.error('❌ Error deleting from IndexedDB:', dbError)
           }
@@ -282,7 +275,6 @@ export const useUserExperienceStore = defineStore('user_experience', () => {
     
     try {
       await saveAllExperiences([])
-      console.log('🗑️ Experiences cleared from IndexedDB')
     } catch (error) {
       console.error('❌ Error clearing experiences:', error)
     }

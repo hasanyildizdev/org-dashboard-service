@@ -84,7 +84,6 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
   try {
     dbInstance = await openDB<AppDB>(DB_NAME, DB_VERSION, {
       upgrade(db, oldVersion, newVersion, transaction) {
-        console.log(`📊 Upgrading IndexedDB from v${oldVersion} to v${newVersion}`)
         
         // Delete old stores if they exist (clean slate)
         if (db.objectStoreNames.contains('userEducations')) {
@@ -174,8 +173,6 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
           keyPath: 'id'
         })
         projectDetailStore.createIndex('by-project', 'project_id')
-        
-        console.log('✅ IndexedDB schema created successfully')
       },
     })
 
@@ -206,8 +203,6 @@ export async function clearAllData(): Promise<void> {
     tx.objectStore('projectDetails').clear(),
     tx.done
   ])
-  
-  console.log('🗑️ IndexedDB cleared')
 }
 
 /**
@@ -217,7 +212,6 @@ export function closeDB(): void {
   if (dbInstance) {
     dbInstance.close()
     dbInstance = null
-    console.log('🔒 IndexedDB connection closed')
   }
 }
 
@@ -232,7 +226,6 @@ export async function getAllEducations(): Promise<UserEducation[]> {
   try {
     const db = await getDB()
     const educations = await db.getAll('userEducations')
-    console.log(`📚 Retrieved ${educations.length} educations from IndexedDB`)
     return educations
   } catch (error) {
     console.error('❌ Error getting educations from IndexedDB:', error)
@@ -271,7 +264,6 @@ export async function saveAllEducations(educations: UserEducation[]): Promise<vo
     )
     
     await tx.done
-    console.log(`✅ Saved ${educations.length} educations to IndexedDB`)
   } catch (error) {
     console.error('❌ Error saving educations to IndexedDB:', error)
     throw error
@@ -285,7 +277,6 @@ export async function saveEducation(education: UserEducation): Promise<void> {
   try {
     const db = await getDB()
     await db.put('userEducations', education)
-    console.log(`✅ Saved education "${education.institution}" to IndexedDB`)
   } catch (error) {
     console.error('❌ Error saving education to IndexedDB:', error)
     throw error
@@ -299,7 +290,6 @@ export async function deleteEducation(id: string): Promise<void> {
   try {
     const db = await getDB()
     await db.delete('userEducations', id)
-    console.log(`🗑️ Deleted education ${id} from IndexedDB`)
   } catch (error) {
     console.error('❌ Error deleting education from IndexedDB:', error)
     throw error
@@ -343,7 +333,6 @@ export async function getAllExperiences(): Promise<UserExperience[]> {
   try {
     const db = await getDB()
     const experiences = await db.getAll('userExperiences')
-    console.log(`💼 Retrieved ${experiences.length} experiences from IndexedDB`)
     return experiences
   } catch (error) {
     console.error('❌ Error getting experiences from IndexedDB:', error)
@@ -382,7 +371,6 @@ export async function saveAllExperiences(experiences: UserExperience[]): Promise
     )
     
     await tx.done
-    console.log(`✅ Saved ${experiences.length} experiences to IndexedDB`)
   } catch (error) {
     console.error('❌ Error saving experiences to IndexedDB:', error)
     throw error
@@ -396,7 +384,6 @@ export async function saveExperience(experience: UserExperience): Promise<void> 
   try {
     const db = await getDB()
     await db.put('userExperiences', experience)
-    console.log(`✅ Saved experience "${experience.company}" to IndexedDB`)
   } catch (error) {
     console.error('❌ Error saving experience to IndexedDB:', error)
     throw error
@@ -410,7 +397,6 @@ export async function deleteExperience(id: string): Promise<void> {
   try {
     const db = await getDB()
     await db.delete('userExperiences', id)
-    console.log(`🗑️ Deleted experience ${id} from IndexedDB`)
   } catch (error) {
     console.error('❌ Error deleting experience from IndexedDB:', error)
     throw error

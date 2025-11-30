@@ -36,7 +36,6 @@ export const useUserSkillStore = defineStore('user_skill', () => {
       const cached = await getAllSkills()
       if (cached.length > 0) {
         userSkills.value = cached
-        console.log(`⚡ Loaded ${cached.length} skills from IndexedDB`)
       }
       isInitialized.value = true
     } catch (error) {
@@ -54,14 +53,12 @@ export const useUserSkillStore = defineStore('user_skill', () => {
     
     // If we have data and not forcing, return immediately
     if (userSkills.value.length > 0 && !force) {
-      console.log('📦 Using cached skills from IndexedDB')
       return userSkills.value 
     }
 
     // Fetch from API
     try {
       loading.value = true
-      console.log('🌐 Fetching skills from API...')
 
       const { data, error } = await apollo.query({
         query: GET_USER_SKILLS,
@@ -81,7 +78,6 @@ export const useUserSkillStore = defineStore('user_skill', () => {
       if (import.meta.client) {
         try {
           await saveAllSkills(skills)
-          console.log(`✅ Fetched and saved ${skills.length} skills`)
         } catch (dbError) {
           console.error('❌ Error saving to IndexedDB:', dbError)
         }
@@ -140,7 +136,6 @@ export const useUserSkillStore = defineStore('user_skill', () => {
         if (import.meta.client) {
           try {
             await saveAllSkills(userSkills.value)
-            console.log('✅ Skill created and saved to IndexedDB')
           } catch (dbError) {
             console.error('❌ Error saving to IndexedDB:', dbError)
           }
@@ -211,7 +206,6 @@ export const useUserSkillStore = defineStore('user_skill', () => {
       if (import.meta.client) {
         try {
           await saveAllSkills(userSkills.value)
-          console.log('✅ Skill updated and saved to IndexedDB')
         } catch (dbError) {
           console.error('❌ Error saving to IndexedDB:', dbError)
         }
@@ -251,7 +245,6 @@ export const useUserSkillStore = defineStore('user_skill', () => {
         if (import.meta.client) {
           try {
             await deleteSkillFromDB(id)
-            console.log('✅ Skill deleted from IndexedDB')
           } catch (dbError) {
             console.error('❌ Error deleting from IndexedDB:', dbError)
           }
@@ -282,7 +275,6 @@ export const useUserSkillStore = defineStore('user_skill', () => {
     
     try {
       await saveAllSkills([])
-      console.log('🗑️ Skills cleared from IndexedDB')
     } catch (error) {
       console.error('❌ Error clearing skills:', error)
     }

@@ -22,7 +22,6 @@ export const useOrganizationStore = defineStore('organization', () => {
       const cached = await getAllOrganizations()
       if (cached.length > 0) {
         organizations.value = cached
-        console.log(`⚡ Loaded ${cached.length} organizations from IndexedDB`)
       }
       isInitialized.value = true
     } catch (error) {
@@ -40,15 +39,12 @@ export const useOrganizationStore = defineStore('organization', () => {
     
     // If we have data and not forcing, return immediately
     if (organizations.value.length > 0 && !force) {
-      console.log('📦 Using cached organizations from IndexedDB')
       return organizations.value
     }
 
     // Fetch from API
     try {
       loading.value = true
-      console.log('🌐 Fetching organizations from API...')
-
       const { data, error } = await apollo.query({
         query: GET_ORGANIZATIONS,
         fetchPolicy: force ? 'network-only' : 'cache-first'
@@ -67,7 +63,6 @@ export const useOrganizationStore = defineStore('organization', () => {
       if (import.meta.client) {
         try {
           await saveAllOrganizations(orgs)
-          console.log(`✅ Fetched and saved ${orgs.length} organizations`)
         } catch (dbError) {
           console.error('❌ Error saving to IndexedDB:', dbError)
         }

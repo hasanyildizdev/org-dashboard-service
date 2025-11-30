@@ -26,7 +26,6 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 function onSubmit(payload: FormSubmitEvent<Schema>) {
-  console.log('Password reset requested for:', payload.data.email)
   toast.add({
     title: 'Reset Link Sent!',
     description: 'If an account exists with this email, you will receive password reset instructions.',

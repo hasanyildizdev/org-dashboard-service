@@ -36,7 +36,6 @@ export const useUserEducationStore = defineStore('user_education', () => {
       const cached = await getAllEducations()
       if (cached.length > 0) {
         userEducations.value = cached
-        console.log(`⚡ Loaded ${cached.length} educations from IndexedDB`)
       }
       isInitialized.value = true
     } catch (error) {
@@ -56,7 +55,6 @@ export const useUserEducationStore = defineStore('user_education', () => {
     
     try {
       await saveAllEducations([])
-      console.log('🗑️ Educations cleared from IndexedDB')
     } catch (error) {
       console.error('❌ Error clearing educations:', error)
     }
@@ -71,14 +69,12 @@ export const useUserEducationStore = defineStore('user_education', () => {
     
     // If we have data and not forcing, return immediately
     if (userEducations.value.length > 0 && !force) {
-      console.log('📦 Using cached educations from IndexedDB')
       return userEducations.value 
     }
 
     // Fetch from API
     try {
       loading.value = true
-      console.log('🌐 Fetching educations from API...')
 
       const { data, error } = await apollo.query({
         query: GET_USER_EDUCATIONS,
@@ -98,7 +94,6 @@ export const useUserEducationStore = defineStore('user_education', () => {
       if (import.meta.client) {
         try {
           await saveAllEducations(educations)
-          console.log(`✅ Fetched and saved ${educations.length} educations`)
         } catch (dbError) {
           console.error('❌ Error saving to IndexedDB:', dbError)
         }
@@ -156,7 +151,6 @@ export const useUserEducationStore = defineStore('user_education', () => {
         if (import.meta.client) {
           try {
             await saveAllEducations(userEducations.value)
-            console.log('✅ New education added')
           } catch (dbError) {
             console.error('❌ Error saving to IndexedDB:', dbError)
           }
@@ -221,7 +215,6 @@ export const useUserEducationStore = defineStore('user_education', () => {
         if (import.meta.client) {
           try {
             await saveAllEducations(userEducations.value)
-            console.log('✅ Education updated')
           } catch (dbError) {
             console.error('❌ Error saving to IndexedDB:', dbError)
           }
@@ -264,7 +257,6 @@ export const useUserEducationStore = defineStore('user_education', () => {
       if (import.meta.client) {
         try {
           await saveAllEducations(userEducations.value)
-          console.log('✅ Education deleted')
         } catch (dbError) {
           console.error('❌ Error saving to IndexedDB:', dbError)
         }

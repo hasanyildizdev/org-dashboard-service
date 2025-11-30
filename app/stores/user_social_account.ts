@@ -36,7 +36,6 @@ export const useUserSocialAccountStore = defineStore('user_social_account', () =
       const cached = await getAllSocialAccounts()
       if (cached.length > 0) {
         userSocialAccounts.value = cached
-        console.log(`⚡ Loaded ${cached.length} social accounts from IndexedDB`)
       }
       isInitialized.value = true
     } catch (error) {
@@ -54,14 +53,12 @@ export const useUserSocialAccountStore = defineStore('user_social_account', () =
     
     // If we have data and not forcing, return immediately
     if (userSocialAccounts.value.length > 0 && !force) {
-      console.log('📦 Using cached social accounts from IndexedDB')
       return userSocialAccounts.value 
     }
 
     // Fetch from API
     try {
       loading.value = true
-      console.log('🌐 Fetching social accounts from API...')
 
       const { data, error } = await apollo.query({
         query: GET_USER_SOCIAL_ACCOUNTS,
@@ -81,7 +78,6 @@ export const useUserSocialAccountStore = defineStore('user_social_account', () =
       if (import.meta.client) {
         try {
           await saveAllSocialAccounts(accounts)
-          console.log(`✅ Fetched and saved ${accounts.length} social accounts`)
         } catch (dbError) {
           console.error('❌ Error saving to IndexedDB:', dbError)
         }
@@ -140,7 +136,6 @@ export const useUserSocialAccountStore = defineStore('user_social_account', () =
         if (import.meta.client) {
           try {
             await saveAllSocialAccounts(userSocialAccounts.value)
-            console.log('✅ Social account created and saved to IndexedDB')
           } catch (dbError) {
             console.error('❌ Error saving to IndexedDB:', dbError)
           }
@@ -211,7 +206,6 @@ export const useUserSocialAccountStore = defineStore('user_social_account', () =
       if (import.meta.client) {
         try {
           await saveAllSocialAccounts(userSocialAccounts.value)
-          console.log('✅ Social account updated and saved to IndexedDB')
         } catch (dbError) {
           console.error('❌ Error saving to IndexedDB:', dbError)
         }
@@ -251,7 +245,6 @@ export const useUserSocialAccountStore = defineStore('user_social_account', () =
         if (import.meta.client) {
           try {
             await deleteSocialAccountFromDB(id)
-            console.log('✅ Social account deleted from IndexedDB')
           } catch (dbError) {
             console.error('❌ Error deleting from IndexedDB:', dbError)
           }
@@ -282,7 +275,6 @@ export const useUserSocialAccountStore = defineStore('user_social_account', () =
     
     try {
       await saveAllSocialAccounts([])
-      console.log('🗑️ Social accounts cleared from IndexedDB')
     } catch (error) {
       console.error('❌ Error clearing social accounts:', error)
     }

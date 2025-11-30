@@ -34,9 +34,6 @@ export const useAuthStore = defineStore('auth', () => {
   function setUser(userData: User | null) {
     user.value = userData
     userCookie.value = userData
-    if (userData) {
-      console.log('✅ User data saved to cookie:', userData.name)
-    }
   }
 
   function clearUser() {
@@ -128,7 +125,6 @@ export const useAuthStore = defineStore('auth', () => {
       try {
         const { clearAllData } = await import('~/utils/db')
         await clearAllData()
-        console.log('🗑️ IndexedDB cleared on logout')
       } catch (dbError) {
         console.error('❌ Error clearing IndexedDB:', dbError)
       }

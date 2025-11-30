@@ -8,7 +8,6 @@ export default defineNuxtPlugin(async () => {
     // Initialize the database by importing the db utility
     const { getDB } = await import('~/utils/db')
     await getDB()
-    console.log('🗄️ IndexedDB initialized successfully')
   } catch (error) {
     console.error('❌ Failed to initialize IndexedDB:', error)
   }
