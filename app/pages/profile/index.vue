@@ -143,22 +143,24 @@ const profile_progress = computed(() => {
                         </div>
                       </div>
                       <div>
-                        <p class="text-sm text-gray-600">Profile completion: {{ profile_progress }}%</p>
-                        <UProgress v-model="profile_progress" size="xl" class="mt-2" color="success"/>
-                        <UPopover>
-                          <UButton 
-                            label="What you missed" 
-                            color="neutral" 
-                            variant="outline" 
-                            trailing   
-                            icon="i-lucide-help-circle" 
-                            class="mt-2" />
-                            <template #content>
-                              <div class="space-y-2 p-2">
-                                <p v-for="message in profile_completion_messages" :key="message" class="text-sm">{{ message }}</p>
-                              </div>
-                            </template>
-                        </UPopover>
+                        <ClientOnly>
+                          <p class="text-sm text-gray-600">Complete Profile</p>
+                          <UProgress v-model="profile_progress" size="xl" class="mt-1" color="success"/>
+                          <UPopover>
+                            <UButton 
+                              label="What you missed" 
+                              color="neutral" 
+                              variant="outline" 
+                              trailing   
+                              icon="i-lucide-help-circle" 
+                              class="mt-2" />
+                              <template #content>
+                                <div class="space-y-2 p-2">
+                                  <p v-for="message in profile_completion_messages" :key="message" class="text-sm">{{ message }}</p>
+                                </div>
+                              </template>
+                          </UPopover>
+                        </ClientOnly>
                       </div>
                     </div>
                     <div class="flex flex-col items-end gap-3">

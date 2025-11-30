@@ -147,7 +147,7 @@ const items: NavigationMenuItem[][] = [[
 }], 
 [
   {
-    label: 'Help & Support',
+    label: 'Help Center',
     icon: 'i-lucide-help-circle',
     to: '/help',
   },
@@ -211,14 +211,15 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
         <template #footer="{ collapsed }">
           <UUser
              to="/profile"
-             :name="collapsed ? undefined : user?.name"
+             :name="user?.name"
              :description="collapsed ? undefined : user?.profession?.name || 'User'"
              :avatar="{
-               src: user?.avatar ?? ''
+               src: user?.avatar ?? '',
              }"
              :class="[
                'px-2 py-1 rounded-md w-full hover:cursor-pointer',
-               route.path === '/profile' ? 'text-primary bg-primary/10' : ''
+               route.path === '/profile' ? 'text-primary bg-primary/10' : '',
+               collapsed ? 'flex flex-col justify-center items-center gap-1 text-center text-sm leading-tight whitespace-normal break-words' : 'justify-start'
              ]"
              :block="collapsed"
            />
