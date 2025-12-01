@@ -101,6 +101,24 @@ const profile_progress = computed(() => {
             <template #leading>
                 <UDashboardSidebarCollapse variant="subtle" />
             </template>
+            <template #right>
+              <UButton 
+                label="Help Center" 
+                icon="mdi:help-circle"
+                variant="soft"
+                size="lg"
+                trailing
+                to="/help"
+              />
+              <UButton 
+                label="Settings" 
+                icon="mdi:cog"
+                variant="soft"
+                size="lg"
+                trailing
+                to="/settings"
+              />
+            </template>
         </UDashboardNavbar>
       </template>
       <template #body>
@@ -109,70 +127,40 @@ const profile_progress = computed(() => {
               
               <!-- User Information Card -->
               <UCard>
-                <template #header>
-                  <div class="flex items-center justify-between gap-3">
-                    <div class="space-y-2">
-                      <div class="flex items-center gap-3">
-                        <div class="w-16 h-16 rounded-full bg-primary-500 flex items-center justify-center text-white text-2xl font-bold">
-                          <img v-if="user?.avatar" :src="user.avatar" alt="Avatar" class="w-16 h-16 rounded-full">
-                          <span v-else>{{ user?.name?.charAt(0).toUpperCase() }}</span>
-                        </div>
-                        <div>
-                          <h3 class="text-xl font-semibold">{{ user?.name }}</h3>
-                          <p class="text-sm text-gray-500">{{ user?.email }}</p>
-                        </div>
-                      </div>
-                      
-                    </div>
+                <div class="flex items-center justify-between gap-3">
+                  <div class="space-y-2">
                     <div class="flex items-center gap-3">
-                      <UButton 
-                        label="Settings" 
-                        icon="mdi:cog"
-                        color="primary"
-                        variant="soft"
-                        size="lg"
-                        trailing
-                        to="/settings"
-                      />
-                      <UButton 
-                        label="Edit Profile" 
-                        icon="i-lucide-user-pen"
-                        color="primary"
-                        variant="soft"
-                        size="lg"
-                        trailing
-                        to="/profile/edit"
-                      />
-                      <UButton 
-                        label="Logout" 
-                        trailing
-                        icon="i-lucide-log-out"
-                        color="error"
-                        variant="soft"
-                        size="lg"
-                        @click="useAuthStore().logout"
-                      />
+                      <div class="w-16 h-16 rounded-full bg-primary-500 flex items-center justify-center text-white text-2xl font-bold">
+                        <img v-if="user?.avatar" :src="user.avatar" alt="Avatar" class="w-16 h-16 rounded-full">
+                        <span v-else>{{ user?.name?.charAt(0).toUpperCase() }}</span>
+                      </div>
+                      <div>
+                        <h3 class="text-xl font-semibold">{{ user?.name }}</h3>
+                        <p class="text-sm text-gray-500">{{ user?.email }}</p>
+                        <p class="text-gray-500">{{ user?.profession?.name || 'Not specified' }}</p>
+                      </div>
                     </div>
+                    
                   </div>
-                </template>
-
-                <div class="space-y-4">
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                      <p class="font-medium mt-1">{{ user?.email }}</p>
-                    </div>
-                    
-                    <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Profession</p>
-                      <p class="font-medium mt-1">{{ user?.profession?.name || 'Not specified' }}</p>
-                    </div>
-                    
-                    <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Account Created</p>
-                      <p class="font-medium mt-1">{{ new Date(user?.created_at || '').toLocaleDateString() }}</p>
-                    </div>
-                    
+                  <div class="flex items-center gap-3">
+                    <UButton 
+                      label="Edit Profile" 
+                      icon="i-lucide-user-pen"
+                      color="primary"
+                      variant="soft"
+                      size="lg"
+                      trailing
+                      to="/profile/edit"
+                    />
+                    <UButton 
+                      label="Logout" 
+                      trailing
+                      icon="i-lucide-log-out"
+                      color="error"
+                      variant="soft"
+                      size="lg"
+                      @click="useAuthStore().logout"
+                    />
                   </div>
                 </div>
               </UCard>
