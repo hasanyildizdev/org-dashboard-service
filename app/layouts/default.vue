@@ -54,7 +54,13 @@ const items: NavigationMenuItem[][] = [[
   label: 'Map',
   icon: 'mdi:earth',
   to: '/map'
-}], 
+},
+{
+  label: 'PMS',
+  icon: 'mdi:compass-outline',
+  to: '/modules/pms'
+},
+], 
 [
   {
     label: 'Help Center',

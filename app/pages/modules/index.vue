@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { AccordionItem } from '@nuxt/ui'
 definePageMeta({
   title: 'Modules',
 })
@@ -10,16 +9,81 @@ interface Module {
   active: boolean
   price: 'Free' | 'Paid'
   icon: string
-  desc: string
+  title: string
+  desc: string[]
 }
 
 const modules = ref<Module[]>([
-  { name: 'Socialize', label: 'Socialize', active: true, price: 'Free', icon: 'mdi:account-group', desc: 'Socialize is a social media platform for professionals.' },
-  { name: 'PMS', label: 'PMS', active: true, price: 'Free', icon: 'mdi:compass-outline', desc: 'Project Management System' },
-  { name: 'CRM', label: 'CRM', active: false, price: 'Paid', icon: 'mdi:handshake', desc: 'Customer Relationship Management' },
-  { name: 'PLM', label: 'PLM', active: false, price: 'Paid', icon: 'mdi:recycle', desc: 'Product Lifecycle Management' },
-  { name: 'IMS', label: 'IMS', active: false, price: 'Paid', icon: 'mdi:warehouse', desc: 'Inventory Management System' },
-  { name: 'ERP', label: 'ERP', active: false, price: 'Paid', icon: 'mdi:clipboard-flow-outline', desc: 'Enterprise Resource Planning' }
+  { 
+    name: 'PMS', 
+    label: 'PMS', 
+    active: true, 
+    price: 'Free', 
+    icon: 'mdi:compass-outline', 
+    title: 'Project Management System',
+    desc: [
+      'Task & project tracking',
+      'Kanban board',
+      'Deadlines & reminders',
+      'Team collaboration tools'
+    ] 
+  },
+  { 
+    name: 'IMS', 
+    label: 'IMS', 
+    active: false, 
+    price: 'Paid', 
+    icon: 'mdi:warehouse', 
+    title: 'Inventory Management System',
+    desc: [
+      'Stock tracking',
+      'Barcode scanning',
+      'Purchase & supplier management',
+      'Warehouse optimization'
+    ] 
+  },
+  { 
+    name: 'CRM', 
+    label: 'CRM', 
+    active: false, 
+    price: 'Paid', 
+    icon: 'mdi:handshake', 
+    title: 'Customer Relationship Management',
+    desc: [
+      'Lead management',
+      'Customer follow-up',
+      'Sales pipeline',
+      'Email automation'
+    ] 
+  },
+  { 
+    name: 'PLM', 
+    label: 'PLM', 
+    active: false, 
+    price: 'Paid', 
+    icon: 'mdi:recycle', 
+    title: 'Product Lifecycle Management',
+    desc: [
+      'Version control',
+      'Manufacturing workflow',
+      'Quality assurance monitoring'
+    ] 
+  },
+  { 
+    name: 'ERP', 
+    label: 'ERP', 
+    active: false, 
+    price: 'Paid', 
+    icon: 'mdi:clipboard-flow-outline', 
+    title: 'Enterprise Resource Planning',
+    desc: [
+      'Financial management',
+      'Inventory management',
+      'Order management',
+      'Warehouse management',
+      'Supplier management'
+    ] 
+  }
 ])
 </script>
 
@@ -47,8 +111,6 @@ const modules = ref<Module[]>([
       </template>
       <template #body>
           <UContainer>
-
-              <!-- Module Control Panel -->
               <UCard>
                   <template #header>
                       <div class="flex items-center justify-between">
@@ -60,17 +122,24 @@ const modules = ref<Module[]>([
                       <div
                           v-for="(module, index) in modules"
                           :key="module.name"
-                          class="group relative"
-                      >
+                          class="group relative">
                           <div 
                               class="p-4 rounded-xl border transition-all duration-200"
                               :class="[
                                   module.active 
                                       ? 'border-(--ui-border-accented) shadow-sm' 
                                       : 'border-(--ui-border) opacity-75',
-                              ]"
-                          >
-                              <div class="flex items-start gap-3">
+                              ]">
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-500 dark:text-gray-500">
+                                    {{ module.active ? 'Active' : 'Inactive' }}
+                                </span>
+                                <USwitch 
+                                    v-model="module.active"
+                                    :color="module.active ? 'success' : 'neutral'"
+                                />
+                            </div>
+                              <div class="flex items-start gap-3 mt-6">
                                   <div class="flex-shrink-0">
                                       <UAvatar 
                                           :icon="module.icon" 
@@ -78,7 +147,6 @@ const modules = ref<Module[]>([
                                           :class="module.active ? 'ring-2 ring-(--ui-primary)' : ''"
                                       />
                                   </div>
-                                  
                                   <div class="flex-1 min-w-0">
                                       <div class="flex items-center gap-2 mb-1">
                                           <h4 class="font-semibold text-gray-900 dark:text-white truncate">{{ module.label }}</h4>
@@ -88,22 +156,15 @@ const modules = ref<Module[]>([
                                               :icon="module.price === 'Paid' ? 'mdi:lock' : 'mdi:gift-outline'"
                                               :label="module.price"
                                               trailing
+                                              :ui="{ label: 'text-base'}"
                                           />
                                       </div>
-                                      
-                                      <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
-                                          {{ module.desc }}
-                                      </p>
-                                      
-                                      <div class="flex items-center gap-2">
-                                          <span class="text-gray-500 dark:text-gray-500">
-                                              {{ module.active ? 'Active' : 'Inactive' }}
-                                          </span>
-                                          <USwitch 
-                                              v-model="module.active"
-                                              :color="module.active ? 'success' : 'neutral'"
-                                          />
-                                      </div>
+                                      <h5 class="mt-4 font-semibold text-gray-900 dark:text-white truncate">{{ module.title }}</h5>
+                                      <ul class="pb-3.5 text-muted list-disc pl-6 mt-2">
+                                          <li v-for="(line, index) in module.desc" :key="index">
+                                              {{ line }}
+                                          </li>
+                                      </ul>
                                   </div>
                               </div>
                           </div>

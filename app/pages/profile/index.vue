@@ -3,7 +3,6 @@ import { useAuthStore } from '~/stores/auth'
 import { useUserEducationStore } from '~/stores/user_education'
 import { useUserExperienceStore } from '~/stores/user_experience'
 import { useUserSkillStore } from '~/stores/user_skill'
-import { useSkillLevelsIcons } from '~/composables/skillLevelsIcons'
 import { useUserSocialAccountStore } from '~/stores/user_social_account'
 
 definePageMeta({
@@ -15,7 +14,6 @@ const educationStore = useUserEducationStore()
 const experienceStore = useUserExperienceStore()
 const skillStore = useUserSkillStore()
 const socialAccountStore = useUserSocialAccountStore()
-const { skillLevelsIcons } = useSkillLevelsIcons()
 
 await Promise.all([
   educationStore.fetchUserEducations(),
@@ -43,26 +41,8 @@ function getSocialIcon(provider: string): string {
   return icons[provider.toLowerCase()] || 'i-lucide-link'
 }
 
-function getSocialColor(provider: string): string {
-  const colors: Record<string, string> = {
-    github: 'text-gray-900 dark:text-white',
-    linkedin: 'text-blue-700',
-    twitter: 'text-gray-900 dark:text-white',
-    instagram: 'text-pink-600',
-    facebook: 'text-blue-600',
-    youtube: 'text-red-600',
-    tiktok: 'text-gray-900 dark:text-white',
-    dribbble: 'text-pink-500',
-    behance: 'text-blue-600',
-    medium: 'text-gray-900 dark:text-white',
-    dev: 'text-gray-900 dark:text-white',
-    stackoverflow: 'text-orange-600'
-  }
-  return colors[provider.toLowerCase()] || 'text-gray-600'
-}
-
 // Calculate profile completion percentage dynamically
-const profile_completion_messages = []
+const profile_completion_messages: string[] = []
 const profile_progress = computed(() => {
   let completedFields = 0
   const totalFields = 5
@@ -142,64 +122,9 @@ const profile_progress = computed(() => {
                           <p class="text-sm text-gray-500">{{ user?.email }}</p>
                         </div>
                       </div>
-                      <div>
-                        <ClientOnly>
-                          <p class="text-sm text-gray-600">Complete Profile</p>
-                          <UProgress v-model="profile_progress" size="xl" class="mt-1" color="success"/>
-                          <UPopover>
-                            <UButton 
-                              label="What you missed" 
-                              color="neutral" 
-                              variant="outline" 
-                              trailing   
-                              icon="i-lucide-help-circle" 
-                              class="mt-2" />
-                              <template #content>
-                                <div class="space-y-2 p-2">
-                                  <p v-for="message in profile_completion_messages" :key="message" class="text-sm">{{ message }}</p>
-                                </div>
-                              </template>
-                          </UPopover>
-                        </ClientOnly>
-                      </div>
+                      
                     </div>
-                    <div class="flex flex-col items-end gap-3">
-                      <div>
-                        <UButton 
-                          label="Logout" 
-                          trailing
-                          icon="i-lucide-log-out"
-                          color="error"
-                          variant="soft"
-                          size="lg"
-                          block
-                          @click="useAuthStore().logout"
-                        />
-                      </div>
-                      <div class="flex gap-3">
-                        <ULink to="/cv" target="_blank">
-                          <UButton 
-                            label="View CV" 
-                            icon="i-lucide-file-text"
-                            color="primary"
-                            variant="soft"
-                            size="lg"
-                            trailing
-                            block
-                          />
-                        </ULink>
-                        <ULink to="/cv2" target="_blank">
-                          <UButton 
-                            label="View CV2" 
-                            icon="i-lucide-file-text"
-                            color="primary"
-                            variant="soft"
-                            size="lg"
-                            trailing
-                            block
-                          />
-                        </ULink>
-                      </div>
+                    <div class="flex items-center gap-3">
                       <UButton 
                         label="Edit Profile" 
                         icon="i-lucide-user-pen"
@@ -208,6 +133,16 @@ const profile_progress = computed(() => {
                         size="lg"
                         block
                         to="/profile/edit"
+                      />
+                      <UButton 
+                        label="Logout" 
+                        trailing
+                        icon="i-lucide-log-out"
+                        color="error"
+                        variant="soft"
+                        size="lg"
+                        block
+                        @click="useAuthStore().logout"
                       />
                     </div>
                   </div>
@@ -234,189 +169,127 @@ const profile_progress = computed(() => {
                 </div>
               </UCard>
 
-              <!-- Education Section -->
-              <UCard v-if="educationStore.userEducations.length > 0">
-                <template #header>
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold">Education</h3>
-                    <UButton
-                      label="Edit"
-                      icon="i-lucide-pencil"
-                      size="sm"
-                      variant="ghost"
-                      to="/profile/edit#education"
-                    />
-                  </div>
-                </template>
-
-                <div class="space-y-4">
-                  <div 
-                    v-for="education in educationStore.userEducations" 
-                    :key="education.id"
-                    class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                  >
-                    <div class="flex items-start justify-between">
-                      <div class="flex-1">
-                        <h4 class="font-semibold text-base">{{ education.institution }}</h4>
-                        <p v-if="education.degree || education.field_of_study" class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          <span v-if="education.degree">{{ education.degree }}</span>
-                          <span v-if="education.degree && education.field_of_study"> in </span>
-                          <span v-if="education.field_of_study">{{ education.field_of_study }}</span>
-                        </p>
-                        <div class="flex items-center gap-2 mt-2 text-sm text-gray-500">
-                          <UIcon name="i-lucide-calendar" class="w-4 h-4" />
-                          <span>{{ education.education_period }}</span>
+              <UCard class="border-gray-200 dark:border-gray-700">
+                  <template #header>
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-3">
+                        <div class="p-2 bg-blue-500 dark:bg-blue-600 rounded-lg">
+                          <UIcon name="i-lucide-file-text" class="w-5 h-5 text-white" />
                         </div>
-                        <div v-if="education.city || education.country" class="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                          <UIcon name="i-lucide-map-pin" class="w-4 h-4" />
-                          <span>{{ [education.city, education.country].filter(Boolean).join(', ') }}</span>
+                        <div>
+                          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Resume Builder</h3>
+                          <p class="text-sm text-gray-600 dark:text-gray-400">Professional CV Templates</p>
                         </div>
-                        <p v-if="education.grade" class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                          <span class="font-medium">Grade:</span> {{ education.grade }}
-                        </p>
-                        <p v-if="education.description" class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                          {{ education.description }}
-                        </p>
                       </div>
-                      <UBadge v-if="education.is_current" color="primary" variant="soft">
-                        Current
-                      </UBadge>
                     </div>
-                  </div>
-                </div>
-              </UCard>
-
-              <!-- Experience Section -->
-              <UCard v-if="experienceStore.userExperiences.length > 0">
-                <template #header>
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold">Experience</h3>
-                    <UButton
-                      label="Edit"
-                      icon="i-lucide-pencil"
-                      size="sm"
-                      variant="ghost"
-                      to="/profile/edit#experience"
-                    />
-                  </div>
-                </template>
-
-                <div class="space-y-4">
-                  <div 
-                    v-for="experience in experienceStore.userExperiences" 
-                    :key="experience.id"
-                    class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                  >
-                    <div class="flex items-start justify-between">
-                      <div class="flex-1">
-                        <h4 class="font-semibold text-base">{{ experience.title }}</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {{ experience.company }}
-                        </p>
-                        <div class="flex items-center gap-2 mt-2 text-sm text-gray-500">
-                          <UIcon name="i-lucide-calendar" class="w-4 h-4" />
-                          <span>{{ experience.experience_period }}</span>
+                  </template>
+                  
+                  <div class="space-y-4">
+                    <!-- CV Template Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div class="group">
+                        <div class="p-4 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:border-blue-500 hover:shadow-lg bg-white dark:bg-gray-900">
+                          <div class="flex items-center justify-between">
+                            <div>
+                              <h4 class="font-medium text-sm text-gray-900 dark:text-white">Classic Template</h4>
+                              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Traditional professional layout</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                              <UButton 
+                              label="Share" 
+                              icon="i-lucide-share-2"
+                              color="neutral"
+                              variant="outline"
+                              />
+                              <ULink to="/cv" target="_blank">
+                                <UButton 
+                                  label="View CV" 
+                                  icon="i-lucide-external-link"
+                                  color="primary"
+                                  variant="solid"
+                                  trailing
+                                  class="w-full transition-all duration-200 group-hover:scale-105"
+                                />
+                              </ULink>
+                            </div>
+                          </div>
                         </div>
-                        <div v-if="experience.city || experience.country" class="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                          <UIcon name="i-lucide-map-pin" class="w-4 h-4" />
-                          <span>{{ [experience.city, experience.country].filter(Boolean).join(', ') }}</span>
-                        </div>
-                        <p v-if="experience.description" class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                          {{ experience.description }}
-                        </p>
                       </div>
-                      <UBadge v-if="experience.is_current" color="primary" variant="soft">
-                        Current
-                      </UBadge>
+
+                      <div class="group">
+                        <div class="p-4 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:border-purple-500 hover:shadow-lg bg-white dark:bg-gray-900">
+                          <div class="flex items-center justify-between">
+                            <div>
+                              <h4 class="font-medium text-sm text-gray-900 dark:text-white">Modern Template</h4>
+                              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Contemporary creative design</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                              <UButton 
+                                label="Share" 
+                                icon="i-lucide-share-2"
+                                color="neutral"
+                                variant="outline"
+                                />
+                              <ULink to="/cv2" target="_blank">
+                                <UButton 
+                                  label="View CV" 
+                                  icon="i-lucide-external-link"
+                                  color="primary"
+                                  variant="solid"
+                                  trailing
+                                  class="w-full transition-all duration-200 group-hover:scale-105"
+                                />
+                              </ULink>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
+
+                    <!-- Compact Progress Section -->
+                    <ClientOnly>
+                      <div class="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between mb-2">
+                          <div class="flex items-center gap-2">
+                            <UIcon 
+                              :name="profile_progress >= 80 ? 'i-lucide-trophy' : profile_progress >= 50 ? 'i-lucide-trending-up' : 'i-lucide-alert-circle'"
+                              :class="profile_progress >= 80 ? 'text-green-500' : profile_progress >= 50 ? 'text-amber-500' : 'text-red-500'"
+                              class="w-4 h-4"
+                            />
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">
+                              {{ profile_progress >= 80 ? 'Excellent!' : profile_progress >= 50 ? 'Good progress!' : 'Keep going!' }}
+                            </span>
+                          </div>
+                          <UPopover>
+                            <UButton 
+                              icon="i-lucide-info"
+                              color="gray" 
+                              variant="ghost" 
+                              size="xs"
+                            />
+                            <template #content>
+                              <div class="p-2 max-w-xs">
+                                <h4 class="font-medium text-sm mb-2">Profile Completion:</h4>
+                                <div class="space-y-1">
+                                  <p v-for="message in profile_completion_messages" :key="message" class="text-xs text-gray-600 dark:text-gray-400">
+                                    • {{ message }}
+                                  </p>
+                                </div>
+                              </div>
+                            </template>
+                          </UPopover>
+                        </div>
+                        
+                        <UProgress 
+                          v-model="profile_progress" 
+                          size="sm" 
+                          :color="profile_progress >= 80 ? 'success' : profile_progress >= 50 ? 'warning' : 'error'"
+                        />
+                      </div>
+                    </ClientOnly>
                   </div>
-                </div>
               </UCard>
 
-              <!-- User Skills Card -->
-              <UCard v-if="skillStore.userSkills.length > 0">
-                <template #header>
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold">Skills</h3>
-                    <NuxtLink to="/profile/edit">
-                      <UButton 
-                        icon="i-lucide-pencil" 
-                        size="sm"
-                        variant="ghost"
-                        label="Edit"
-                      />
-                    </NuxtLink>
-                  </div>
-                </template>
-                <div class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                  <UCard
-                    v-for="skill in skillStore.userSkills"
-                    :key="skill.id"
-                    class="transition hover:shadow-xl hover:-translate-y-1 duration-200"
-                    :ui="{body: 'p-0 sm:p-2'}"
->
-                    <!-- Skill Level -->
-                    <div class="flex items-center justify-center">
-                      <UBadge
-                        :class="skillLevelsIcons[skill.level as keyof typeof skillLevelsIcons].color"
-                        :icon="skillLevelsIcons[skill.level as keyof typeof skillLevelsIcons].icon"
-                        variant="soft"
-                        size="xl"
-                        class="capitalize"
-                      >
-                        {{ skill.level }}
-                      </UBadge>
-                     </div>
-                    <div class="flex items-center justify-center mt-3">
-                        <h4 class="font-semibold text-lg truncate">{{ skill.name }}</h4>
-                        <UIcon v-if="skill.is_primary" 
-                            name="tabler:pinned-filled" 
-                            variant="solid" 
-                            class="text-blue-500 size-5"/>
-                     </div>
-                  </UCard>
-                </div>
-              </UCard>
-
-              <!-- User Social Accounts Card -->
-              <UCard>
-                <template #header>
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold">Social Accounts</h3>
-                    <NuxtLink to="/profile/edit">
-                      <UButton 
-                        icon="i-lucide-pencil" 
-                        size="sm"
-                        variant="ghost"
-                        label="Edit"
-                      />
-                    </NuxtLink>
-                  </div>
-                </template>
-                
-                <div v-if="socialAccountStore.userSocialAccounts.length === 0" class="text-center py-8 text-gray-500">
-                  <UIcon name="i-lucide-share-2" class="w-12 h-12 mx-auto mb-2 opacity-30" />
-                  <p>No social accounts added yet</p>
-                </div>
-                
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div 
-                    v-for="account in socialAccountStore.userSocialAccounts" 
-                    :key="account.id"
-                    class="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-800 rounded-lg"
-                  >
-                    <UIcon 
-                      :name="getSocialIcon(account.provider)" 
-                      class="w-6 h-6"
-                      :class="getSocialColor(account.provider)"
-                    />
-                    <div class="flex-1 min-w-0">
-                      <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">{{ account.provider }}</p>
-                      <p class="font-medium truncate">{{ account.username }}</p>
-                    </div>
-                  </div>
-                </div>
-              </UCard>
             </div>
           </UContainer>
       </template>
