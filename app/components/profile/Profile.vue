@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 import { useProfileStore } from '~/stores/profile'
+import * as z from 'zod'
+
 // Professions state
 const profileStore = useProfileStore()
 await profileStore.fetchProfessions()
@@ -10,6 +12,24 @@ const toast = useToast()
 const loading = ref(false)
 const deleteLoading = ref(false)
 const showDeleteModal = ref(false)
+type PasswordSchema = z.output<typeof passwordSchema>
+
+// Password form state
+const passwordForm = ref({
+  current_password: '',
+  new_password: '',
+  confirm_password: ''
+})
+
+const passwordSchema = z.object({
+  current_password: z.string().min(8, 'Password must be at least 8 characters'),
+  new_password: z.string().min(8, 'Password must be at least 8 characters')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Must contain uppercase, lowercase, and number'),
+  confirm_password: z.string()
+}).refine((data) => data.new_password === data.confirm_password, {
+  message: "Passwords don't match",
+  path: ["confirm_password"],
+})
 
 const user = computed(() => useAuthStore().user)
 
@@ -90,6 +110,37 @@ async function onSubmit(event: Event) {
     toast.add({
       title: 'Error',
       description: error.message || 'Failed to update profile',
+      color: 'error'
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+async function onPasswordSubmit(event: Event) {
+  event.preventDefault()
+  loading.value = true
+  
+  try {
+    // TODO: Implement change password mutation when backend is ready
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
+    
+    toast.add({
+      title: 'Success',
+      description: 'Password changed successfully!',
+      color: 'success'
+    })
+    
+    // Reset form
+    passwordForm.value = {
+      current_password: '',
+      new_password: '',
+      confirm_password: ''
+    }
+  } catch (error: any) {
+    toast.add({
+      title: 'Error',
+      description: error.message || 'Failed to change password',
       color: 'error'
     })
   } finally {
@@ -213,6 +264,79 @@ async function onSubmit(event: Event) {
                 />
                 </div>
             </form>
+        </UCard>
+
+        <!-- Change Password -->
+        <UCard class="my-6">
+          <template #header>
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-lock" class="w-5 h-5" />
+              <h3 class="text-lg font-semibold">Change Password</h3>
+            </div>
+          </template>
+          
+          <form @submit.prevent="onPasswordSubmit">
+            <div class="space-y-4">
+              <UFormField
+                label="Current Password"
+                name="current_password"
+                required
+              >
+                <UInput
+                  v-model="passwordForm.current_password"
+                  type="password"
+                  placeholder="Enter current password"
+                  size="lg"
+                  :disabled="loading"
+                />
+              </UFormField>
+
+              <UFormField
+                label="New Password"
+                name="new_password"
+                required
+              >
+                <UInput
+                  v-model="passwordForm.new_password"
+                  type="password"
+                  placeholder="Enter new password"
+                  size="lg"
+                  :disabled="loading"
+                />
+              </UFormField>
+
+              <UFormField
+                label="Confirm New Password"
+                name="confirm_password"
+                required
+              >
+                <UInput
+                  v-model="passwordForm.confirm_password"
+                  type="password"
+                  placeholder="Confirm new password"
+                  size="lg"
+                  :disabled="loading"
+                />
+              </UFormField>
+
+              <UAlert 
+                color="info"
+                icon="i-lucide-shield"
+                title="Password Requirements"
+                description="Must be at least 8 characters with uppercase, lowercase, and numbers."
+                class="mt-2"
+              />
+            </div>
+
+            <div class="flex justify-end mt-6">
+              <UButton
+                type="submit"
+                label="Change Password"
+                color="primary"
+                :loading="loading"
+              />
+            </div>
+          </form>
         </UCard>
         
         <!-- Danger Zone -->
