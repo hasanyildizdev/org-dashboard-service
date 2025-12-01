@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import type { NavigationMenuItem, CommandPaletteGroup, CommandPaletteItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
+import { useUserModuleStore } from '~/stores/user_module'
+
 const route = useRoute()
 const user = computed(() => useAuthStore().user)
+const userModuleStore = useUserModuleStore()
+
+// Fetch user modules on layout mount
+onMounted(async () => {
+  await userModuleStore.fetchUserModules()
+})
 type MetaContent = string | string[]
 useHead({
     title: (): string => (route.meta?.title as string) ?? 'Ourganize',
@@ -44,41 +52,88 @@ useHead({
     ],
 })
 
-const items: NavigationMenuItem[][] = [[
-{
-  label: 'Home',
-  icon: 'mdi:ship-wheel',
-  to: '/'
-},
-{
-  label: 'Map',
-  icon: 'mdi:earth',
-  to: '/map'
-},
-{
-  label: 'PMS',
-  icon: 'mdi:compass-outline',
-  to: '/modules/pms'
-},
-], 
-[
+// Define all available module menu items with their module IDs
+interface ModuleMenuItem extends NavigationMenuItem {
+  moduleId?: string
+}
+
+const staticItems: ModuleMenuItem[] = [
   {
-    label: 'Modules',
-    icon: 'mdi:package-variant-closed-plus',
-    to: '/modules',
+    label: 'Home',
+    icon: 'mdi:ship-wheel',
+    to: '/'
   },
+  {
+    label: 'Map',
+    icon: 'mdi:earth',
+    to: '/map'
+  }
 ]
+
+const moduleItems: ModuleMenuItem[] = [
+  {
+    label: 'PMS',
+    icon: 'mdi:compass-outline',
+    to: '/modules/pms',
+    moduleId: '1' // PMS module ID
+  },
+  {
+    label: 'IMS',
+    icon: 'mdi:warehouse',
+    to: '/modules/ims',
+    moduleId: '2' // IMS module ID
+  },
+  {
+    label: 'CRM',
+    icon: 'mdi:handshake',
+    to: '/modules/crm',
+    moduleId: '3' // CRM module ID
+  },
+  {
+    label: 'PLM',
+    icon: 'mdi:recycle',
+    to: '/modules/plm',
+    moduleId: '4' // PLM module ID
+  },
+  {
+    label: 'ERP',
+    icon: 'mdi:clipboard-flow-outline',
+    to: '/modules/erp',
+    moduleId: '5' // ERP module ID
+  }
 ]
-const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
+
+// Filter module items based on enabled modules
+const enabledModuleItems = computed(() => {
+  return moduleItems.filter(item => {
+    if (!item.moduleId) return true
+    const userModule = userModuleStore.userModules.find(m => m.module_id === item.moduleId)
+    return userModule?.is_enabled || false
+  })
+})
+
+// Combine static items with enabled module items
+const items = computed<NavigationMenuItem[][]>(() => [
+  [...staticItems, ...enabledModuleItems.value],
+  [
+    {
+      label: 'Modules',
+      icon: 'mdi:package-variant-closed-plus',
+      to: '/modules'
+    }
+  ]
+])
+
+const groups = computed<CommandPaletteGroup<CommandPaletteItem>[]>(() => [
   {
     id: 'main-navigation',
-    items: items[0] as CommandPaletteItem[]
+    items: items.value[0] as CommandPaletteItem[]
   },
   {
     id: 'quick-actions',
-    items: items[1] as CommandPaletteItem[]
+    items: items.value[1] as CommandPaletteItem[]
   }
-]
+])
 </script>
 
 <template>

@@ -1,23 +1,29 @@
 <script setup lang="ts">
+import { useUserModuleStore } from '~/stores/user_module'
+import type { UserModule } from '~/types/core_types'
+
 definePageMeta({
   title: 'Modules',
 })
 
-interface Module {
+const toast = useToast()
+const userModuleStore = useUserModuleStore()
+
+interface ModuleInfo {
+  id: string
   name: string
   label: string
-  active: boolean
   price: 'Free' | 'Paid'
   icon: string
   title: string
   desc: string[]
 }
 
-const modules = ref<Module[]>([
+const availableModules = ref<ModuleInfo[]>([
   { 
+    id: '1',
     name: 'PMS', 
     label: 'PMS', 
-    active: true, 
     price: 'Free', 
     icon: 'mdi:compass-outline', 
     title: 'Project Management System',
@@ -29,9 +35,9 @@ const modules = ref<Module[]>([
     ] 
   },
   { 
+    id: '2',
     name: 'IMS', 
     label: 'IMS', 
-    active: false, 
     price: 'Paid', 
     icon: 'mdi:warehouse', 
     title: 'Inventory Management System',
@@ -43,9 +49,9 @@ const modules = ref<Module[]>([
     ] 
   },
   { 
+    id: '3',
     name: 'CRM', 
     label: 'CRM', 
-    active: false, 
     price: 'Paid', 
     icon: 'mdi:handshake', 
     title: 'Customer Relationship Management',
@@ -57,9 +63,9 @@ const modules = ref<Module[]>([
     ] 
   },
   { 
+    id: '4',
     name: 'PLM', 
     label: 'PLM', 
-    active: false, 
     price: 'Paid', 
     icon: 'mdi:recycle', 
     title: 'Product Lifecycle Management',
@@ -70,9 +76,9 @@ const modules = ref<Module[]>([
     ] 
   },
   { 
+    id: '5',
     name: 'ERP', 
     label: 'ERP', 
-    active: false, 
     price: 'Paid', 
     icon: 'mdi:clipboard-flow-outline', 
     title: 'Enterprise Resource Planning',
@@ -85,6 +91,73 @@ const modules = ref<Module[]>([
     ] 
   }
 ])
+
+// Load user modules on mount
+onMounted(async () => {
+  await userModuleStore.fetchUserModules()
+  
+  // Auto-enable PMS module (free) by default for new users
+  const pmsModuleId = '1' // PMS module ID
+  const hasPMS = userModuleStore.userModules.some(m => m.module_id === pmsModuleId)
+  
+  if (!hasPMS) {
+    // Automatically create and enable PMS module for first-time users
+    // Users can still disable it later if they want
+    await userModuleStore.createUserModule({
+      module_id: pmsModuleId,
+      is_enabled: true
+    })
+  }
+})
+
+// Check if a module is enabled
+function isModuleEnabled(moduleId: string): boolean {
+  const userModule = userModuleStore.userModules.find(m => m.module_id === moduleId)
+  return userModule?.is_enabled || false
+}
+
+// Get user module ID for a given module
+function getUserModuleId(moduleId: string): string | null {
+  const userModule = userModuleStore.userModules.find(m => m.module_id === moduleId)
+  return userModule?.id || null
+}
+
+// Toggle module state
+async function toggleModule(moduleId: string) {
+  const userModuleId = getUserModuleId(moduleId)
+  const isEnabled = isModuleEnabled(moduleId)
+  
+  let result
+  if (userModuleId) {
+    // Update existing
+    result = await userModuleStore.toggleUserModule(userModuleId, moduleId, isEnabled)
+  } else {
+    // Create new
+    result = await userModuleStore.createUserModule({
+      module_id: moduleId,
+      is_enabled: true
+    })
+  }
+  
+  if (result.success) {
+    toast.add({
+      title: 'Success',
+      description: `Module ${isEnabled ? 'disabled' : 'enabled'} successfully`,
+      color: 'success'
+    })
+  } else {
+    toast.add({
+      title: 'Error',
+      description: result.error || 'Failed to update module',
+      color: 'error'
+    })
+  }
+}
+
+// Computed property for active modules count
+const activeModulesCount = computed(() => {
+  return userModuleStore.userModules.filter(m => m.is_enabled).length
+})
 </script>
 
 <template>
@@ -104,7 +177,7 @@ const modules = ref<Module[]>([
             </template>
             <template #trailing>
                 <UBadge color="primary" variant="soft" size="sm">
-                    {{ modules.filter(m => m.active).length }}/{{ modules.length }} Active
+                    {{ activeModulesCount }}/{{ availableModules.length }} Active
                 </UBadge>
             </template>
         </UDashboardNavbar>
@@ -120,23 +193,24 @@ const modules = ref<Module[]>([
                   
                   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div
-                          v-for="(module, index) in modules"
-                          :key="module.name"
+                          v-for="module in availableModules"
+                          :key="module.id"
                           class="group relative">
                           <div 
                               class="p-4 rounded-xl border transition-all duration-200"
                               :class="[
-                                  module.active 
+                                  isModuleEnabled(module.id)
                                       ? 'border-(--ui-border-accented) shadow-sm' 
                                       : 'border-(--ui-border) opacity-75',
                               ]">
                             <div class="flex items-center gap-2">
                                 <span class="text-gray-500 dark:text-gray-500">
-                                    {{ module.active ? 'Active' : 'Inactive' }}
+                                    {{ isModuleEnabled(module.id) ? 'Active' : 'Inactive' }}
                                 </span>
                                 <USwitch 
-                                    v-model="module.active"
-                                    :color="module.active ? 'success' : 'neutral'"
+                                    :model-value="isModuleEnabled(module.id)"
+                                    :color="isModuleEnabled(module.id) ? 'success' : 'neutral'"
+                                    @update:model-value="toggleModule(module.id)"
                                 />
                             </div>
                               <div class="flex items-start gap-3 mt-6">
@@ -144,7 +218,7 @@ const modules = ref<Module[]>([
                                       <UAvatar 
                                           :icon="module.icon" 
                                           size="lg"
-                                          :class="module.active ? 'ring-2 ring-(--ui-primary)' : ''"
+                                          :class="isModuleEnabled(module.id) ? 'ring-2 ring-(--ui-primary)' : ''"
                                       />
                                   </div>
                                   <div class="flex-1 min-w-0">
@@ -152,7 +226,7 @@ const modules = ref<Module[]>([
                                           <h4 class="font-semibold text-gray-900 dark:text-white truncate">{{ module.label }}</h4>
                                           <UBadge
                                               :color="module.price === 'Paid' ? 'primary' : 'success'"
-                                              :variant="module.active ? 'solid' : 'soft'"
+                                              :variant="isModuleEnabled(module.id) ? 'solid' : 'soft'"
                                               :icon="module.price === 'Paid' ? 'mdi:lock' : 'mdi:gift-outline'"
                                               :label="module.price"
                                               trailing

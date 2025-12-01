@@ -182,6 +182,20 @@ export interface UserSocialAccountInput {
   username: string;
 }
 
+export interface UserModule {
+  id: string;
+  user_id: string;
+  module_id: string;
+  is_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserModuleInput {
+  module_id: string;
+  is_enabled?: boolean | null;
+}
+
 // ==========================================
 // PMS (Project Management System) Types
 // ==========================================

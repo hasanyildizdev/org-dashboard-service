@@ -1,5 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
-import type { UserEducation, UserExperience, UserSkill, UserSocialAccount, Organization, Workspace, Project, ProjectDetail } from '~/types/core_types'
+import type { UserEducation, UserExperience, UserSkill, UserSocialAccount, UserModule, Organization, Workspace, Project, ProjectDetail } from '~/types/core_types'
 
 // Define the database schema
 interface AppDB extends DBSchema {
@@ -33,6 +33,15 @@ interface AppDB extends DBSchema {
     indexes: {
       'by-user': string
       'by-provider': string
+    }
+  }
+  userModules: {
+    key: string
+    value: UserModule
+    indexes: {
+      'by-user': string
+      'by-module': string
+      'by-enabled': number
     }
   }
   organizations: {
@@ -69,7 +78,7 @@ interface AppDB extends DBSchema {
 }
 
 const DB_NAME = 'ourganize-app-db'
-const DB_VERSION = 6 // Increased to add PMS stores
+const DB_VERSION = 7 // Increased to add userModules stores
 
 let dbInstance: IDBPDatabase<AppDB> | null = null
 
@@ -97,6 +106,9 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
         }
         if (db.objectStoreNames.contains('userSocialAccounts')) {
           db.deleteObjectStore('userSocialAccounts')
+        }
+        if (db.objectStoreNames.contains('userModules')) {
+          db.deleteObjectStore('userModules')
         }
         if (db.objectStoreNames.contains('organizations')) {
           db.deleteObjectStore('organizations')
@@ -147,6 +159,16 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
         socialAccountStore.createIndex('by-user', 'user_id')
         socialAccountStore.createIndex('by-provider', 'provider')
         
+        // Create user modules store
+        const moduleStore = db.createObjectStore('userModules', {
+          keyPath: 'id'
+        })
+        
+        // Create indexes for efficient querying
+        moduleStore.createIndex('by-user', 'user_id')
+        moduleStore.createIndex('by-module', 'module_id')
+        moduleStore.createIndex('by-enabled', 'is_enabled')
+        
         // Create organizations store
         const organizationStore = db.createObjectStore('organizations', {
           keyPath: 'id'
@@ -190,13 +212,14 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
  */
 export async function clearAllData(): Promise<void> {
   const db = await getDB()
-  const tx = db.transaction(['userEducations', 'userExperiences', 'userSkills', 'userSocialAccounts', 'organizations', 'workspaces', 'projects', 'projectDetails'], 'readwrite')
+  const tx = db.transaction(['userEducations', 'userExperiences', 'userSkills', 'userSocialAccounts', 'userModules', 'organizations', 'workspaces', 'projects', 'projectDetails'], 'readwrite')
   
   await Promise.all([
     tx.objectStore('userEducations').clear(),
     tx.objectStore('userExperiences').clear(),
     tx.objectStore('userSkills').clear(),
     tx.objectStore('userSocialAccounts').clear(),
+    tx.objectStore('userModules').clear(),
     tx.objectStore('organizations').clear(),
     tx.objectStore('workspaces').clear(),
     tx.objectStore('projects').clear(),
@@ -635,6 +658,111 @@ export async function getSocialAccountsByProvider(provider: string): Promise<Use
     return await db.getAllFromIndex('userSocialAccounts', 'by-provider', provider)
   } catch (error) {
     console.error('❌ Error getting social accounts by provider:', error)
+    return []
+  }
+}
+
+/* ============================================
+ * USER MODULES FUNCTIONS
+ * ============================================ */
+
+/**
+ * Get all user modules from IndexedDB
+ */
+export async function getAllUserModules(): Promise<UserModule[]> {
+  try {
+    const db = await getDB()
+    return await db.getAll('userModules')
+  } catch (error) {
+    console.error('❌ Error getting all user modules from IndexedDB:', error)
+    return []
+  }
+}
+
+/**
+ * Get user module by ID
+ */
+export async function getUserModuleById(id: string): Promise<UserModule | undefined> {
+  try {
+    const db = await getDB()
+    return await db.get('userModules', id)
+  } catch (error) {
+    console.error('❌ Error getting user module by ID:', error)
+    return undefined
+  }
+}
+
+/**
+ * Save all user modules (replaces existing data)
+ */
+export async function saveAllUserModules(modules: UserModule[]): Promise<void> {
+  try {
+    const db = await getDB()
+    const tx = db.transaction('userModules', 'readwrite')
+    
+    // Clear existing data
+    await tx.objectStore('userModules').clear()
+    
+    // Add all user modules
+    for (const module of modules) {
+      await tx.objectStore('userModules').put(module)
+    }
+    
+    await tx.done
+  } catch (error) {
+    console.error('❌ Error saving user modules to IndexedDB:', error)
+    throw error
+  }
+}
+
+/**
+ * Save single user module (create or update)
+ */
+export async function saveUserModule(module: UserModule): Promise<void> {
+  try {
+    const db = await getDB()
+    await db.put('userModules', module)
+  } catch (error) {
+    console.error('❌ Error saving user module to IndexedDB:', error)
+    throw error
+  }
+}
+
+/**
+ * Delete user module by ID
+ */
+export async function deleteUserModule(id: string): Promise<void> {
+  try {
+    const db = await getDB()
+    await db.delete('userModules', id)
+  } catch (error) {
+    console.error('❌ Error deleting user module from IndexedDB:', error)
+    throw error
+  }
+}
+
+/**
+ * Get user modules by user ID (using index)
+ */
+export async function getUserModulesByUserId(userId: string): Promise<UserModule[]> {
+  try {
+    const db = await getDB()
+    return await db.getAllFromIndex('userModules', 'by-user', userId)
+  } catch (error) {
+    console.error('❌ Error getting user modules by user ID:', error)
+    return []
+  }
+}
+
+/**
+ * Get enabled user modules (using index)
+ */
+export async function getEnabledUserModules(): Promise<UserModule[]> {
+  try {
+    const db = await getDB()
+    return await db.getAllFromIndex('userModules', 'by-enabled', 1)
+  } catch (error) {
+    console.error('❌ Error getting enabled user modules:', error)
     return []
   }
 }

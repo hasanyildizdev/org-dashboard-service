@@ -107,6 +107,19 @@ export const GET_USER_SOCIAL_ACCOUNTS = gql`
   }
 `
 
+export const GET_USER_MODULES = gql`
+  query GetUserModules {
+    userModules {
+      id
+      user_id
+      module_id
+      is_enabled
+      created_at
+      updated_at
+    }
+  }
+`
+
 // ==========================================
 // PMS (Project Management System) Queries
 // ==========================================

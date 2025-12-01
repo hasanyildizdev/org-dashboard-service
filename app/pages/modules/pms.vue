@@ -192,12 +192,6 @@ watch(() => organizationForm.value.name, (newName) => {
             <p class="mt-2 text-gray-500 dark:text-gray-400">
               Get started by creating your first organization
             </p>
-            <UButton
-              label="Create Organization"
-              icon="i-lucide-plus"
-              class="mt-6"
-              @click="openOrganizationModal"
-            />
           </div>
 
           <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

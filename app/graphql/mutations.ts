@@ -282,6 +282,38 @@ export const DELETE_USER_SOCIAL_ACCOUNT_MUTATION = gql`
   }
 `
 
+export const CREATE_USER_MODULE_MUTATION = gql`
+  mutation CreateUserModule($input: UserModuleInput!) {
+    createUserModule(input: $input) {
+      id
+      user_id
+      module_id
+      is_enabled
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const UPDATE_USER_MODULE_MUTATION = gql`
+  mutation UpdateUserModule($id: ID!, $input: UserModuleInput!) {
+    updateUserModule(id: $id, input: $input) {
+      id
+      user_id
+      module_id
+      is_enabled
+      created_at
+      updated_at
+    }
+  }
+`
+
+export const DELETE_USER_MODULE_MUTATION = gql`
+  mutation DeleteUserModule($id: ID!) {
+    deleteUserModule(id: $id)
+  }
+`
+
 // ==========================================
 // PMS (Project Management System) Mutations
 // ==========================================
