@@ -129,16 +129,16 @@ const groups: CommandPaletteGroup<CommandPaletteItem>[] = [
              to="/profile"
              :name="user?.name"
              :description="collapsed ? undefined : user?.profession?.name || 'User'"
-             :avatar="{
-               src: user?.avatar ?? '',
-             }"
+             :avatar="{src: user?.avatar ?? '' }"
              :class="[
                'px-2 py-1 rounded-md w-full hover:cursor-pointer',
                route.path === '/profile' ? 'text-primary bg-primary/10' : '',
                collapsed ? 'flex flex-col justify-center items-center gap-1 text-center text-sm leading-tight whitespace-normal break-words' : 'justify-start'
-             ]"
-             :block="collapsed"
-           />
+             ]">
+            <template #name>
+              <span :class="{ 'hidden': collapsed }">{{ user?.name }}</span>
+            </template>
+          </UUser>
         </template>
     </UDashboardSidebar>
 
