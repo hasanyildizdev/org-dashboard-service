@@ -33,7 +33,7 @@ const cvData = computed(() => ({
   contact: [
     { icon: 'i-heroicons-envelope', label: user.value?.email || '' },
     { icon: 'i-heroicons-phone', label: user.value?.phone || '' },
-    { icon: 'i-heroicons-map-pin', label: user.value?.city + ', ' + user.value?.country || '' }
+    { icon: 'i-heroicons-map-pin', label: [user.value?.city, user.value?.country].filter(Boolean).join(', ') }
   ],
 
   socials: socialAccountStore.userSocialAccounts.map(account => {
@@ -182,162 +182,158 @@ const cvData = computed(() => ({
 
         <!-- Content -->
         <div class="mt-8 grid gap-8 md:grid-cols-[1.6fr,1fr]">
-          <!-- Main column -->
-          <main class="space-y-8">
-            <!-- Experience -->
-            <UClientOnly>
-              <section class="mb-6">
-                <h2 class="section-title">
-                  Experience
-                </h2>
-                <ol class="mt-4 space-y-6 border-l border-slate-300 dark:border-slate-800/80 pl-5 transition-colors duration-300">
-                  <li
-                    v-for="exp in cvData.experiences"
-                    :key="exp.year"
-                    class="relative group"
-                  >
-                    <span
-                      v-if="exp.is_current"
-                      class="absolute -left-[9px] top-1 h-3 w-3 rounded-full border border-white dark:border-slate-900 bg-primary-500 shadow-[0_0_0_3px_rgba(59,130,246,0.35)] group-hover:shadow-[0_0_0_5px_rgba(59,130,246,0.5)] transition-shadow"
-                    />
-                    <div class="bg-slate-100 dark:bg-slate-800/30 rounded-lg p-4 -ml-2 border border-slate-300 dark:border-slate-800/50 group-hover:bg-slate-200 dark:group-hover:bg-slate-800/50 transition-colors duration-300">
-                      <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
-                        {{ exp.year }}
-                      </p>
-                      <p class="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-1">
-                        {{ exp.role }}
-                        <span class="text-slate-600 dark:text-slate-400"> · {{ exp.company }}</span>
-                      </p>
-                      <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                        {{ exp.description }}
-                      </p>
-                    </div>
-                  </li>
-                </ol>
-              </section>
-            </UClientOnly>
 
-            <!-- Projects -->
-            <section>
+          <!-- Experience -->
+          <UClientOnly>
+            <section class="mb-6">
               <h2 class="section-title">
-                Projects
+                Experience
               </h2>
-              <div class="mt-4 grid gap-4">
-                <UCard
-                  v-for="project in cvData.projects"
-                  :key="project.name"
-                  class="border-slate-300 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 group hover:border-slate-400 dark:hover:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-900/90 transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/40"
-                  :ui="{ body: 'p-4' }"
+              <ol class="mt-4 space-y-6 border-l border-slate-300 dark:border-slate-800/80 pl-5 transition-colors duration-300">
+                <li
+                  v-for="exp in cvData.experiences"
+                  :key="exp.year"
+                  class="relative group"
                 >
-                  <div class="flex flex-col gap-3">
-                    <div class="flex items-start justify-between gap-3">
-                      <p class="text-sm font-semibold text-slate-900 dark:text-slate-50 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors">
-                        {{ project.name }}
-                      </p>
-                      <UBadge
-                        size="xs"
-                        variant="subtle"
-                        class="whitespace-nowrap bg-slate-200 dark:bg-slate-800/80 text-[11px] text-slate-700 dark:text-slate-200 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/50 group-hover:text-primary-700 dark:group-hover:text-primary-200 transition-colors"
-                      >
-                        {{ project.tech }}
-                      </UBadge>
-                    </div>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {{ project.description }}
+                  <span
+                    v-if="exp.is_current"
+                    class="absolute -left-[9px] top-1 h-3 w-3 rounded-full border border-white dark:border-slate-900 bg-primary-500 shadow-[0_0_0_3px_rgba(59,130,246,0.35)] group-hover:shadow-[0_0_0_5px_rgba(59,130,246,0.5)] transition-shadow"
+                  />
+                  <div class="bg-slate-100 dark:bg-slate-800/30 rounded-lg p-4 -ml-2 border border-slate-300 dark:border-slate-800/50 group-hover:bg-slate-200 dark:group-hover:bg-slate-800/50 transition-colors duration-300">
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+                      {{ exp.year }}
                     </p>
-                    <a
-                      v-if="project.link"
-                      :href="project.link"
-                      target="_blank"
-                      class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 dark:text-primary-300 hover:text-primary-700 dark:hover:text-primary-200 hover:underline group-hover:translate-x-1 transition-all"
-                    >
-                      <span>{{ project.link }}</span>
-                      <UIcon
-                        name="i-heroicons-arrow-top-right-on-square-20-solid"
-                        class="h-3 w-3"
-                      />
-                    </a>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-1">
+                      {{ exp.role }}
+                      <span class="text-slate-600 dark:text-slate-400"> · {{ exp.company }}</span>
+                    </p>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                      {{ exp.description }}
+                    </p>
                   </div>
-                </UCard>
+                </li>
+              </ol>
+            </section>
+          </UClientOnly>
+
+          <!-- Skills -->
+          <UClientOnly>
+            <section class="mb-6">
+              <h2 class="section-title">
+                Skills
+              </h2>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <UBadge
+                  v-for="skill in cvData.skills"
+                  :key="skill.label"
+                  variant="soft"
+                  color="primary"
+                  class="bg-slate-200 dark:bg-slate-800/80 text-[11px] font-medium text-slate-700 dark:text-slate-50 hover:bg-primary-100 dark:hover:bg-primary-800/60 hover:text-primary-700 dark:hover:text-primary-100 hover:scale-105 transition-all duration-200 cursor-default"
+                >
+                  {{ skill.label }}
+                  <span
+                    v-if="skill.level"
+                    class="ml-1 text-[11px] font-normal text-slate-500 dark:text-slate-300"
+                  >
+                    · {{ skill.level }}
+                  </span>
+                </UBadge>
               </div>
             </section>
-          </main>
+          </UClientOnly>
+          
+          <!-- Education -->
+          <UClientOnly>
+            <section class="mb-6">
+              <h2 class="section-title">
+                Education
+              </h2>
+              <div class="mt-4 space-y-4">
+                <div
+                  v-for="edu in cvData.education"
+                  :key="edu.year"
+                  class="rounded-lg border border-slate-300 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 p-4 hover:border-slate-400 dark:hover:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-900/90 transition-all duration-300 group"
+                >
+                  <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+                    {{ edu.year }}
+                  </p>
+                  <p class="text-sm font-semibold text-slate-900 dark:text-slate-50 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors mb-1">
+                    {{ edu.degree }}
+                  </p>
+                  <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {{ edu.college }}
+                  </p>
+                </div>
+              </div>
+            </section>
+          </UClientOnly>
 
-          <!-- Sidebar -->
-          <aside class="space-y-8">
-            <!-- Skills -->
-            <UClientOnly>
-              <section class="mb-6">
-                <h2 class="section-title">
-                  Skills
-                </h2>
-                <div class="mt-4 flex flex-wrap gap-2">
-                  <UBadge
-                    v-for="skill in cvData.skills"
-                    :key="skill.label"
-                    variant="soft"
-                    color="primary"
-                    class="bg-slate-200 dark:bg-slate-800/80 text-[11px] font-medium text-slate-700 dark:text-slate-50 hover:bg-primary-100 dark:hover:bg-primary-800/60 hover:text-primary-700 dark:hover:text-primary-100 hover:scale-105 transition-all duration-200 cursor-default"
-                  >
-                    {{ skill.label }}
-                    <span
-                      v-if="skill.level"
-                      class="ml-1 text-[11px] font-normal text-slate-500 dark:text-slate-300"
+                    <!-- Projects -->
+          <section>
+            <h2 class="section-title">
+              Projects
+            </h2>
+            <div class="mt-4 grid gap-4">
+              <UCard
+                v-for="project in cvData.projects"
+                :key="project.name"
+                class="border-slate-300 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 group hover:border-slate-400 dark:hover:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-900/90 transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/40"
+                :ui="{ body: 'p-4' }"
+              >
+                <div class="flex flex-col gap-3">
+                  <div class="flex items-start justify-between gap-3">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-50 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors">
+                      {{ project.name }}
+                    </p>
+                    <UBadge
+                      size="xs"
+                      variant="subtle"
+                      class="whitespace-nowrap bg-slate-200 dark:bg-slate-800/80 text-[11px] text-slate-700 dark:text-slate-200 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/50 group-hover:text-primary-700 dark:group-hover:text-primary-200 transition-colors"
                     >
-                      · {{ skill.level }}
-                    </span>
-                  </UBadge>
-                </div>
-              </section>
-            </UClientOnly>
-            
-            <!-- Education -->
-            <UClientOnly>
-              <section class="mb-6">
-                <h2 class="section-title">
-                  Education
-                </h2>
-                <div class="mt-4 space-y-4">
-                  <div
-                    v-for="edu in cvData.education"
-                    :key="edu.year"
-                    class="rounded-lg border border-slate-300 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 p-4 hover:border-slate-400 dark:hover:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-900/90 transition-all duration-300 group"
-                  >
-                    <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
-                      {{ edu.year }}
-                    </p>
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-50 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors mb-1">
-                      {{ edu.degree }}
-                    </p>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {{ edu.college }}
-                    </p>
+                      {{ project.tech }}
+                    </UBadge>
                   </div>
-                </div>
-              </section>
-            </UClientOnly>
-            
-            <!-- Languages -->
-              <section>
-                <h2 class="section-title">
-                  Languages
-                </h2>
-                <div class="mt-4 space-y-3">
-                  <div
-                    v-for="lang in cvData.languages"
-                    :key="lang.name"
-                    class="flex items-center justify-between p-3 rounded-lg border border-slate-300 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 hover:border-slate-400 dark:hover:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-900/90 transition-all duration-300 group"
+                  <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {{ project.description }}
+                  </p>
+                  <a
+                    v-if="project.link"
+                    :href="project.link"
+                    target="_blank"
+                    class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 dark:text-primary-300 hover:text-primary-700 dark:hover:text-primary-200 hover:underline group-hover:translate-x-1 transition-all"
                   >
-                    <span class="text-xs font-medium text-slate-900 dark:text-slate-50 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors">
-                      {{ lang.name }}
-                    </span>
-                    <span class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
-                      {{ lang.level }}
-                    </span>
-                  </div>
+                    <span>{{ project.link }}</span>
+                    <UIcon
+                      name="i-heroicons-arrow-top-right-on-square-20-solid"
+                      class="h-3 w-3"
+                    />
+                  </a>
                 </div>
-              </section>
-            </aside>
+              </UCard>
+            </div>
+          </section>
+
+          <!-- Languages -->
+          <section>
+            <h2 class="section-title">
+              Languages
+            </h2>
+            <div class="mt-4 space-y-3">
+              <div
+                v-for="lang in cvData.languages"
+                :key="lang.name"
+                class="flex items-center justify-between p-3 rounded-lg border border-slate-300 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 hover:border-slate-400 dark:hover:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-900/90 transition-all duration-300 group"
+              >
+                <span class="text-xs font-medium text-slate-900 dark:text-slate-50 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors">
+                  {{ lang.name }}
+                </span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
+                  {{ lang.level }}
+                </span>
+              </div>
+            </div>
+          </section>
+
         </div>
       </UCard>
 

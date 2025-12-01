@@ -35,7 +35,7 @@ const cvData = computed(() => ({
   contact: [
     { icon: 'i-heroicons-envelope', label: user.value?.email || '' },
     { icon: 'i-heroicons-phone', label: user.value?.phone || '' },
-    { icon: 'i-heroicons-map-pin', label: user.value?.city + ', ' + user.value?.country || '' }
+    { icon: 'i-heroicons-map-pin', label: [user.value?.city, user.value?.country].filter(Boolean).join(', ') }
   ],
 
   socials: socialAccountStore.userSocialAccounts.map(account => {
@@ -144,7 +144,9 @@ const cvData = computed(() => ({
             size="3xl"
           />
           <div class="ml-auto text-right hidden md:block">
-            <p class="text-sm text-slate-600 dark:text-slate-500">{{ cvData.city + ', ' + cvData.country }}</p>
+            <p class="text-sm text-slate-600 dark:text-slate-500">
+              {{ [cvData.city, cvData.country].filter(Boolean).join(', ') }}
+            </p>
           </div>
         </div>
       </div>
