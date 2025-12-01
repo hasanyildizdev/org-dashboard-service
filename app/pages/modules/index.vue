@@ -203,44 +203,48 @@ const activeModulesCount = computed(() => {
                                       ? 'border-(--ui-border-accented) shadow-sm' 
                                       : 'border-(--ui-border) opacity-75',
                               ]">
-                            <div class="flex items-center gap-2">
-                                <span class="text-gray-500 dark:text-gray-500">
-                                    {{ isModuleEnabled(module.id) ? 'Active' : 'Inactive' }}
-                                </span>
-                                <USwitch 
-                                    :model-value="isModuleEnabled(module.id)"
-                                    :color="isModuleEnabled(module.id) ? 'success' : 'neutral'"
-                                    @update:model-value="toggleModule(module.id)"
+                            <div class="flex items-start gap-3">
+                              <div class="flex flex-col gap-2">
+                                <UBadge
+                                    :color="module.price === 'Paid' ? 'primary' : 'success'"
+                                    :variant="isModuleEnabled(module.id) ? 'solid' : 'soft'"
+                                    :icon="module.price === 'Paid' ? 'mdi:lock' : 'mdi:gift-outline'"
+                                    :label="module.price"
+                                    trailing
+                                    :ui="{ label: 'text-base'}"
                                 />
-                            </div>
-                              <div class="flex items-start gap-3 mt-6">
-                                  <div class="flex-shrink-0">
-                                      <UAvatar 
-                                          :icon="module.icon" 
-                                          size="lg"
-                                          :class="isModuleEnabled(module.id) ? 'ring-2 ring-(--ui-primary)' : ''"
-                                      />
-                                  </div>
-                                  <div class="flex-1 min-w-0">
-                                      <div class="flex items-center gap-2 mb-1">
-                                          <h4 class="font-semibold text-gray-900 dark:text-white truncate">{{ module.label }}</h4>
-                                          <UBadge
-                                              :color="module.price === 'Paid' ? 'primary' : 'success'"
-                                              :variant="isModuleEnabled(module.id) ? 'solid' : 'soft'"
-                                              :icon="module.price === 'Paid' ? 'mdi:lock' : 'mdi:gift-outline'"
-                                              :label="module.price"
-                                              trailing
-                                              :ui="{ label: 'text-base'}"
-                                          />
-                                      </div>
-                                      <h5 class="mt-4 font-semibold text-gray-900 dark:text-white truncate">{{ module.title }}</h5>
-                                      <ul class="pb-3.5 text-muted list-disc pl-6 mt-2">
-                                          <li v-for="(line, index) in module.desc" :key="index">
-                                              {{ line }}
-                                          </li>
-                                      </ul>
-                                  </div>
                               </div>
+                                <div class="flex-1 min-w-0">
+                                     <div class="flex justify-between">
+                                       <div class="flex items-center gap-2 mb-1">
+                                            <div class="flex-shrink-0">
+                                                <UAvatar 
+                                                    :icon="module.icon" 
+                                                    size="xl"
+                                                    :icon-size="24"
+                                                    :class="isModuleEnabled(module.id) ? 'ring-2 ring-(--ui-primary)' : ''"
+                                                />
+                                            </div>
+                                           <h4 class="font-semibold text-gray-900 dark:text-white truncate">{{ module.label }}</h4>
+                                       </div>
+                                        <div class="flex items-center gap-2">
+                                          <span class="text-gray-500 dark:text-gray-500">
+                                              {{ isModuleEnabled(module.id) ? 'Active' : 'Inactive' }}
+                                          </span>
+                                          <USwitch 
+                                              :model-value="isModuleEnabled(module.id)"
+                                              :color="isModuleEnabled(module.id) ? 'success' : 'neutral'"
+                                              @update:model-value="toggleModule(module.id)"/>
+                                        </div>
+                                     </div>
+                                    <h5 class="mt-4 font-semibold text-gray-900 dark:text-white truncate">{{ module.title }}</h5>
+                                    <ul class="pb-3.5 text-muted list-disc pl-6 mt-2">
+                                        <li v-for="(line, index) in module.desc" :key="index">
+                                            {{ line }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                           </div>
                       </div>
                   </div>
