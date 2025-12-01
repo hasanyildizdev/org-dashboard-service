@@ -68,11 +68,6 @@ const items: NavigationMenuItem[][] = [[
     to: '/help',
   },
   {
-    label: 'Settings',
-    icon: 'i-lucide-settings',
-    to: '/settings',
-  },
-  {
     label: 'Modules',
     icon: 'mdi:package-variant-closed-plus',
     to: '/modules',

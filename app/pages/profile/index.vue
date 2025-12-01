@@ -126,12 +126,21 @@ const profile_progress = computed(() => {
                     </div>
                     <div class="flex items-center gap-3">
                       <UButton 
+                        label="Settings" 
+                        icon="mdi:cog"
+                        color="primary"
+                        variant="soft"
+                        size="lg"
+                        trailing
+                        to="/settings"
+                      />
+                      <UButton 
                         label="Edit Profile" 
                         icon="i-lucide-user-pen"
                         color="primary"
                         variant="soft"
                         size="lg"
-                        block
+                        trailing
                         to="/profile/edit"
                       />
                       <UButton 
@@ -141,7 +150,6 @@ const profile_progress = computed(() => {
                         color="error"
                         variant="soft"
                         size="lg"
-                        block
                         @click="useAuthStore().logout"
                       />
                     </div>
