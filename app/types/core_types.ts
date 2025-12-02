@@ -182,55 +182,9 @@ export interface UserSocialAccountInput {
   username: string;
 }
 
-export interface UserModule {
-  id: string;
-  user_id: string;
-  module_id: string;
-  is_enabled: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface UserModuleInput {
-  module_id: string;
-  is_enabled?: boolean | null;
-}
-
 // ==========================================
 // PMS (Project Management System) Types
 // ==========================================
-
-export interface Organization {
-  id: string;
-  user_id: string;
-  name: string;
-  slug: string;
-  created_at?: string;
-  updated_at?: string;
-  workspaces?: Workspace[];
-}
-
-export interface OrganizationInput {
-  name: string;
-  slug?: string;
-}
-
-export interface Workspace {
-  id: string;
-  organization_id: string;
-  name: string;
-  description: string | null;
-  created_at?: string;
-  updated_at?: string;
-  organization?: Organization;
-  projects?: Project[];
-}
-
-export interface WorkspaceInput {
-  organization_id: string;
-  name: string;
-  description?: string | null;
-}
 
 export interface Project {
   id: string;
@@ -244,7 +198,6 @@ export interface Project {
   end_date: string | null;
   created_at?: string;
   updated_at?: string;
-  workspace?: Workspace;
   project_detail?: ProjectDetail;
 }
 

@@ -1,5 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
-import type { UserEducation, UserExperience, UserSkill, UserSocialAccount, UserModule, Organization, Workspace, Project, ProjectDetail } from '~/types/core_types'
+import type { UserEducation, UserExperience, UserSkill, UserSocialAccount, Project, ProjectDetail } from '~/types/core_types'
 
 // Define the database schema
 interface AppDB extends DBSchema {
@@ -35,35 +35,10 @@ interface AppDB extends DBSchema {
       'by-provider': string
     }
   }
-  userModules: {
-    key: string
-    value: UserModule
-    indexes: {
-      'by-user': string
-      'by-module': string
-      'by-enabled': number
-    }
-  }
-  organizations: {
-    key: string
-    value: Organization
-    indexes: {
-      'by-user': string
-      'by-slug': string
-    }
-  }
-  workspaces: {
-    key: string
-    value: Workspace
-    indexes: {
-      'by-organization': string
-    }
-  }
   projects: {
     key: string
     value: Project
     indexes: {
-      'by-workspace': string
       'by-status': string
       'by-featured': number
     }
@@ -78,7 +53,7 @@ interface AppDB extends DBSchema {
 }
 
 const DB_NAME = 'ourganize-app-db'
-const DB_VERSION = 7 // Increased to add userModules stores
+const DB_VERSION = 6 // Increased to add projects stores
 
 let dbInstance: IDBPDatabase<AppDB> | null = null
 
@@ -106,15 +81,6 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
         }
         if (db.objectStoreNames.contains('userSocialAccounts')) {
           db.deleteObjectStore('userSocialAccounts')
-        }
-        if (db.objectStoreNames.contains('userModules')) {
-          db.deleteObjectStore('userModules')
-        }
-        if (db.objectStoreNames.contains('organizations')) {
-          db.deleteObjectStore('organizations')
-        }
-        if (db.objectStoreNames.contains('workspaces')) {
-          db.deleteObjectStore('workspaces')
         }
         if (db.objectStoreNames.contains('projects')) {
           db.deleteObjectStore('projects')
@@ -159,34 +125,10 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
         socialAccountStore.createIndex('by-user', 'user_id')
         socialAccountStore.createIndex('by-provider', 'provider')
         
-        // Create user modules store
-        const moduleStore = db.createObjectStore('userModules', {
-          keyPath: 'id'
-        })
-        
-        // Create indexes for efficient querying
-        moduleStore.createIndex('by-user', 'user_id')
-        moduleStore.createIndex('by-module', 'module_id')
-        moduleStore.createIndex('by-enabled', 'is_enabled')
-        
-        // Create organizations store
-        const organizationStore = db.createObjectStore('organizations', {
-          keyPath: 'id'
-        })
-        organizationStore.createIndex('by-user', 'user_id')
-        organizationStore.createIndex('by-slug', 'slug')
-        
-        // Create workspaces store
-        const workspaceStore = db.createObjectStore('workspaces', {
-          keyPath: 'id'
-        })
-        workspaceStore.createIndex('by-organization', 'organization_id')
-        
         // Create projects store
         const projectStore = db.createObjectStore('projects', {
           keyPath: 'id'
         })
-        projectStore.createIndex('by-workspace', 'workspace_id')
         projectStore.createIndex('by-status', 'status')
         projectStore.createIndex('by-featured', 'is_featured')
         
@@ -212,16 +154,13 @@ export async function getDB(): Promise<IDBPDatabase<AppDB>> {
  */
 export async function clearAllData(): Promise<void> {
   const db = await getDB()
-  const tx = db.transaction(['userEducations', 'userExperiences', 'userSkills', 'userSocialAccounts', 'userModules', 'organizations', 'workspaces', 'projects', 'projectDetails'], 'readwrite')
+  const tx = db.transaction(['userEducations', 'userExperiences', 'userSkills', 'userSocialAccounts', 'projects', 'projectDetails'], 'readwrite')
   
   await Promise.all([
     tx.objectStore('userEducations').clear(),
     tx.objectStore('userExperiences').clear(),
     tx.objectStore('userSkills').clear(),
     tx.objectStore('userSocialAccounts').clear(),
-    tx.objectStore('userModules').clear(),
-    tx.objectStore('organizations').clear(),
-    tx.objectStore('workspaces').clear(),
     tx.objectStore('projects').clear(),
     tx.objectStore('projectDetails').clear(),
     tx.done
@@ -663,239 +602,6 @@ export async function getSocialAccountsByProvider(provider: string): Promise<Use
 }
 
 /* ============================================
- * USER MODULES FUNCTIONS
- * ============================================ */
-
-/**
- * Get all user modules from IndexedDB
- */
-export async function getAllUserModules(): Promise<UserModule[]> {
-  try {
-    const db = await getDB()
-    return await db.getAll('userModules')
-  } catch (error) {
-    console.error('❌ Error getting all user modules from IndexedDB:', error)
-    return []
-  }
-}
-
-/**
- * Get user module by ID
- */
-export async function getUserModuleById(id: string): Promise<UserModule | undefined> {
-  try {
-    const db = await getDB()
-    return await db.get('userModules', id)
-  } catch (error) {
-    console.error('❌ Error getting user module by ID:', error)
-    return undefined
-  }
-}
-
-/**
- * Save all user modules (replaces existing data)
- */
-export async function saveAllUserModules(modules: UserModule[]): Promise<void> {
-  try {
-    const db = await getDB()
-    const tx = db.transaction('userModules', 'readwrite')
-    
-    // Clear existing data
-    await tx.objectStore('userModules').clear()
-    
-    // Add all user modules
-    for (const module of modules) {
-      await tx.objectStore('userModules').put(module)
-    }
-    
-    await tx.done
-  } catch (error) {
-    console.error('❌ Error saving user modules to IndexedDB:', error)
-    throw error
-  }
-}
-
-/**
- * Save single user module (create or update)
- */
-export async function saveUserModule(module: UserModule): Promise<void> {
-  try {
-    const db = await getDB()
-    await db.put('userModules', module)
-  } catch (error) {
-    console.error('❌ Error saving user module to IndexedDB:', error)
-    throw error
-  }
-}
-
-/**
- * Delete user module by ID
- */
-export async function deleteUserModule(id: string): Promise<void> {
-  try {
-    const db = await getDB()
-    await db.delete('userModules', id)
-  } catch (error) {
-    console.error('❌ Error deleting user module from IndexedDB:', error)
-    throw error
-  }
-}
-
-/**
- * Get user modules by user ID (using index)
- */
-export async function getUserModulesByUserId(userId: string): Promise<UserModule[]> {
-  try {
-    const db = await getDB()
-    return await db.getAllFromIndex('userModules', 'by-user', userId)
-  } catch (error) {
-    console.error('❌ Error getting user modules by user ID:', error)
-    return []
-  }
-}
-
-/**
- * Get enabled user modules (using index)
- */
-export async function getEnabledUserModules(): Promise<UserModule[]> {
-  try {
-    const db = await getDB()
-    return await db.getAllFromIndex('userModules', 'by-enabled', 1)
-  } catch (error) {
-    console.error('❌ Error getting enabled user modules:', error)
-    return []
-  }
-}
-
-/* ============================================
- * PMS - ORGANIZATIONS FUNCTIONS
- * ============================================ */
-
-export async function getAllOrganizations(): Promise<Organization[]> {
-  try {
-    const db = await getDB()
-    return await db.getAll('organizations')
-  } catch (error) {
-    console.error('❌ Error getting organizations:', error)
-    return []
-  }
-}
-
-export async function getOrganizationById(id: string): Promise<Organization | undefined> {
-  try {
-    const db = await getDB()
-    return await db.get('organizations', id)
-  } catch (error) {
-    console.error('❌ Error getting organization:', error)
-    return undefined
-  }
-}
-
-export async function saveAllOrganizations(organizations: Organization[]): Promise<void> {
-  try {
-    const db = await getDB()
-    const tx = db.transaction('organizations', 'readwrite')
-    await tx.objectStore('organizations').clear()
-    for (const org of organizations) {
-      await tx.objectStore('organizations').put(org)
-    }
-    await tx.done
-  } catch (error) {
-    console.error('❌ Error saving organizations:', error)
-    throw error
-  }
-}
-
-export async function saveOrganization(organization: Organization): Promise<void> {
-  try {
-    const db = await getDB()
-    await db.put('organizations', organization)
-  } catch (error) {
-    console.error('❌ Error saving organization:', error)
-    throw error
-  }
-}
-
-export async function deleteOrganization(id: string): Promise<void> {
-  try {
-    const db = await getDB()
-    await db.delete('organizations', id)
-  } catch (error) {
-    console.error('❌ Error deleting organization:', error)
-    throw error
-  }
-}
-
-/* ============================================
- * PMS - WORKSPACES FUNCTIONS
- * ============================================ */
-
-export async function getAllWorkspaces(): Promise<Workspace[]> {
-  try {
-    const db = await getDB()
-    return await db.getAll('workspaces')
-  } catch (error) {
-    console.error('❌ Error getting workspaces:', error)
-    return []
-  }
-}
-
-export async function getWorkspaceById(id: string): Promise<Workspace | undefined> {
-  try {
-    const db = await getDB()
-    return await db.get('workspaces', id)
-  } catch (error) {
-    console.error('❌ Error getting workspace:', error)
-    return undefined
-  }
-}
-
-export async function getWorkspacesByOrganizationId(organizationId: string): Promise<Workspace[]> {
-  try {
-    const db = await getDB()
-    return await db.getAllFromIndex('workspaces', 'by-organization', organizationId)
-  } catch (error) {
-    console.error('❌ Error getting workspaces by organization:', error)
-    return []
-  }
-}
-
-export async function saveAllWorkspaces(workspaces: Workspace[]): Promise<void> {
-  try {
-    const db = await getDB()
-    const tx = db.transaction('workspaces', 'readwrite')
-    await tx.objectStore('workspaces').clear()
-    for (const workspace of workspaces) {
-      await tx.objectStore('workspaces').put(workspace)
-    }
-    await tx.done
-  } catch (error) {
-    console.error('❌ Error saving workspaces:', error)
-    throw error
-  }
-}
-
-export async function saveWorkspace(workspace: Workspace): Promise<void> {
-  try {
-    const db = await getDB()
-    await db.put('workspaces', workspace)
-  } catch (error) {
-    console.error('❌ Error saving workspace:', error)
-    throw error
-  }
-}
-
-export async function deleteWorkspace(id: string): Promise<void> {
-  try {
-    const db = await getDB()
-    await db.delete('workspaces', id)
-  } catch (error) {
-    console.error('❌ Error deleting workspace:', error)
-    throw error
-  }
-}
-
-/* ============================================
  * PMS - PROJECTS FUNCTIONS
  * ============================================ */
 
@@ -916,16 +622,6 @@ export async function getProjectById(id: string): Promise<Project | undefined> {
   } catch (error) {
     console.error('❌ Error getting project:', error)
     return undefined
-  }
-}
-
-export async function getProjectsByWorkspaceId(workspaceId: string): Promise<Project[]> {
-  try {
-    const db = await getDB()
-    return await db.getAllFromIndex('projects', 'by-workspace', workspaceId)
-  } catch (error) {
-    console.error('❌ Error getting projects by workspace:', error)
-    return []
   }
 }
 
