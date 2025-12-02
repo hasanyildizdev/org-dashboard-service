@@ -227,62 +227,25 @@ watch(() => organizationForm.value.name, (newName) => {
               <template #footer>
                 <div class="flex justify-between items-center">
                   <UButton
-                    label="View"
-                    variant="soft"
+                    icon="i-lucide-pencil"
+                    variant="ghost"
                     size="sm"
-                    icon="i-lucide-eye"
+                    square
+                    @click="editOrganization(org.id)"
                   />
-                  <div class="flex gap-2">
-                    <UButton
-                      icon="i-lucide-pencil"
-                      variant="ghost"
-                      size="sm"
-                      square
-                      @click="editOrganization(org.id)"
-                    />
-                    <UButton
-                      icon="i-lucide-trash-2"
-                      variant="ghost"
-                      color="error"
-                      size="sm"
-                      square
-                      @click="confirmDelete(org.id)"
-                    />
-                  </div>
+                  <UButton
+                    icon="i-lucide-trash-2"
+                    variant="ghost"
+                    color="error"
+                    size="sm"
+                    square
+                    @click="confirmDelete(org.id)"
+                  />
                 </div>
               </template>
             </UCard>
           </div>
         </ClientOnly>
-
-        <!-- Coming Soon Section -->
-        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <UCard>
-            <template #header>
-              <div class="flex items-center gap-3">
-                <UIcon name="i-lucide-layers" class="w-6 h-6 text-blue-500" />
-                <h3 class="font-semibold">Workspaces</h3>
-              </div>
-            </template>
-            <p class="text-gray-500 dark:text-gray-400">
-              Organize your projects into workspaces within organizations.
-            </p>
-            <UBadge color="info" variant="soft" class="mt-4">Coming Soon</UBadge>
-          </UCard>
-
-          <UCard>
-            <template #header>
-              <div class="flex items-center gap-3">
-                <UIcon name="i-lucide-folder-kanban" class="w-6 h-6 text-purple-500" />
-                <h3 class="font-semibold">Projects</h3>
-              </div>
-            </template>
-            <p class="text-gray-500 dark:text-gray-400">
-              Manage projects with tasks, timelines, and team collaboration.
-            </p>
-            <UBadge color="primary" variant="soft" class="mt-4">Coming Soon</UBadge>
-          </UCard>
-        </div>
       </UContainer>
     </template>
   </UDashboardPanel>
