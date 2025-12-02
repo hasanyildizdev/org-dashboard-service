@@ -47,7 +47,7 @@ useHead({
 const items: NavigationMenuItem[][] = [[
 {
   label: 'Home',
-  icon: 'mdi:ship-wheel',
+  icon: 'mdi:compass-outline',
   to: '/'
 },
 {
@@ -57,7 +57,7 @@ const items: NavigationMenuItem[][] = [[
 },
 {
   label: 'PMS',
-  icon: 'mdi:compass-outline',
+  icon: 'mdi:ship-wheel',
   to: '/pms'
 },
 ], 
